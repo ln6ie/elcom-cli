@@ -19,15 +19,7 @@ import { WalkingCharacter } from '../components/WalkingCharacter';
 import { useRef, useEffect, useState } from 'react';
 import { COLORS, FONTS } from '../constants/theme';
 import { MODEL_PRESETS } from '../constants/models';
-
-const WELCOME_BANNER = `
- _____ _     ____ ___  __  __ 
- | ____| |   / ___/ _ \\|  \\/  |
- |  _| | |  | |  | | | | |\\/| |
- | |___| |__| |__| |_| | |  | |
- |_____|_____\\____\\___/|_|  |_|
-        CLI AI v1.0.0
-`;
+import { AppBrand } from '../components/AppBrand';
 
 interface ChatScreenProps {
   conversationId: string;
@@ -96,7 +88,7 @@ export const ChatScreen = ({ conversationId, userName, customModels, onCommand }
         </View>
       )}
       <View style={styles.headerWrap}>
-        <Text style={styles.bannerText}>{WELCOME_BANNER}</Text>
+        <AppBrand fontSize={7} style={{ marginBottom: 16 }} />
         <Text style={styles.readyText}>SYSTEM READY... [2026-04-03]</Text>
         <View style={styles.divider} />
         <Text style={styles.connectionText}>

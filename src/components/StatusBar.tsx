@@ -22,7 +22,6 @@ export const StatusBar = ({ title = 'ELCOM_CLI', subtitle = 'ONLINE', style }: S
         <Text style={styles.title}>{title}</Text>
         <Text style={styles.separator}> // </Text>
         <Text style={styles.subtitle}>{subtitle}</Text>
-        <View style={styles.cursor} />
       </View>
     </View>
   );
@@ -57,12 +56,6 @@ const styles = StyleSheet.create({
     color: COLORS.success,
     fontFamily: FONTS.mono,
     fontSize: 10,
-  },
-  cursor: {
-    marginLeft: 2,
-    backgroundColor: COLORS.primary,
-    width: 8,
-    height: 16,
   },
   right: {
     flexDirection: 'row',

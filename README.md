@@ -58,7 +58,7 @@
 *   `src/hooks/useChat.ts`: المحرك الرئيسي لإدارة البث والذاكرة.
 *   `src/services/openrouter.ts`: طبقة التواصل مع الذكاء الاصطناعي (SSE & Multi-modal).
 *   `src/services/database.ts`: معالجة البيانات عبر SQLite.
-*   `src/components/CliNotification.tsx`: نظام الإشعارات الذكي المتوافق مع مساحات الأمان.
+*   `src/components/CliNotification.tsx`: نظام الإشعارات المتوافق مع مساحات الأمان.
 *   `src/constants/prompts.ts`: تعريف الشخصية التقنية الثابتة للتطبيق.
 
 ---
