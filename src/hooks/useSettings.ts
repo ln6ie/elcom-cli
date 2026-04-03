@@ -55,10 +55,18 @@ export const useSettings = () => {
 
   const addCustomModel = async (id: string, name: string) => {
     try {
+      if (customModels.some(m => m.id === id)) return;
       await database.addCustomModel(db, id, name);
       setCustomModels((prev) => [{ id, name }, ...prev]);
-    } catch (error) {
-      console.error('useSettings: Add model failed', error);
+    } catch (error: any) {
+      if (error?.message?.includes('UNIQUE constraint failed')) {
+        console.log('useSettings: Model already exists in DB');
+        // Refresh custom models list just to be safe
+        const models = await database.getCustomModels(db);
+        setCustomModels(models);
+      } else {
+        console.error('useSettings: Add model failed', error);
+      }
     }
   };
 

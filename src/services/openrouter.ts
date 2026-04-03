@@ -80,10 +80,14 @@ export const openRouterClient = {
           if (delta) {
             // Handle content, reasoning and tool calls (search results synthesized by OR)
             if (delta.content || delta.reasoning || delta.thought) {
-              queue.push({ 
-                content: delta.content, 
-                reasoning: delta.reasoning || delta.thought 
-              });
+              const rText = delta.reasoning || delta.thought;
+              const updateObj: StreamUpdate = { content: delta.content };
+              
+              if (rText && typeof rText === 'string') {
+                 updateObj.reasoning = rText;
+              }
+              
+              queue.push(updateObj);
             } else if (delta.tool_calls && !searchingReported) {
               searchingReported = true;
               // Signal search activity
@@ -98,8 +102,28 @@ export const openRouterClient = {
     };
 
     const onError = (event: any) => {
-      console.error('SSE Error:', event);
-      queue.push(new Error('SSE_STREAM_FAILED'));
+      let errorMsg = 'CONNECTION_FAILED_OR_TIMEOUT';
+      try {
+        if (event.message) {
+          const parsed = JSON.parse(event.message);
+          if (parsed.error?.metadata?.raw) {
+            try {
+              const rawParsed = JSON.parse(parsed.error.metadata.raw);
+              errorMsg = rawParsed.error?.message || parsed.error.metadata.raw;
+            } catch (e) {
+              errorMsg = parsed.error.metadata.raw;
+            }
+          } else if (parsed.error?.message) {
+            errorMsg = parsed.error.message;
+          }
+        } else if (event.type === 'error' && event.xhrStatus) {
+          errorMsg = `HTTP_ERROR_${event.xhrStatus}`;
+        }
+      } catch (e) {
+        // Fallback
+      }
+      console.error('SSE Error Parsed:', errorMsg);
+      queue.push(new Error(errorMsg));
       resolveNext?.();
     };
 
