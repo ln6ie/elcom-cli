@@ -1,39 +1,66 @@
-# ElcomCLI
+# ElcomCLI v1.5.0 
 
-Mobile CLI-style AI chat application built with React Native and Expo.
+**ElcomCLI** هو تطبيق دردشة ذكاء اصطناعي ثوري يعتمد على واجهة سطر الأوامر (Terminal CLI) للهواتف المحمولة. تم تصميمه ليكون سريعاً، تقنياً، وبسيطاً في آن واحد، مع التركيز على "الهوية البرمجية" والخصوصية.
 
-## Tech Stack
-- **Framework**: Expo SDK 55
-- **Styling**: NativeWind v5 (Tailwind CSS v4)
-- **API**: OpenRouter (LLM)
-- **Icons**: Lucide React Native
-- **Storage**: AsyncStorage
-- **Animation**: React Native Reanimated
+---
 
-## Features
-- Sharp, brutalist terminal aesthetic
-- Secure local API key storage
-- OpenRouter reasoning support
-- Monospace-only typography (SpaceMono)
-- Dynamic thinking indicators
+## 🛠️ المعمارية التقنية (Tech Stack)
 
-## Getting Started
-1. Install dependencies:
-   ```bash
-   pnpm install
-   ```
-2. Start the development server:
-   ```bash
-   pnpm start
-   ```
-3. Open on your device or emulator.
-4. Obtain an API key from [openrouter.ai](https://openrouter.ai/keys) and enter it in the setup screen.
+*   **Framework**: Expo SDK 52 (React Native)
+*   **Database**: `expo-sqlite` (معالجة محلية سريعة لآلاف الرسائل)
+*   **API**: OpenRouter (دعم كافة الموديلات العالمية)
+*   **AI Personality**: برومت داخلي ثابت باللغة العربية لضمان هوية ElcomCLI التقنية.
+*   **Media Support**: دعم إرسال الصور (JPEG/PNG) وملفات الـ PDF (Multi-modal).
+*   **Safe Area**: دعم كامل للشاشات ذات النوتش (Notched displays) في الإشعارات.
 
-## Project Structure
-- `src/constants/`: Theme and configuration constants.
-- `src/types/`: TypeScript definitions and Zod schemas.
-- `src/services/`: API client and storage utilities.
-- `src/hooks/`: Business logic and state management.
-- `src/components/`: Reusable UI components.
-- `src/screens/`: Main application screens (Setup, Chat).
-- `global.css`: Tailwind CSS v4 styling rules.
+---
+
+##  أوامر سطر الأوامر (CLI Commands)
+
+بدلاً من القوائم التقليدية، يعتمد التطبيق على نظام الأوامر السريع. يمكنك كتابة الأوامر التالية في حقل الإدخال:
+
+| الأمر | الوظيفة |
+| :--- | :--- |
+| `/chat` | بدء جلسة دردشة جديدة فوراً. |
+| `/history` | الانتقال إلى الأرشيف (سجل المحادثات السابقة). |
+| `/settings` | فتح لوحة التحكم (الإعدادات، API Key، الموديلات). |
+| `/clear` | مسح كافة الرسائل في الجلسة الحالية (WIPE). |
+| `/model <model_id>` | تغيير موديل الذكاء الاصطناعي المستخدم بسرعة. |
+
+---
+
+##  المميزات الرئيسية
+
+1.  **Stop Streaming**: يمكنك إيقاف رد الذكاء الاصطناعي في أي لحظة عبر زر الإيقاف التفاعلي.
+2.  **Pagination Memory**: تحميل ذكي للمحادثات الطويلة (أكثر من 1000 رسالة) دون التأثير على سرعة التطبيق.
+3.  **Local History**: تخزين مشفر ومحلي لكافة محادثاتك وسجلات الدخول.
+4.  **Terminal Aesthetics**: تصميم Brutalist يعتمد حصرياً على خطوط الـ Monospace وألوان Zinc/Primary.
+5.  **Multi-modal Content**: إرسال وتحليل الصور والمستندات التقنية (PDF).
+
+---
+
+##  البدء في الاستخدام
+
+1.  قم بتثبيت التبعات البرمجية:
+    ```bash
+    pnpm install
+    ```
+2.  قم بتشغيل خادم التطوير:
+    ```bash
+    pnpm start
+    ```
+3.  ادخل إلى قسم `Settings` لضبط مفتاح الـ **API Key** الخاص بك من [OpenRouter](https://openrouter.ai).
+
+---
+
+## هيكلية المشروع (Project Structure)
+
+*   `src/hooks/useChat.ts`: المحرك الرئيسي لإدارة البث والذاكرة.
+*   `src/services/openrouter.ts`: طبقة التواصل مع الذكاء الاصطناعي (SSE & Multi-modal).
+*   `src/services/database.ts`: معالجة البيانات عبر SQLite.
+*   `src/components/CliNotification.tsx`: نظام الإشعارات الذكي المتوافق مع مساحات الأمان.
+*   `src/constants/prompts.ts`: تعريف الشخصية التقنية الثابتة للتطبيق.
+
+---
+
+**ElcomCLI** - تم تطويره بواسطة **Elcom Lab** لتقديم تجربة دردشة تقنية غير مسبوقة.

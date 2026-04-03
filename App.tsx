@@ -43,19 +43,28 @@ function AppContent() {
     SpaceMono_700Bold,
   });
 
-  // Handle first-time setup or no API key
+  // Handle first-time setup or no API key and resume last session
   useEffect(() => {
-    if (!isSettingsLoading) {
-      if (!settings.api_key) {
-        setCurrentScreen('setup');
-      } else if (!activeConvId) {
-        // Auto-create initial conversation if none active
-        const newId = Crypto.randomUUID();
-        database.createConversation(db, newId, 'INITIAL_SESSION', settings.selected_model);
-        setActiveConvId(newId);
-        setCurrentScreen('chat');
+    const initSession = async () => {
+      if (isSettingsLoading || !settings.api_key || !db) return;
+
+      if (!activeConvId) {
+        const history = await database.getAllConversations(db);
+        if (history && history.length > 0) {
+          // Resume most recent session
+          setActiveConvId((history[0] as any).id);
+          setCurrentScreen('chat');
+        } else {
+          // Auto-create initial conversation if none exists
+          const newId = Crypto.randomUUID();
+          await database.createConversation(db, newId, 'INITIAL_SESSION', settings.selected_model);
+          setActiveConvId(newId);
+          setCurrentScreen('chat');
+        }
       }
-    }
+    };
+    
+    initSession();
   }, [isSettingsLoading, settings.api_key, db]);
 
   useEffect(() => {
@@ -107,41 +116,51 @@ function AppContent() {
   if (isSettingsLoading) return null;
 
   const renderScreen = () => {
-    if (!settings.api_key || currentScreen === 'setup') {
-      return <SetupScreen onConnect={(key) => updateSetting('api_key', key)} />;
-    }
+    const isSetup = !settings.api_key || currentScreen === 'setup';
+    
+    return (
+      <View style={styles.flex1}>
+        {/* Chat Screen stays mounted in background if not in setup */}
+        {!isSetup && activeConvId && (
+          <View style={[styles.flex1, currentScreen !== 'chat' && styles.hidden]}>
+            <ChatScreen 
+              conversationId={activeConvId} 
+              userName={settings.user_name}
+              customModels={customModels}
+              onCommand={handleCommand}
+            />
+          </View>
+        )}
 
-    switch (currentScreen) {
-      case 'history':
-        return (
-          <HistoryScreen 
-            onSelect={(id) => { setActiveConvId(id); setCurrentScreen('chat'); }} 
-            onBack={() => setCurrentScreen('chat')}
-            onNew={() => handleCommand('new', [])}
-          />
-        );
-      case 'settings':
-        return (
-          <SettingsScreen 
-            settings={settings} 
-            customModels={customModels}
-            onSave={updateMultipleSettings}
-            onAddCustomModel={addCustomModel}
-            onRemoveCustomModel={removeCustomModel}
-            onRenameCustomModel={renameCustomModel}
-            onBack={() => setCurrentScreen('chat')}
-          />
-        );
-      case 'chat':
-      default:
-        return activeConvId ? (
-          <ChatScreen 
-            conversationId={activeConvId} 
-            customModels={customModels}
-            onCommand={handleCommand}
-          />
-        ) : null;
-    }
+        {isSetup && (
+          <SetupScreen onConnect={(key) => updateSetting('api_key', key)} />
+        )}
+
+        {currentScreen === 'history' && (
+          <View style={StyleSheet.absoluteFill}>
+            <HistoryScreen 
+              onSelect={(id) => { setActiveConvId(id); setCurrentScreen('chat'); }} 
+              onBack={() => setCurrentScreen('chat')}
+              onNew={() => handleCommand('new', [])}
+            />
+          </View>
+        )}
+
+        {currentScreen === 'settings' && (
+          <View style={StyleSheet.absoluteFill}>
+            <SettingsScreen 
+              settings={settings} 
+              customModels={customModels}
+              onSave={updateMultipleSettings}
+              onAddCustomModel={addCustomModel}
+              onRemoveCustomModel={removeCustomModel}
+              onRenameCustomModel={renameCustomModel}
+              onBack={() => setCurrentScreen('chat')}
+            />
+          </View>
+        )}
+      </View>
+    );
   };
 
   return (
@@ -166,5 +185,14 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
     backgroundColor: COLORS.background,
+  },
+  flex1: {
+    flex: 1,
+  },
+  hidden: {
+    width: 0,
+    height: 0,
+    opacity: 0,
+    overflow: 'hidden',
   },
 });

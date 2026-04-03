@@ -1,6 +1,8 @@
-import React from 'react';
-import { StyleSheet, View, Text, ScrollView, Platform } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import Markdown from 'react-native-markdown-display';
+import * as Clipboard from 'expo-clipboard';
+import { Copy, Check } from 'lucide-react-native';
 import { COLORS, FONTS } from '../constants/theme';
 
 interface MarkdownViewProps {
@@ -14,6 +16,13 @@ const isArabic = (text: string) => {
 
 export const MarkdownView = ({ content }: MarkdownViewProps) => {
   const rtl = isArabic(content);
+  const [copiedKey, setCopiedKey] = useState<string | null>(null);
+
+  const handleCopyCode = async (code: string, key: string) => {
+    await Clipboard.setStringAsync(code);
+    setCopiedKey(key);
+    setTimeout(() => setCopiedKey(null), 2000);
+  };
 
   return (
     <View style={[styles.container, rtl && styles.rtlContainer]}>
@@ -27,7 +36,19 @@ export const MarkdownView = ({ content }: MarkdownViewProps) => {
           ),
           fence: (node, children, parent, styles) => (
             <View key={node.key} style={styles.codeBlock}>
-              <Text style={styles.codeLang}>[{node.attributes.language || 'CODE'}]</Text>
+              <View style={styles.codeHeader}>
+                <Text style={styles.codeLang}>[{node.attributes.language || 'CODE'}]</Text>
+                <TouchableOpacity 
+                  onPress={() => handleCopyCode(node.content.trim(), node.key)}
+                  style={styles.copyBtn}
+                >
+                  {copiedKey === node.key ? (
+                    <Check size={14} color={COLORS.success} />
+                  ) : (
+                    <Copy size={14} color={COLORS.primaryDim} />
+                  )}
+                </TouchableOpacity>
+              </View>
               <Text style={styles.codeText}>{node.content.trim()}</Text>
             </View>
           ),
@@ -119,13 +140,23 @@ const markdownStyles: any = {
     marginVertical: 12,
     width: '100%',
   },
+  codeHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255,255,255,0.05)',
+    paddingBottom: 4,
+  },
   codeLang: {
     color: COLORS.textDim,
     fontFamily: FONTS.mono,
     fontSize: 9,
-    marginBottom: 8,
     textTransform: 'uppercase',
-    textAlign: 'right',
+  },
+  copyBtn: {
+    padding: 4,
   },
   codeText: {
     color: COLORS.primary,

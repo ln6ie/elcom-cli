@@ -4,22 +4,22 @@ const DB_NAME = 'elcomcli.db';
 
 export interface DatabaseSettings {
   api_key: string | null;
-  api_url: string;
   selected_model: string;
   system_prompt: string;
   max_tokens: number;
   temperature: number;
   context_length: number;
+  user_name: string;
 }
 
 export const DEFAULT_SETTINGS: DatabaseSettings = {
   api_key: null,
-  api_url: 'https://openrouter.ai/api/v1/chat/completions',
   selected_model: 'qwen/qwen3.6-plus:free',
   system_prompt: 'You are ElcomCLI, a professional AI terminal assistant. Help the user with their queries in a concise and technical manner.',
   max_tokens: 4096,
   temperature: 0.7,
   context_length: 15,
+  user_name: 'USER',
 };
 
 export const initDb = async (db: SQLite.SQLiteDatabase) => {
@@ -53,10 +53,18 @@ export const initDb = async (db: SQLite.SQLiteDatabase) => {
         reasoning TEXT,
         attachment_uri TEXT,
         attachment_type TEXT,
+        model_id TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (conversation_id) REFERENCES conversations (id) ON DELETE CASCADE
       );
     `);
+
+    // Migration: Add model_id to messages if it doesn't exist
+    try {
+      await db.execAsync('ALTER TABLE messages ADD COLUMN model_id TEXT;');
+    } catch (e) {
+      // Column might already exist
+    }
 
     // Custom Models table
     await db.execAsync(`
@@ -86,7 +94,7 @@ export const initDb = async (db: SQLite.SQLiteDatabase) => {
         ]);
       }
     }
-    
+
     console.log('Database initialized successfully');
   } catch (error) {
     console.error('Database: Initialization failed', error);
@@ -132,8 +140,22 @@ export const database = {
     );
   },
 
+  async getConversationById(db: SQLite.SQLiteDatabase, id: string) {
+    return await db.getFirstAsync<{ id: string; title: string; model_id: string }>(
+      'SELECT * FROM conversations WHERE id = ?',
+      [id]
+    );
+  },
+
   async deleteConversation(db: SQLite.SQLiteDatabase, id: string) {
     await db.runAsync('DELETE FROM conversations WHERE id = ?', [id]);
+  },
+
+  async updateConversationTitle(db: SQLite.SQLiteDatabase, id: string, title: string) {
+    await db.runAsync(
+      'UPDATE conversations SET title = ? WHERE id = ?',
+      [title, id]
+    );
   },
 
   // Message CRUD
@@ -145,12 +167,13 @@ export const database = {
     content: string,
     reasoning?: string,
     attachmentUri?: string,
-    attachmentType?: string
+    attachmentType?: string,
+    modelId?: string
   ): Promise<void> {
     await db.runAsync(
-      `INSERT INTO messages (id, conversation_id, role, content, reasoning, attachment_uri, attachment_type) 
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [id, conversationId, role, content, reasoning || null, attachmentUri || null, attachmentType || null]
+      `INSERT INTO messages (id, conversation_id, role, content, reasoning, attachment_uri, attachment_type, model_id) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [id, conversationId, role, content, reasoning || null, attachmentUri || null, attachmentType || null, modelId || null]
     );
     // Update last_message_at in conversation
     await db.runAsync(

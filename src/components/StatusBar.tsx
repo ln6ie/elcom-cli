@@ -16,34 +16,13 @@ interface StatusBarProps {
 }
 
 export const StatusBar = ({ title = 'ELCOM_CLI', subtitle = 'ONLINE', style }: StatusBarProps) => {
-  const cursorOpacity = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    const animation = Animated.loop(
-      Animated.sequence([
-        Animated.timing(cursorOpacity, {
-          toValue: 1,
-          duration: 500,
-          useNativeDriver: true,
-        }),
-        Animated.timing(cursorOpacity, {
-          toValue: 0,
-          duration: 500,
-          useNativeDriver: true,
-        }),
-      ])
-    );
-    animation.start();
-    return () => animation.stop();
-  }, [cursorOpacity]);
-
   return (
     <View style={[styles.container, style]}>
       <View style={styles.left}>
         <Text style={styles.title}>{title}</Text>
         <Text style={styles.separator}> // </Text>
         <Text style={styles.subtitle}>{subtitle}</Text>
-        <Animated.View style={[styles.cursor, { opacity: cursorOpacity }]} />
+        <View style={styles.cursor} />
       </View>
     </View>
   );

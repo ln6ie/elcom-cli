@@ -1,5 +1,5 @@
 import * as ImagePicker from 'expo-image-picker';
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
 import { useCallback, useState } from 'react';
 import { Alert } from 'react-native';
 
@@ -17,17 +17,26 @@ export const useImagePicker = () => {
     try {
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        quality: 0.7,
+        allowsEditing: false, // Don't force crop, stay natural
+        quality: 0.8,
         base64: true,
       });
 
       if (!result.canceled && result.assets && result.assets[0]) {
         const asset = result.assets[0];
+        const filename = `img_${Date.now()}.jpg`;
+        const permanentUri = `${(FileSystem as any).documentDirectory}${filename}`;
+        
+        // Copy to permanent storage
+        await (FileSystem as any).copyAsync({
+          from: asset.uri,
+          to: permanentUri
+        });
+
         return {
-          uri: asset.uri,
+          uri: permanentUri,
           base64: asset.base64,
-          type: 'image',
+          type: 'image/jpeg',
         };
       }
     } catch (error) {
@@ -49,17 +58,26 @@ export const useImagePicker = () => {
     setIsPicking(true);
     try {
       const result = await ImagePicker.launchCameraAsync({
-        allowsEditing: true,
-        quality: 0.7,
+        allowsEditing: false, // Natural without crop
+        quality: 0.8,
         base64: true,
       });
 
       if (!result.canceled && result.assets && result.assets[0]) {
         const asset = result.assets[0];
+        const filename = `photo_${Date.now()}.jpg`;
+        const permanentUri = `${(FileSystem as any).documentDirectory}${filename}`;
+
+        // Copy to permanent storage
+        await (FileSystem as any).copyAsync({
+          from: asset.uri,
+          to: permanentUri
+        });
+
         return {
-          uri: asset.uri,
+          uri: permanentUri,
           base64: asset.base64,
-          type: 'image',
+          type: 'image/jpeg',
         };
       }
     } catch (error) {

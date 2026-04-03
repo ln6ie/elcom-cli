@@ -24,12 +24,7 @@ interface SettingsScreenProps {
   onBack: () => void;
 }
 
-const MODEL_PRESETS = [
-  { id: 'qwen/qwen3.6-plus:free', name: 'Qwen 3.6 Plus (Default)' },
-  { id: 'meta-llama/llama-3.3-70b-instruct:free', name: 'Llama 3.3 70B' },
-  { id: 'google/gemma-2-9b-it:free', name: 'Gemma 2 9B' },
-  { id: 'mistralai/mistral-7b-instruct:free', name: 'Mistral 7B' },
-];
+import { MODEL_PRESETS } from '../constants/models';
 
 export const SettingsScreen = ({ 
   settings, 
@@ -129,12 +124,15 @@ export const SettingsScreen = ({
         <Text style={styles.sectionTitle}>--- API_CONFIGURATION ---</Text>
         {renderInput('OPENROUTER_KEY', 'api_key', 'sk-or-v1-...')}
 
+        <Text style={styles.sectionTitle}>--- USER_IDENTITY ---</Text>
+        {renderInput('USER_LABEL', 'user_name', 'ENTER_NAME...')}
+
         <Text style={styles.sectionTitle}>--- MODEL_IDENTITY (MEMORY) ---</Text>
         <Text style={styles.label}>SAVED_MODELS // FAVORITES</Text>
         <View style={styles.favList}>
           {MODEL_PRESETS.map((m) => (
             <TouchableOpacity 
-              key={m.id} 
+              key={`preset-${m.id}`} 
               onPress={() => setLocalSettings({ ...localSettings, selected_model: m.id })}
               style={[styles.presetItem, localSettings.selected_model === m.id && styles.activePreset]}
             >
@@ -145,7 +143,7 @@ export const SettingsScreen = ({
           ))}
           
           {customModels.map((m) => (
-            <View key={m.id} style={[styles.customItem, localSettings.selected_model === m.id && styles.activePreset]}>
+            <View key={`custom-${m.id}`} style={[styles.customItem, localSettings.selected_model === m.id && styles.activePreset]}>
               {editingId === m.id ? (
                 <TextInput
                   value={editName}
@@ -200,7 +198,6 @@ export const SettingsScreen = ({
         </View>
 
         {renderInput('MANUAL_MODEL_ID', 'selected_model', 'vendor/model:type')}
-        {renderInput('SYSTEM_MEMORY_PROMPT', 'system_prompt', 'Define AI personality here...', true)}
 
         <Text style={styles.sectionTitle}>--- PARAMETERS ---</Text>
         {renderInput('MAX_TOKENS', 'max_tokens', '4096')}

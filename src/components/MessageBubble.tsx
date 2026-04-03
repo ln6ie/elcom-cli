@@ -1,11 +1,15 @@
 import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { Message } from '../types/chat';
 import { useState } from 'react';
+import * as Clipboard from 'expo-clipboard';
+import { Copy, Check } from 'lucide-react-native';
 import { COLORS, FONTS } from '../constants/theme';
 import { MarkdownView } from './MarkdownView';
 
 interface MessageBubbleProps {
   message: Message;
+  userName?: string;
+  modelName?: string;
 }
 
 const isArabic = (text: string) => {
@@ -13,14 +17,24 @@ const isArabic = (text: string) => {
   return arabicPattern.test(text.slice(0, 50));
 };
 
-export const MessageBubble = ({ message }: MessageBubbleProps) => {
+export const MessageBubble = ({ message, userName, modelName }: MessageBubbleProps) => {
   const [showReasoning, setShowReasoning] = useState(false);
+  const [copied, setCopied] = useState(false);
   const isAssistant = message.role === 'assistant';
   const rtl = isArabic(message.content);
 
-  const prefix = isAssistant ? 'AI   > ' : 'USER > ';
+  const displayUser = userName || 'USER';
+  const displayAI = modelName || 'AI';
+  
+  const prefix = isAssistant ? `${displayAI.toUpperCase().slice(0, 12)} > ` : `${displayUser.toUpperCase().slice(0, 12)} > `;
   const prefixColor = isAssistant ? COLORS.success : COLORS.primary;
   const borderColor = isAssistant ? COLORS.success : COLORS.primary;
+
+  const handleCopyAll = async () => {
+    await Clipboard.setStringAsync(message.content);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   return (
     <View style={[
@@ -43,11 +57,26 @@ export const MessageBubble = ({ message }: MessageBubbleProps) => {
             <Image 
               source={{ uri: message.attachment.uri }} 
               style={styles.attachedImage} 
-              resizeMode="cover"
+              resizeMode="contain"
             />
           </View>
         )}
         <MarkdownView content={message.content} />
+        
+        {isAssistant && message.content.length > 0 && (
+          <View style={styles.actionRow}>
+            <TouchableOpacity onPress={handleCopyAll} style={styles.copyAction}>
+              {copied ? (
+                <Check size={14} color={COLORS.success} />
+              ) : (
+                <Copy size={14} color={COLORS.primaryDim} />
+              )}
+              <Text style={[styles.actionText, { color: copied ? COLORS.success : COLORS.primaryDim }]}>
+                {copied ? 'COPIED' : 'COPY_ALL'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
       </View>
 
       {message.reasoning && (
@@ -104,16 +133,16 @@ const styles = StyleSheet.create({
   },
   attachmentBox: {
     width: '100%',
-    maxHeight: 250,
     backgroundColor: COLORS.surface,
     borderWidth: 1,
     borderColor: COLORS.border,
     marginBottom: 12,
     overflow: 'hidden',
+    borderRadius: 4,
   },
   attachedImage: {
     width: '100%',
-    height: 180,
+    height: 250,
   },
   reasoningWrap: {
     marginTop: 12,
@@ -146,5 +175,23 @@ const styles = StyleSheet.create({
   },
   rtlText: {
     textAlign: 'right',
+  },
+  actionRow: {
+    flexDirection: 'row',
+    marginTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255,255,255,0.05)',
+    paddingTop: 8,
+  },
+  copyAction: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 4,
+  },
+  actionText: {
+    fontFamily: FONTS.mono,
+    fontSize: 9,
+    marginLeft: 6,
+    letterSpacing: 1,
   },
 });

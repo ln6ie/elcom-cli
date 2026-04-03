@@ -8,14 +8,17 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { TypewriterText } from '../components/TypewriterText';
 import { useChat } from '../hooks/useChat';
 import { MessageBubble } from '../components/MessageBubble';
 import { TerminalInput } from '../components/TerminalInput';
 import { ThinkingDots } from '../components/ThinkingDots';
 import { StatusBar } from '../components/StatusBar';
 import { CliNotification } from '../components/CliNotification';
+import { WalkingCharacter } from '../components/WalkingCharacter';
 import { useRef, useEffect, useState } from 'react';
 import { COLORS, FONTS } from '../constants/theme';
+import { MODEL_PRESETS } from '../constants/models';
 
 const WELCOME_BANNER = `
  _____ _     ____ ___  __  __ 
@@ -28,12 +31,26 @@ const WELCOME_BANNER = `
 
 interface ChatScreenProps {
   conversationId: string;
+  userName: string;
   customModels: { id: string; name: string }[];
   onCommand: (cmd: string, args: string[]) => void;
 }
 
-export const ChatScreen = ({ conversationId, customModels, onCommand }: ChatScreenProps) => {
-  const { messages, isLoading, isLoadingMore, hasMore, error, sendMessage, loadMore } = useChat(conversationId);
+export const ChatScreen = ({ conversationId, userName, customModels, onCommand }: ChatScreenProps) => {
+  const { 
+    messages, 
+    conversationTitle,
+    modelId,
+    isLoading, 
+    isLoadingMore, 
+    hasMore, 
+    error, 
+    sendMessage, 
+    stopStreaming,
+    loadMore 
+  } = useChat(conversationId);
+
+  const [inputTopY, setInputTopY] = useState(0);
   const [notification, setNotification] = useState<{ visible: boolean; message: string | string[]; type: 'success' | 'error' | 'info' }>({
     visible: false,
     message: '',
@@ -48,7 +65,7 @@ export const ChatScreen = ({ conversationId, customModels, onCommand }: ChatScre
       message: [`BOOTING_SESSION: ${conversationId.slice(0, 8)}`, 'STATUS: SYSTEM_READY_SECURE'],
       type: 'success'
     });
-  }, []);
+  }, [conversationId]);
 
   useEffect(() => {
     if (error) {
@@ -61,13 +78,14 @@ export const ChatScreen = ({ conversationId, customModels, onCommand }: ChatScre
   }, [error]);
 
   useEffect(() => {
-    // Only scroll to bottom on initial load or new messages (not when loading more history)
+    // Only scroll to bottom on initial load 
+    // Avoid scrolling during generation to let user read comfortably
     if (messages.length > 0 && !isLoadingMore) {
       setTimeout(() => {
         flatListRef.current?.scrollToOffset({ offset: 0, animated: true });
       }, 100);
     }
-  }, [messages.length, isLoading, isLoadingMore]);
+  }, [conversationId]); // Only trigger on initial load or session change
 
   const renderHistoryLoader = () => (
     <View style={styles.historyLoader}>
@@ -103,9 +121,20 @@ export const ChatScreen = ({ conversationId, customModels, onCommand }: ChatScre
   const renderEmpty = () =>
     messages.length === 0 && !isLoading ? (
       <View style={styles.emptyWrap}>
-        <Text style={styles.emptyText}>
-          {'NO_MESSAGES_FOUND. START_QUERY? \u258B'}
-        </Text>
+        <TypewriterText 
+          phrases={[
+            'WELCOME',
+            ' Elcom CLI',
+            '// جاري تهيئة الاتصال الآمن...',
+            '// تم التعرف على الهوية',
+            '// سجل المحادثات فارغ حالياً.',
+            '// أدخل استفسارك الأول لبدء الجلسة...'
+          ]} 
+          style={styles.emptyText}
+          speed={40}
+          deleteSpeed={30}
+          pause={1200}
+        />
       </View>
     ) : null;
 
@@ -119,8 +148,8 @@ export const ChatScreen = ({ conversationId, customModels, onCommand }: ChatScre
       />
       
       <StatusBar 
-        title="ELCOM_CLI_SESSION" 
-        subtitle={`ID: ${conversationId.slice(0, 8)}...`}
+        title={conversationTitle} 
+        subtitle={`SID: ${conversationId.slice(0, 8)}`}
       />
 
       <KeyboardAvoidingView
@@ -134,8 +163,17 @@ export const ChatScreen = ({ conversationId, customModels, onCommand }: ChatScre
           keyExtractor={(item, index) => item.id || index.toString()}
           contentContainerStyle={styles.listContent}
           ListFooterComponent={renderHistoryLoader}
-          renderItem={({ item }) => <MessageBubble message={item} />}
-          ListEmptyComponent={renderEmpty}
+          renderItem={({ item }) => {
+            const allModels = [...MODEL_PRESETS, ...customModels];
+            const currentMessageModel = allModels.find(m => m.id === item.modelId);
+            return (
+              <MessageBubble 
+                message={item} 
+                userName={userName}
+                modelName={item.role === 'assistant' ? (currentMessageModel?.name || 'AI') : undefined} 
+              />
+            );
+          }}
           ListHeaderComponent={renderStatusArea}
           onEndReached={loadMore}
           onEndReachedThreshold={0.5}
@@ -145,12 +183,26 @@ export const ChatScreen = ({ conversationId, customModels, onCommand }: ChatScre
           windowSize={10}
         />
 
+        {renderEmpty()}
+
         <TerminalInput 
           onSend={sendMessage} 
-          onCommand={onCommand}
+          onStop={stopStreaming}
+          onCommand={(cmd, args) => {
+            if (cmd === 'search') {
+              const query = args.join(' ');
+              if (query) {
+                sendMessage(query, undefined, true);
+              }
+            } else {
+              onCommand(cmd, args);
+            }
+          }}
           customModels={customModels}
           disabled={isLoading} 
+          onLayoutY={setInputTopY}
         />
+        <WalkingCharacter isLoading={isLoading} inputTopY={inputTopY} />
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -219,7 +271,10 @@ const styles = StyleSheet.create({
     fontSize: 11,
   },
   emptyWrap: {
-    marginTop: 32,
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 24,
   },
   emptyText: {
     color: COLORS.textDim,
