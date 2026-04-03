@@ -83,7 +83,7 @@ export const MessageBubble = ({ message, userName, modelName }: MessageBubblePro
         )}
       </View>
 
-      {message.reasoning && (
+      {message.reasoning && message.reasoning.trim().length > 0 && (
         <View style={styles.reasoningWrap}>
           <Pressable
             onPress={() => setShowReasoning(prev => !prev)}
