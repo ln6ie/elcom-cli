@@ -1,4 +1,5 @@
-import { View, TextInput, TouchableOpacity, Text, StyleSheet, Image, Modal, Platform, SafeAreaView } from 'react-native';
+import { View, TextInput, TouchableOpacity, Text, StyleSheet, Image, Modal, Platform } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useState } from 'react';
 import { COLORS, FONTS } from '../constants/theme';
 import { Paperclip, Camera, Image as ImageIcon, X, Globe, Maximize2, Send } from 'lucide-react-native';
@@ -98,7 +99,7 @@ export const TerminalInput = ({ onSend, onStop, onCommand, customModels, disable
   return (
     <View style={styles.outerContainer} onLayout={(e) => onLayoutY?.(e.nativeEvent.layout.y)}>
       <Modal visible={isEditorVisible} animationType="slide" presentationStyle="fullScreen">
-        <SafeAreaView style={styles.editorSafe}>
+        <SafeAreaView style={styles.editorSafe} edges={['top', 'bottom']}>
           <View style={styles.editorHeader}>
             <View style={styles.editorHeaderLeft}>
               <Text style={styles.editorTitle}>SYSTEM_EDITOR_v1.0</Text>

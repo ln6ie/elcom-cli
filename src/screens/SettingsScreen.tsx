@@ -105,7 +105,7 @@ export const SettingsScreen = ({
   );
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       <CliNotification 
         visible={notification.visible}
         message={notification.message}

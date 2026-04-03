@@ -131,7 +131,7 @@ export const ChatScreen = ({ conversationId, userName, customModels, onCommand }
     ) : null;
 
   return (
-    <SafeAreaView style={styles.safe}>
+    <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
       <CliNotification 
         visible={notification.visible}
         message={notification.message}

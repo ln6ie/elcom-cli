@@ -1,9 +1,14 @@
-import { View, ActivityIndicator, StyleSheet, Alert } from 'react-native';
+import { View, ActivityIndicator, StyleSheet, Alert, I18nManager } from 'react-native';
 import {
   useFonts,
   SpaceMono_400Regular,
   SpaceMono_700Bold,
 } from '@expo-google-fonts/space-mono';
+
+// Force LTR for professional terminal look and ASCII integrity
+I18nManager.allowRTL(false);
+I18nManager.forceRTL(false);
+
 import { useSettings } from './src/hooks/useSettings';
 import { SetupScreen } from './src/screens/SetupScreen';
 import { ChatScreen } from './src/screens/ChatScreen';
@@ -13,7 +18,6 @@ import { UpdateModal } from './src/components/UpdateModal';
 import { UpdateService, UpdateInfo } from './src/services/UpdateService';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState, useCallback } from 'react';
-import * as SplashScreen from 'expo-splash-screen';
 import { COLORS } from './src/constants/theme';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { SQLiteProvider, useSQLiteContext } from 'expo-sqlite';
@@ -21,7 +25,7 @@ import { initDb, database } from './src/services/database';
 import * as Crypto from 'expo-crypto';
 import 'react-native-get-random-values';
 
-SplashScreen.preventAutoHideAsync();
+
 
 type Screen = 'setup' | 'chat' | 'history' | 'settings';
 
@@ -45,11 +49,6 @@ function AppContent() {
   const [updateVisible, setUpdateVisible] = useState(false);
   const [isForceUpdate, setIsForceUpdate] = useState(false);
 
-  const [fontsLoaded, fontError] = useFonts({
-    SpaceMono_400Regular,
-    SpaceMono_700Bold,
-  });
-
   // Check for updates on mount
   useEffect(() => {
     const checkUpdates = async () => {
@@ -61,11 +60,9 @@ function AppContent() {
       }
     };
     
-    // Check after fonts and splash are handled
-    if (fontsLoaded) {
-      setTimeout(checkUpdates, 1500);
-    }
-  }, [fontsLoaded]);
+    // Check after mount
+    setTimeout(checkUpdates, 2000);
+  }, []);
 
   // Handle first-time setup or no API key and resume last session
   useEffect(() => {
@@ -91,12 +88,6 @@ function AppContent() {
     initSession();
   }, [isSettingsLoading, settings.api_key, db]);
 
-  useEffect(() => {
-    if (fontsLoaded || fontError) {
-      SplashScreen.hideAsync();
-    }
-  }, [fontsLoaded, fontError]);
-
   const handleCommand = useCallback(async (cmd: string, args: string[]) => {
     switch (cmd) {
       case 'chat':
@@ -121,8 +112,6 @@ function AppContent() {
       case 'clear':
         if (activeConvId) {
           await db.runAsync('DELETE FROM messages WHERE conversation_id = ?', [activeConvId]);
-          // We need to trigger a refresh in useChat, currently handled by state in ChatScreen
-          // For now, simpler to just re-mount or notify.
           const current = activeConvId;
           setActiveConvId(null);
           setTimeout(() => setActiveConvId(current), 10);
@@ -136,15 +125,17 @@ function AppContent() {
     }
   }, [db, settings, activeConvId]);
 
-  if (!fontsLoaded && !fontError) return null;
-  if (isSettingsLoading) return null;
+  if (isSettingsLoading) return (
+    <View style={styles.loader}>
+      <ActivityIndicator size="large" color={COLORS.primary} />
+    </View>
+  );
 
   const renderScreen = () => {
     const isSetup = !settings.api_key || currentScreen === 'setup';
     
     return (
       <View style={styles.flex1}>
-        {/* Chat Screen stays mounted in background if not in setup */}
         {!isSetup && activeConvId && (
           <View style={[styles.flex1, currentScreen !== 'chat' && styles.hidden]}>
             <ChatScreen 
@@ -202,6 +193,15 @@ function AppContent() {
 }
 
 export default function App() {
+  const [fontsLoaded, fontError] = useFonts({
+    SpaceMono_400Regular,
+    SpaceMono_700Bold,
+  });
+
+
+
+  if (!fontsLoaded && !fontError) return null;
+
   return (
     <SafeAreaProvider>
       <SQLiteProvider databaseName="elcomcli.db" onInit={initDb}>
@@ -218,6 +218,12 @@ const styles = StyleSheet.create({
   },
   flex1: {
     flex: 1,
+  },
+  loader: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: COLORS.background,
   },
   hidden: {
     width: 0,
