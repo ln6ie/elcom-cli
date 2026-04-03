@@ -101,7 +101,7 @@ export const SetupScreen = ({ onConnect }: SetupScreenProps) => {
 
             <View style={styles.linkWrap}>
               <TouchableOpacity
-                onPress={() => Linking.openURL('https://openrouter.ai/keys')}
+                onPress={() => Linking.openURL(process.env.EXPO_PUBLIC_OPENROUTER_KEYS_URL || '')}
               >
                 <Text style={styles.linkText}>GET KEY: openrouter.ai</Text>
               </TouchableOpacity>

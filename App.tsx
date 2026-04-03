@@ -9,6 +9,8 @@ import { SetupScreen } from './src/screens/SetupScreen';
 import { ChatScreen } from './src/screens/ChatScreen';
 import { SettingsScreen } from './src/screens/SettingsScreen';
 import { HistoryScreen } from './src/screens/HistoryScreen';
+import { UpdateModal } from './src/components/UpdateModal';
+import { UpdateService, UpdateInfo } from './src/services/UpdateService';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState, useCallback } from 'react';
 import * as SplashScreen from 'expo-splash-screen';
@@ -37,11 +39,33 @@ function AppContent() {
   } = useSettings();
   const [currentScreen, setCurrentScreen] = useState<Screen>('chat');
   const [activeConvId, setActiveConvId] = useState<string | null>(null);
+  
+  // Update state
+  const [updateInfo, setUpdateInfo] = useState<UpdateInfo | undefined>();
+  const [updateVisible, setUpdateVisible] = useState(false);
+  const [isForceUpdate, setIsForceUpdate] = useState(false);
 
   const [fontsLoaded, fontError] = useFonts({
     SpaceMono_400Regular,
     SpaceMono_700Bold,
   });
+
+  // Check for updates on mount
+  useEffect(() => {
+    const checkUpdates = async () => {
+      const { status, info } = await UpdateService.checkUpdate();
+      if (status === 'UPDATE_AVAILABLE' || status === 'FORCE_UPDATE_REQUIRED') {
+        setUpdateInfo(info);
+        setIsForceUpdate(status === 'FORCE_UPDATE_REQUIRED');
+        setUpdateVisible(true);
+      }
+    };
+    
+    // Check after fonts and splash are handled
+    if (fontsLoaded) {
+      setTimeout(checkUpdates, 1500);
+    }
+  }, [fontsLoaded]);
 
   // Handle first-time setup or no API key and resume last session
   useEffect(() => {
@@ -167,6 +191,12 @@ function AppContent() {
     <View style={styles.root}>
       <StatusBar style="light" />
       {renderScreen()}
+      <UpdateModal 
+        visible={updateVisible} 
+        info={updateInfo} 
+        isForce={isForceUpdate} 
+        onClose={() => setUpdateVisible(false)} 
+      />
     </View>
   );
 }

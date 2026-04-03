@@ -1,0 +1,227 @@
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;700&family=IBM+Plex+Mono:wght@400;700&family=Rajdhani:wght@500;700&family=VT323&display=swap');
+
+:root {
+  --bg-black: #0E0E0E;
+  --neon-cyan: #00A3E0;
+  --neon-cyan-dark: #0081B1;
+  --text-grey: #8292A1;
+  --glow-shadow: 0 0 12px rgba(0, 163, 224, 0.4);
+  --border-glow: 1px solid rgba(0, 163, 224, 0.25);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Cairo', 'IBM Plex Mono', sans-serif;
+}
+
+body {
+  background-color: var(--bg-black);
+  color: #fff;
+  direction: rtl;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+}
+
+/* Background grid effect */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    linear-gradient(rgba(0, 163, 224, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 163, 224, 0.02) 1px, transparent 1px);
+  background-size: 50px 50px;
+  z-index: -1;
+}
+
+header {
+  padding: 80px 20px 40px;
+  text-align: center;
+  position: relative;
+}
+
+.header-tag {
+  font-family: 'VT323', monospace;
+  font-size: 14px;
+  letter-spacing: 2px;
+  color: var(--neon-cyan);
+  opacity: 0.6;
+  margin-bottom: 20px;
+}
+
+.logo-container {
+  margin-bottom: 20px;
+}
+
+.logo-container img {
+  max-width: 90px;
+  filter: drop-shadow(var(--glow-shadow));
+}
+
+header h1 {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 3.5rem;
+  letter-spacing: 4px;
+  color: var(--neon-cyan);
+  text-transform: uppercase;
+  margin: 0;
+  text-shadow: var(--glow-shadow);
+}
+
+.hero {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 20px 40px;
+  text-align: center;
+}
+
+.hero p {
+  line-height: 1.8;
+  color: var(--text-grey);
+  font-size: 1.2rem;
+  margin-bottom: 40px;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.terminal-box {
+  border: var(--border-glow);
+  background: rgba(0, 204, 255, 0.02);
+  padding: 30px;
+  border-radius: 4px;
+  position: relative;
+  margin-bottom: 60px;
+}
+
+.terminal-box::before {
+  content: "/VERSION_LOG: v1.0.0 /SYSTEM_STATUS: STABLE";
+  position: absolute;
+  top: -12px;
+  right: 20px;
+  background: var(--bg-black);
+  padding: 0 10px;
+  font-size: 14px;
+  color: var(--neon-cyan);
+  font-family: 'VT323', monospace;
+}
+
+.btn-group {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.btn {
+  padding: 12px 30px;
+  font-family: 'Rajdhani', 'IBM Plex Mono', sans-serif;
+  text-transform: uppercase;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--neon-cyan);
+  background: transparent;
+  border: 1px solid var(--neon-cyan);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  letter-spacing: 1px;
+}
+
+.btn:hover {
+  background: var(--neon-cyan);
+  color: var(--bg-black);
+  box-shadow: var(--glow-shadow);
+}
+
+.btn-primary {
+  background: rgba(0, 204, 255, 0.1);
+}
+
+footer {
+  margin-top: auto;
+  padding: 60px 20px;
+  text-align: center;
+  border-top: var(--border-glow);
+  background: rgba(0, 163, 224, 0.02);
+}
+
+.footer-grid {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  flex-wrap: wrap;
+  margin-bottom: 30px;
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.footer-item {
+  display: flex;
+  gap: 10px;
+  font-family: 'VT323', monospace;
+  font-size: 16px;
+  letter-spacing: 1px;
+}
+
+.footer-item .label {
+  color: var(--neon-cyan);
+  opacity: 0.6;
+}
+
+.footer-item .value {
+  color: #fff;
+}
+
+.footer-credit {
+  font-size: 12px;
+  color: var(--text-grey);
+  letter-spacing: 1px;
+}
+
+.footer-credit span {
+  color: var(--neon-cyan);
+  font-weight: bold;
+}
+
+/* Animations */
+@keyframes flicker {
+  0% { opacity: 0.95; }
+  100% { opacity: 1; }
+}
+
+.neon-text {
+  animation: flicker 0.1s infinite alternate;
+}
+
+@media (max-width: 600px) {
+  header { padding: 40px 20px 20px; }
+  header h1 { 
+    font-size: 2rem; 
+    letter-spacing: 2px;
+  }
+  .hero p { font-size: 1rem; }
+  .btn { width: 100%; justify-content: center; }
+}
+
+.instructions {
+  max-width: 600px;
+  margin: 60px auto 100px;
+  padding: 30px;
+  border: var(--border-glow);
+  background: rgba(0, 163, 224, 0.05);
+  border-radius: 4px;
+  text-align: right;
+  direction: rtl;
+}
