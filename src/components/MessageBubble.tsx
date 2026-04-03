@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { View, Text, Pressable, StyleSheet, Image } from 'react-native';
 import { Message } from '../types/chat';
 import { useState } from 'react';
 import * as Clipboard from 'expo-clipboard';
@@ -65,7 +65,11 @@ export const MessageBubble = ({ message, userName, modelName }: MessageBubblePro
         
         {isAssistant && message.content.length > 0 && (
           <View style={styles.actionRow}>
-            <TouchableOpacity onPress={handleCopyAll} style={styles.copyAction}>
+            <Pressable
+              onPress={handleCopyAll}
+              style={styles.copyAction}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            >
               {copied ? (
                 <Check size={14} color={COLORS.success} />
               ) : (
@@ -74,25 +78,26 @@ export const MessageBubble = ({ message, userName, modelName }: MessageBubblePro
               <Text style={[styles.actionText, { color: copied ? COLORS.success : COLORS.primaryDim }]}>
                 {copied ? 'COPIED' : 'COPY_ALL'}
               </Text>
-            </TouchableOpacity>
+            </Pressable>
           </View>
         )}
       </View>
 
       {message.reasoning && (
         <View style={styles.reasoningWrap}>
-          <TouchableOpacity
-            onPress={() => setShowReasoning(!showReasoning)}
+          <Pressable
+            onPress={() => setShowReasoning(prev => !prev)}
             style={[styles.reasoningToggle, rtl && styles.rtlRow]}
+            hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
           >
             <Text style={styles.reasoningLabel}>
               {showReasoning ? '[-] HIDE_REASONING' : '[+] SHOW_REASONING'}
             </Text>
-          </TouchableOpacity>
+          </Pressable>
 
           {showReasoning && (
             <View style={styles.reasoningBox}>
-              <Text style={[styles.reasoningText, rtl && styles.rtlText]}>
+              <Text selectable style={[styles.reasoningText, rtl && styles.rtlText]}>
                 {message.reasoning}
               </Text>
             </View>

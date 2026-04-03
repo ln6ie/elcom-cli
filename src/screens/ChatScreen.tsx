@@ -51,6 +51,8 @@ export const ChatScreen = ({ conversationId, userName, customModels, onCommand }
   const flatListRef = useRef<FlatList>(null);
   const isAtBottomRef = useRef(true);
   const prevMessageCountRef = useRef(0);
+  const scrollOffsetRef = useRef(0);
+  const contentHeightRef = useRef(0);
 
   useEffect(() => {
     setNotification({
@@ -183,10 +185,25 @@ export const ChatScreen = ({ conversationId, userName, customModels, onCommand }
           maxToRenderPerBatch={10}
           windowSize={10}
           onScroll={(e) => {
-            // In an inverted list, offset 0 = bottom of conversation
-            isAtBottomRef.current = e.nativeEvent.contentOffset.y < 60;
+            const y = e.nativeEvent.contentOffset.y;
+            scrollOffsetRef.current = y;
+            isAtBottomRef.current = y < 60;
           }}
           scrollEventThrottle={150}
+          onContentSizeChange={(_w, h) => {
+            if (isLoading && contentHeightRef.current > 0) {
+              // In inverted list: content grows at the bottom (index 0).
+              // Compensate offset so the visible area stays frozen.
+              const diff = h - contentHeightRef.current;
+              if (diff > 0 && !isAtBottomRef.current) {
+                flatListRef.current?.scrollToOffset({
+                  offset: scrollOffsetRef.current + diff,
+                  animated: false,
+                });
+              }
+            }
+            contentHeightRef.current = h;
+          }}
         />
 
         {renderEmpty()}
