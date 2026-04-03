@@ -13,20 +13,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Eye, EyeOff } from 'lucide-react-native';
 import { COLORS, FONTS } from '../constants/theme';
 
-const ASCII_ART = `
-  ______ _      _____ ____  __  __ 
- |  ____| |    / ____/ __ \\|  \\/  |
- | |__  | |   | |   | |  | | \\  / |
- |  __| | |   | |   | |  | | |\\/| |
- | |____| |___| |___| |__| | |  | |
- |______|______\\____\\____/|_|  |_|
-  _____ _      _____ 
- / ____| |    |_   _|
-| |    | |      | |  
-| |    | |      | |  
-| |____| |____ _| |_ 
- \\_____|______|_____|
-`;
+import { AppBrand } from '../components/AppBrand';
 
 interface SetupScreenProps {
   onConnect: (key: string) => void;
@@ -58,7 +45,7 @@ export const SetupScreen = ({ onConnect }: SetupScreenProps) => {
         keyboardShouldPersistTaps="handled"
       >
         <Animated.View style={[styles.inner, { opacity: fadeAnim }]}>
-          <Text style={styles.ascii}>{ASCII_ART}</Text>
+          <AppBrand fontSize={10} style={styles.brandContainer} />
 
           <View style={styles.form}>
             <Text style={styles.label}>ENTER_API_KEY:</Text>
@@ -128,6 +115,9 @@ const styles = StyleSheet.create({
   },
   inner: {
     alignItems: 'center',
+  },
+  brandContainer: {
+    marginBottom: 32,
   },
   ascii: {
     color: COLORS.primary,
