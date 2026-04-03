@@ -78,14 +78,15 @@ export const ChatScreen = ({ conversationId, userName, customModels, onCommand }
   }, [conversationId]);
 
   useEffect(() => {
-    // Only auto-scroll when a NEW message arrives AND user is already at bottom
+    // Auto-scroll only when: new message arrived + user is at bottom + NOT currently streaming
+    // During streaming (isLoading=true), screen stays frozen so user can read the thinking card
     const newCount = messages.length;
     const prevCount = prevMessageCountRef.current;
-    if (newCount > prevCount && isAtBottomRef.current) {
+    if (newCount > prevCount && isAtBottomRef.current && !isLoading) {
       flatListRef.current?.scrollToOffset({ offset: 0, animated: true });
     }
     prevMessageCountRef.current = newCount;
-  }, [messages.length]);
+  }, [messages.length, isLoading]);
 
   const renderHistoryLoader = () => (
     <View style={styles.historyLoader}>
@@ -181,12 +182,11 @@ export const ChatScreen = ({ conversationId, userName, customModels, onCommand }
           initialNumToRender={15}
           maxToRenderPerBatch={10}
           windowSize={10}
-          maintainVisibleContentPosition={{ minIndexForVisible: 0 }}
           onScroll={(e) => {
             // In an inverted list, offset 0 = bottom of conversation
             isAtBottomRef.current = e.nativeEvent.contentOffset.y < 60;
           }}
-          scrollEventThrottle={100}
+          scrollEventThrottle={150}
         />
 
         {renderEmpty()}
