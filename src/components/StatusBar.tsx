@@ -10,12 +10,12 @@ import {
 import { COLORS, FONTS } from '../constants/theme';
 
 interface StatusBarProps {
-  onClear: () => void;
-  onResetKey: () => void;
+  title?: string;
+  subtitle?: string;
   style?: ViewStyle;
 }
 
-export const StatusBar = ({ onClear, onResetKey, style }: StatusBarProps) => {
+export const StatusBar = ({ title = 'ELCOM_CLI', subtitle = 'ONLINE', style }: StatusBarProps) => {
   const cursorOpacity = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -40,26 +40,10 @@ export const StatusBar = ({ onClear, onResetKey, style }: StatusBarProps) => {
   return (
     <View style={[styles.container, style]}>
       <View style={styles.left}>
-        <Text style={styles.title}>ELCOM_CLI // ONLINE</Text>
+        <Text style={styles.title}>{title}</Text>
+        <Text style={styles.separator}> // </Text>
+        <Text style={styles.subtitle}>{subtitle}</Text>
         <Animated.View style={[styles.cursor, { opacity: cursorOpacity }]} />
-      </View>
-
-      <View style={styles.right}>
-        <TouchableOpacity
-          onPress={onClear}
-          activeOpacity={0.7}
-          style={styles.button}
-        >
-          <Text style={styles.buttonText}>[CLR]</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          onPress={onResetKey}
-          activeOpacity={0.7}
-          style={styles.button}
-        >
-          <Text style={[styles.buttonText, styles.bold]}>[KEY]</Text>
-        </TouchableOpacity>
       </View>
     </View>
   );
@@ -84,6 +68,16 @@ const styles = StyleSheet.create({
     color: COLORS.primary,
     fontFamily: FONTS.monoBold,
     fontSize: 11,
+  },
+  separator: {
+    color: COLORS.textDim,
+    fontFamily: FONTS.mono,
+    fontSize: 11,
+  },
+  subtitle: {
+    color: COLORS.success,
+    fontFamily: FONTS.mono,
+    fontSize: 10,
   },
   cursor: {
     marginLeft: 2,

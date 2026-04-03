@@ -1,85 +1,60 @@
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { Message } from '../types/chat';
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { COLORS, FONTS } from '../constants/theme';
+import { MarkdownView } from './MarkdownView';
 
 interface MessageBubbleProps {
   message: Message;
 }
 
-interface ContentPart {
-  type: 'text' | 'code';
-  content: string;
-  lang?: string;
-}
+const isArabic = (text: string) => {
+  const arabicPattern = /[\u0600-\u06FF\u0750-\u077F]/;
+  return arabicPattern.test(text.slice(0, 50));
+};
 
 export const MessageBubble = ({ message }: MessageBubbleProps) => {
   const [showReasoning, setShowReasoning] = useState(false);
-  const isUser = message.role === 'user';
+  const isAssistant = message.role === 'assistant';
+  const rtl = isArabic(message.content);
 
-  const borderColor = isUser ? COLORS.primary : COLORS.success;
-  const prefix = isUser ? 'USER > ' : 'AI   > ';
-  const prefixColor = isUser ? COLORS.primary : COLORS.success;
-
-  const parts = useMemo<ContentPart[]>(() => {
-    const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g;
-    const items: ContentPart[] = [];
-    let lastIndex = 0;
-    let match;
-
-    while ((match = codeBlockRegex.exec(message.content)) !== null) {
-      if (match.index > lastIndex) {
-        items.push({
-          type: 'text',
-          content: message.content.slice(lastIndex, match.index),
-        });
-      }
-      items.push({
-        type: 'code',
-        lang: match[1] || 'CODE',
-        content: match[2].trim(),
-      });
-      lastIndex = match.index + match[0].length;
-    }
-
-    if (lastIndex < message.content.length) {
-      items.push({
-        type: 'text',
-        content: message.content.slice(lastIndex),
-      });
-    }
-
-    return items;
-  }, [message.content]);
+  const prefix = isAssistant ? 'AI   > ' : 'USER > ';
+  const prefixColor = isAssistant ? COLORS.success : COLORS.primary;
+  const borderColor = isAssistant ? COLORS.success : COLORS.primary;
 
   return (
-    <View style={[styles.container, { borderLeftColor: borderColor }]}>
-      <View style={styles.prefixRow}>
+    <View style={[
+      styles.container, 
+      { 
+        borderLeftColor: borderColor, 
+        borderRightColor: borderColor 
+      },
+      rtl && styles.rtlContainer
+    ]}>
+      <View style={[styles.prefixRow, rtl && styles.rtlRow]}>
         <Text style={[styles.prefix, { color: prefixColor }]}>
           {prefix}
         </Text>
       </View>
 
-      {parts.map((part, i) => (
-        <View key={i} style={styles.partWrap}>
-          {part.type === 'text' ? (
-            <Text style={styles.textContent}>{part.content.trim()}</Text>
-          ) : (
-            <View style={styles.codeBlock}>
-              {part.lang && (
-                <Text style={styles.codeLang}>[{part.lang}]</Text>
-              )}
-              <Text style={styles.codeContent}>{part.content}</Text>
-            </View>
-          )}
-        </View>
-      ))}
+      <View style={styles.contentWrap}>
+        {message.attachment && message.attachment.uri && (
+          <View style={styles.attachmentBox}>
+            <Image 
+              source={{ uri: message.attachment.uri }} 
+              style={styles.attachedImage} 
+              resizeMode="cover"
+            />
+          </View>
+        )}
+        <MarkdownView content={message.content} />
+      </View>
 
       {message.reasoning && (
         <View style={styles.reasoningWrap}>
           <TouchableOpacity
             onPress={() => setShowReasoning(!showReasoning)}
-            style={styles.reasoningToggle}
+            style={[styles.reasoningToggle, rtl && styles.rtlRow]}
           >
             <Text style={styles.reasoningLabel}>
               {showReasoning ? '[-] HIDE_REASONING' : '[+] SHOW_REASONING'}
@@ -88,7 +63,9 @@ export const MessageBubble = ({ message }: MessageBubbleProps) => {
 
           {showReasoning && (
             <View style={styles.reasoningBox}>
-              <Text style={styles.reasoningText}>{message.reasoning}</Text>
+              <Text style={[styles.reasoningText, rtl && styles.rtlText]}>
+                {message.reasoning}
+              </Text>
             </View>
           )}
         </View>
@@ -99,53 +76,50 @@ export const MessageBubble = ({ message }: MessageBubbleProps) => {
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 16,
+    marginBottom: 20,
     borderLeftWidth: 2,
-    paddingVertical: 8,
+    paddingVertical: 10,
     paddingLeft: 12,
+  },
+  rtlContainer: {
+    paddingLeft: 0,
+    paddingRight: 12,
+    borderLeftWidth: 0,
+    borderRightWidth: 2,
   },
   prefixRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 4,
+    marginBottom: 6,
+  },
+  rtlRow: {
+    flexDirection: 'row-reverse',
   },
   prefix: {
     fontFamily: FONTS.monoBold,
     fontSize: 13,
   },
-  partWrap: {
-    marginBottom: 8,
+  contentWrap: {
+    flex: 1,
   },
-  textContent: {
-    color: COLORS.text,
-    fontFamily: FONTS.mono,
-    fontSize: 13,
-    lineHeight: 20,
-  },
-  codeBlock: {
+  attachmentBox: {
+    width: '100%',
+    maxHeight: 250,
     backgroundColor: COLORS.surface,
     borderWidth: 1,
     borderColor: COLORS.border,
-    padding: 12,
+    marginBottom: 12,
     overflow: 'hidden',
   },
-  codeLang: {
-    color: COLORS.textDim,
-    fontFamily: FONTS.mono,
-    fontSize: 9,
-    marginBottom: 8,
-    textTransform: 'uppercase',
-  },
-  codeContent: {
-    color: COLORS.primary,
-    fontFamily: FONTS.mono,
-    fontSize: 11,
+  attachedImage: {
+    width: '100%',
+    height: 180,
   },
   reasoningWrap: {
-    marginTop: 8,
+    marginTop: 12,
     borderTopWidth: 1,
     borderTopColor: COLORS.border,
-    paddingTop: 8,
+    paddingTop: 10,
   },
   reasoningToggle: {
     flexDirection: 'row',
@@ -157,9 +131,9 @@ const styles = StyleSheet.create({
     fontSize: 11,
   },
   reasoningBox: {
-    marginTop: 8,
+    marginTop: 10,
     backgroundColor: COLORS.surface,
-    padding: 8,
+    padding: 10,
     borderWidth: 1,
     borderColor: COLORS.border,
   },
@@ -169,5 +143,8 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontStyle: 'italic',
     opacity: 0.7,
+  },
+  rtlText: {
+    textAlign: 'right',
   },
 });

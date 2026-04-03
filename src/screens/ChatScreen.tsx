@@ -5,6 +5,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useChat } from '../hooks/useChat';
@@ -12,7 +13,8 @@ import { MessageBubble } from '../components/MessageBubble';
 import { TerminalInput } from '../components/TerminalInput';
 import { ThinkingDots } from '../components/ThinkingDots';
 import { StatusBar } from '../components/StatusBar';
-import { useRef, useEffect } from 'react';
+import { CliNotification } from '../components/CliNotification';
+import { useRef, useEffect, useState } from 'react';
 import { COLORS, FONTS } from '../constants/theme';
 
 const WELCOME_BANNER = `
@@ -25,36 +27,71 @@ const WELCOME_BANNER = `
 `;
 
 interface ChatScreenProps {
-  onResetKey: () => void;
+  conversationId: string;
+  customModels: { id: string; name: string }[];
+  onCommand: (cmd: string, args: string[]) => void;
 }
 
-export const ChatScreen = ({ onResetKey }: ChatScreenProps) => {
-  const { messages, isLoading, error, sendMessage, clearChat } = useChat();
+export const ChatScreen = ({ conversationId, customModels, onCommand }: ChatScreenProps) => {
+  const { messages, isLoading, isLoadingMore, hasMore, error, sendMessage, loadMore } = useChat(conversationId);
+  const [notification, setNotification] = useState<{ visible: boolean; message: string | string[]; type: 'success' | 'error' | 'info' }>({
+    visible: false,
+    message: '',
+    type: 'info'
+  });
   const flatListRef = useRef<FlatList>(null);
 
   useEffect(() => {
-    if (messages.length > 0) {
+    // Session initialization banner
+    setNotification({
+      visible: true,
+      message: [`BOOTING_SESSION: ${conversationId.slice(0, 8)}`, 'STATUS: SYSTEM_READY_SECURE'],
+      type: 'success'
+    });
+  }, []);
+
+  useEffect(() => {
+    if (error) {
+      setNotification({
+        visible: true,
+        message: `FATAL_ERROR: ${error}`,
+        type: 'error'
+      });
+    }
+  }, [error]);
+
+  useEffect(() => {
+    // Only scroll to bottom on initial load or new messages (not when loading more history)
+    if (messages.length > 0 && !isLoadingMore) {
       setTimeout(() => {
-        flatListRef.current?.scrollToEnd({ animated: true });
+        flatListRef.current?.scrollToOffset({ offset: 0, animated: true });
       }, 100);
     }
-  }, [messages.length, isLoading]);
+  }, [messages.length, isLoading, isLoadingMore]);
 
-  const renderHeader = () => (
-    <View style={styles.headerWrap}>
-      <Text style={styles.bannerText}>{WELCOME_BANNER}</Text>
-      <Text style={styles.readyText}>SYSTEM READY... [2026-04-03]</Text>
-      <View style={styles.divider} />
-      <Text style={styles.connectionText}>
-        CONNECTION: OPENROUTER / SECURE_CHNL
-      </Text>
-      <View style={styles.divider} />
+  const renderHistoryLoader = () => (
+    <View style={styles.historyLoader}>
+      {isLoadingMore && (
+        <View style={styles.loadingMore}>
+          <ActivityIndicator size="small" color={COLORS.primaryDim} />
+          <Text style={styles.loadingMoreText}>FETCHING_HISTORY...</Text>
+        </View>
+      )}
+      <View style={styles.headerWrap}>
+        <Text style={styles.bannerText}>{WELCOME_BANNER}</Text>
+        <Text style={styles.readyText}>SYSTEM READY... [2026-04-03]</Text>
+        <View style={styles.divider} />
+        <Text style={styles.connectionText}>
+          CONNECTION: OPENROUTER / SECURE_CHNL
+        </Text>
+        <View style={styles.divider} />
+      </View>
     </View>
   );
 
-  const renderFooter = () => (
-    <View style={styles.footer}>
-      {isLoading && <ThinkingDots />}
+  const renderStatusArea = () => (
+    <View style={styles.statusArea}>
+      {isLoading && !isLoadingMore && <ThinkingDots />}
       {error && (
         <View style={styles.errorBox}>
           <Text style={styles.errorText}>ERR: {error}</Text>
@@ -74,7 +111,17 @@ export const ChatScreen = ({ onResetKey }: ChatScreenProps) => {
 
   return (
     <SafeAreaView style={styles.safe}>
-      <StatusBar onClear={clearChat} onResetKey={onResetKey} />
+      <CliNotification 
+        visible={notification.visible}
+        message={notification.message}
+        type={notification.type}
+        onHide={() => setNotification(prev => ({ ...prev, visible: false }))}
+      />
+      
+      <StatusBar 
+        title="ELCOM_CLI_SESSION" 
+        subtitle={`ID: ${conversationId.slice(0, 8)}...`}
+      />
 
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -82,16 +129,28 @@ export const ChatScreen = ({ onResetKey }: ChatScreenProps) => {
       >
         <FlatList
           ref={flatListRef}
-          data={messages}
-          keyExtractor={(_, index) => index.toString()}
+          data={[...messages].reverse()}
+          inverted
+          keyExtractor={(item, index) => item.id || index.toString()}
           contentContainerStyle={styles.listContent}
-          ListHeaderComponent={renderHeader}
+          ListFooterComponent={renderHistoryLoader}
           renderItem={({ item }) => <MessageBubble message={item} />}
           ListEmptyComponent={renderEmpty}
-          ListFooterComponent={renderFooter}
+          ListHeaderComponent={renderStatusArea}
+          onEndReached={loadMore}
+          onEndReachedThreshold={0.5}
+          removeClippedSubviews={Platform.OS === 'android'}
+          initialNumToRender={15}
+          maxToRenderPerBatch={10}
+          windowSize={10}
         />
 
-        <TerminalInput onSend={sendMessage} disabled={isLoading} />
+        <TerminalInput 
+          onSend={sendMessage} 
+          onCommand={onCommand}
+          customModels={customModels}
+          disabled={isLoading} 
+        />
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -139,9 +198,13 @@ const styles = StyleSheet.create({
     fontSize: 10,
     textAlign: 'center',
   },
-  footer: {
-    height: 40,
+  statusArea: {
+    minHeight: 20,
     justifyContent: 'center',
+    paddingBottom: 8,
+  },
+  historyLoader: {
+    paddingTop: 16,
   },
   errorBox: {
     marginTop: 8,
@@ -162,5 +225,18 @@ const styles = StyleSheet.create({
     color: COLORS.textDim,
     fontFamily: FONTS.mono,
     fontSize: 13,
+  },
+  loadingMore: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+  },
+  loadingMoreText: {
+    color: COLORS.textDim,
+    fontFamily: FONTS.mono,
+    fontSize: 10,
+    marginLeft: 8,
+    letterSpacing: 1,
   },
 });

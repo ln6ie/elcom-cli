@@ -8,6 +8,7 @@ import {
   StyleSheet,
   Animated,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useState, useRef, useEffect } from 'react';
 import { Eye, EyeOff } from 'lucide-react-native';
 import { COLORS, FONTS } from '../constants/theme';
@@ -50,70 +51,75 @@ export const SetupScreen = ({ onConnect }: SetupScreenProps) => {
   };
 
   return (
-    <ScrollView
-      style={styles.scroll}
-      contentContainerStyle={styles.scrollContent}
-      keyboardShouldPersistTaps="handled"
-    >
-      <Animated.View style={[styles.inner, { opacity: fadeAnim }]}>
-        <Text style={styles.ascii}>{ASCII_ART}</Text>
+    <SafeAreaView style={styles.safe}>
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+      >
+        <Animated.View style={[styles.inner, { opacity: fadeAnim }]}>
+          <Text style={styles.ascii}>{ASCII_ART}</Text>
 
-        <View style={styles.form}>
-          <Text style={styles.label}>ENTER_API_KEY:</Text>
+          <View style={styles.form}>
+            <Text style={styles.label}>ENTER_API_KEY:</Text>
 
-          <View style={styles.inputRow}>
-            <TextInput
-              value={key}
-              onChangeText={setKey}
-              secureTextEntry={!showKey}
-              placeholder="SK-OR-..."
-              placeholderTextColor="#333333"
-              style={styles.input}
-              autoCorrect={false}
-              autoCapitalize="none"
-              spellCheck={false}
-            />
+            <View style={styles.inputRow}>
+              <TextInput
+                value={key}
+                onChangeText={setKey}
+                secureTextEntry={!showKey}
+                placeholder="SK-OR-..."
+                placeholderTextColor="#333333"
+                style={styles.input}
+                autoCorrect={false}
+                autoCapitalize="none"
+                spellCheck={false}
+              />
+              <TouchableOpacity
+                onPress={() => setShowKey(!showKey)}
+                style={styles.eyeButton}
+              >
+                {showKey ? (
+                  <EyeOff size={18} color={COLORS.primary} />
+                ) : (
+                  <Eye size={18} color={COLORS.primary} />
+                )}
+              </TouchableOpacity>
+            </View>
+
             <TouchableOpacity
-              onPress={() => setShowKey(!showKey)}
-              style={styles.eyeButton}
+              onPress={handleConnect}
+              disabled={!key.trim()}
+              activeOpacity={0.8}
+              style={[
+                styles.connectButton,
+                !key.trim() && styles.connectDisabled,
+              ]}
             >
-              {showKey ? (
-                <EyeOff size={18} color={COLORS.primary} />
-              ) : (
-                <Eye size={18} color={COLORS.primary} />
-              )}
+              <Text style={styles.connectText}>CONNECT</Text>
             </TouchableOpacity>
-          </View>
 
-          <TouchableOpacity
-            onPress={handleConnect}
-            disabled={!key.trim()}
-            activeOpacity={0.8}
-            style={[
-              styles.connectButton,
-              !key.trim() && styles.connectDisabled,
-            ]}
-          >
-            <Text style={styles.connectText}>CONNECT</Text>
-          </TouchableOpacity>
-
-          <View style={styles.linkWrap}>
-            <TouchableOpacity
-              onPress={() => Linking.openURL('https://openrouter.ai/keys')}
-            >
-              <Text style={styles.linkText}>GET KEY: openrouter.ai</Text>
-            </TouchableOpacity>
+            <View style={styles.linkWrap}>
+              <TouchableOpacity
+                onPress={() => Linking.openURL('https://openrouter.ai/keys')}
+              >
+                <Text style={styles.linkText}>GET KEY: openrouter.ai</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
-      </Animated.View>
-    </ScrollView>
+        </Animated.View>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  scroll: {
+  safe: {
     flex: 1,
     backgroundColor: COLORS.background,
+  },
+  scroll: {
+    flex: 1,
   },
   scrollContent: {
     flexGrow: 1,

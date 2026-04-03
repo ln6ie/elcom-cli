@@ -1,0 +1,200 @@
+import * as SQLite from 'expo-sqlite';
+
+const DB_NAME = 'elcomcli.db';
+
+export interface DatabaseSettings {
+  api_key: string | null;
+  api_url: string;
+  selected_model: string;
+  system_prompt: string;
+  max_tokens: number;
+  temperature: number;
+  context_length: number;
+}
+
+export const DEFAULT_SETTINGS: DatabaseSettings = {
+  api_key: null,
+  api_url: 'https://openrouter.ai/api/v1/chat/completions',
+  selected_model: 'qwen/qwen3.6-plus:free',
+  system_prompt: 'You are ElcomCLI, a professional AI terminal assistant. Help the user with their queries in a concise and technical manner.',
+  max_tokens: 4096,
+  temperature: 0.7,
+  context_length: 15,
+};
+
+export const initDb = async (db: SQLite.SQLiteDatabase) => {
+  try {
+    // Settings table
+    await db.execAsync(`
+      CREATE TABLE IF NOT EXISTS settings (
+        key TEXT PRIMARY KEY,
+        value TEXT
+      );
+    `);
+
+    // Conversations table
+    await db.execAsync(`
+      CREATE TABLE IF NOT EXISTS conversations (
+        id TEXT PRIMARY KEY,
+        title TEXT,
+        model_id TEXT,
+        last_message_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    // Messages table
+    await db.execAsync(`
+      CREATE TABLE IF NOT EXISTS messages (
+        id TEXT PRIMARY KEY,
+        conversation_id TEXT,
+        role TEXT,
+        content TEXT,
+        reasoning TEXT,
+        attachment_uri TEXT,
+        attachment_type TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (conversation_id) REFERENCES conversations (id) ON DELETE CASCADE
+      );
+    `);
+
+    // Custom Models table
+    await db.execAsync(`
+      CREATE TABLE IF NOT EXISTS custom_models (
+        id TEXT PRIMARY KEY,
+        name TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    // Performance Indexes
+    await db.execAsync(`
+      CREATE INDEX IF NOT EXISTS idx_messages_conv_created ON messages(conversation_id, created_at);
+      CREATE INDEX IF NOT EXISTS idx_conv_last ON conversations(last_message_at);
+    `);
+
+    // Initialize default settings if they don't exist
+    for (const [key, value] of Object.entries(DEFAULT_SETTINGS)) {
+      const existing = await db.getFirstAsync<{ value: string }>(
+        'SELECT value FROM settings WHERE key = ?',
+        [key]
+      );
+      if (!existing) {
+        await db.runAsync('INSERT INTO settings (key, value) VALUES (?, ?)', [
+          key,
+          value?.toString() || '',
+        ]);
+      }
+    }
+    
+    console.log('Database initialized successfully');
+  } catch (error) {
+    console.error('Database: Initialization failed', error);
+    throw error;
+  }
+};
+
+export const database = {
+  // Settings CRUD
+  async getSettings(db: SQLite.SQLiteDatabase): Promise<DatabaseSettings> {
+    const rows = await db.getAllAsync<{ key: string; value: string }>(
+      'SELECT key, value FROM settings'
+    );
+    const settings: any = { ...DEFAULT_SETTINGS };
+    rows.forEach((row) => {
+      if (row.key === 'max_tokens' || row.key === 'temperature' || row.key === 'context_length') {
+        settings[row.key] = parseFloat(row.value);
+      } else {
+        settings[row.key] = row.value;
+      }
+    });
+    return settings as DatabaseSettings;
+  },
+
+  async updateSetting(db: SQLite.SQLiteDatabase, key: string, value: string | number): Promise<void> {
+    await db.runAsync('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)', [
+      key,
+      value.toString(),
+    ]);
+  },
+
+  // Conversation CRUD
+  async createConversation(db: SQLite.SQLiteDatabase, id: string, title: string, modelId: string): Promise<void> {
+    await db.runAsync(
+      'INSERT INTO conversations (id, title, model_id) VALUES (?, ?, ?)',
+      [id, title, modelId]
+    );
+  },
+
+  async getAllConversations(db: SQLite.SQLiteDatabase) {
+    return await db.getAllAsync(
+      'SELECT * FROM conversations ORDER BY last_message_at DESC'
+    );
+  },
+
+  async deleteConversation(db: SQLite.SQLiteDatabase, id: string) {
+    await db.runAsync('DELETE FROM conversations WHERE id = ?', [id]);
+  },
+
+  // Message CRUD
+  async addMessage(
+    db: SQLite.SQLiteDatabase,
+    id: string,
+    conversationId: string,
+    role: string,
+    content: string,
+    reasoning?: string,
+    attachmentUri?: string,
+    attachmentType?: string
+  ): Promise<void> {
+    await db.runAsync(
+      `INSERT INTO messages (id, conversation_id, role, content, reasoning, attachment_uri, attachment_type) 
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [id, conversationId, role, content, reasoning || null, attachmentUri || null, attachmentType || null]
+    );
+    // Update last_message_at in conversation
+    await db.runAsync(
+      'UPDATE conversations SET last_message_at = CURRENT_TIMESTAMP WHERE id = ?',
+      [conversationId]
+    );
+  },
+
+  async getMessagesForConversation(db: SQLite.SQLiteDatabase, conversationId: string) {
+    return await db.getAllAsync(
+      'SELECT * FROM messages WHERE conversation_id = ? ORDER BY created_at ASC',
+      [conversationId]
+    );
+  },
+
+  async getMessagesPaginated(db: SQLite.SQLiteDatabase, conversationId: string, limit: number, offset: number) {
+    return await db.getAllAsync(
+      'SELECT * FROM messages WHERE conversation_id = ? ORDER BY created_at DESC LIMIT ? OFFSET ?',
+      [conversationId, limit, offset]
+    );
+  },
+
+  // Custom Models
+  async getCustomModels(db: SQLite.SQLiteDatabase) {
+    return await db.getAllAsync<{ id: string; name: string }>(
+      'SELECT * FROM custom_models ORDER BY created_at DESC'
+    );
+  },
+
+  async addCustomModel(db: SQLite.SQLiteDatabase, id: string, name: string) {
+    await db.runAsync(
+      'INSERT INTO custom_models (id, name) VALUES (?, ?)',
+      [id, name]
+    );
+  },
+
+  async deleteCustomModel(db: SQLite.SQLiteDatabase, id: string) {
+    await db.runAsync('DELETE FROM custom_models WHERE id = ?', [id]);
+  },
+
+  async updateCustomModelName(db: SQLite.SQLiteDatabase, id: string, newName: string) {
+    await db.runAsync(
+      'UPDATE custom_models SET name = ? WHERE id = ?',
+      [newName, id]
+    );
+  },
+};
