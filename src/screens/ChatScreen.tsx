@@ -49,9 +49,10 @@ export const ChatScreen = ({ conversationId, userName, customModels, onCommand }
     type: 'info'
   });
   const flatListRef = useRef<FlatList>(null);
+  const isAtBottomRef = useRef(true);
+  const prevMessageCountRef = useRef(0);
 
   useEffect(() => {
-    // Session initialization banner
     setNotification({
       visible: true,
       message: [`BOOTING_SESSION: ${conversationId.slice(0, 8)}`, 'STATUS: SYSTEM_READY_SECURE'],
@@ -70,14 +71,21 @@ export const ChatScreen = ({ conversationId, userName, customModels, onCommand }
   }, [error]);
 
   useEffect(() => {
-    // Only scroll to bottom on initial load 
-    // Avoid scrolling during generation to let user read comfortably
-    if (messages.length > 0 && !isLoadingMore) {
-      setTimeout(() => {
-        flatListRef.current?.scrollToOffset({ offset: 0, animated: true });
-      }, 100);
+    // Scroll to bottom only on session change
+    setTimeout(() => {
+      flatListRef.current?.scrollToOffset({ offset: 0, animated: false });
+    }, 100);
+  }, [conversationId]);
+
+  useEffect(() => {
+    // Only auto-scroll when a NEW message arrives AND user is already at bottom
+    const newCount = messages.length;
+    const prevCount = prevMessageCountRef.current;
+    if (newCount > prevCount && isAtBottomRef.current) {
+      flatListRef.current?.scrollToOffset({ offset: 0, animated: true });
     }
-  }, [conversationId]); // Only trigger on initial load or session change
+    prevMessageCountRef.current = newCount;
+  }, [messages.length]);
 
   const renderHistoryLoader = () => (
     <View style={styles.historyLoader}>
@@ -173,6 +181,12 @@ export const ChatScreen = ({ conversationId, userName, customModels, onCommand }
           initialNumToRender={15}
           maxToRenderPerBatch={10}
           windowSize={10}
+          maintainVisibleContentPosition={{ minIndexForVisible: 0 }}
+          onScroll={(e) => {
+            // In an inverted list, offset 0 = bottom of conversation
+            isAtBottomRef.current = e.nativeEvent.contentOffset.y < 60;
+          }}
+          scrollEventThrottle={100}
         />
 
         {renderEmpty()}
