@@ -1,8 +1,8 @@
 {
-  "latestVersion": "1.0.0",
-  "minimumVersion": "1.0.0",
+  "latestVersion": "1.0.1",
+  "minimumVersion": "1.0.1",
   "downloadUrl": "https://cli.elcomlab.site/app.apk",
   "releaseNotes": "الإصدار الأول المستقر من ElcomCLI - مساعد الأوامر المدعوم بالبحث الويب.",
   "forceUpdate": false,
-  "updatedAt": "2026-04-03T08:17:00Z"
+  "updatedAt": "2026-04-04T07:22:00Z"
 }
