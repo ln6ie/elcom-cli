@@ -1,23 +1,29 @@
-import { useState, useCallback, useEffect } from 'react';
-import { useSQLiteContext } from 'expo-sqlite';
-import { database, DatabaseSettings, DEFAULT_SETTINGS } from '../services/database';
+import { useState, useCallback, useEffect } from "react";
+import { useSQLiteContext } from "expo-sqlite";
+import {
+  database,
+  DatabaseSettings,
+  DEFAULT_SETTINGS,
+} from "../services/database";
 
 export const useSettings = () => {
   const db = useSQLiteContext();
   const [settings, setSettings] = useState<DatabaseSettings>(DEFAULT_SETTINGS);
-  const [customModels, setCustomModels] = useState<{ id: string; name: string }[]>([]);
+  const [customModels, setCustomModels] = useState<
+    { id: string; name: string }[]
+  >([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const loadSettings = useCallback(async () => {
     try {
       const [data, models] = await Promise.all([
         database.getSettings(db),
-        database.getCustomModels(db)
+        database.getCustomModels(db),
       ]);
       setSettings(data);
       setCustomModels(models);
     } catch (error) {
-      console.error('useSettings: Failed to load settings', error);
+      console.error("useSettings: Failed to load settings", error);
     } finally {
       setIsLoading(false);
     }
@@ -33,7 +39,7 @@ export const useSettings = () => {
         throw error;
       }
     },
-    [db]
+    [db],
   );
 
   const updateMultipleSettings = useCallback(
@@ -46,26 +52,26 @@ export const useSettings = () => {
         }
         setSettings((prev) => ({ ...prev, ...newSettings }));
       } catch (error) {
-        console.error('useSettings: Failed to update multiple settings', error);
+        console.error("useSettings: Failed to update multiple settings", error);
         throw error;
       }
     },
-    [db]
+    [db],
   );
 
   const addCustomModel = async (id: string, name: string) => {
     try {
-      if (customModels.some(m => m.id === id)) return;
+      if (customModels.some((m) => m.id === id)) return;
       await database.addCustomModel(db, id, name);
       setCustomModels((prev) => [{ id, name }, ...prev]);
     } catch (error: any) {
-      if (error?.message?.includes('UNIQUE constraint failed')) {
-        console.log('useSettings: Model already exists in DB');
+      if (error?.message?.includes("UNIQUE constraint failed")) {
+        console.log("useSettings: Model already exists in DB");
         // Refresh custom models list just to be safe
         const models = await database.getCustomModels(db);
         setCustomModels(models);
       } else {
-        console.error('useSettings: Add model failed', error);
+        console.error("useSettings: Add model failed", error);
       }
     }
   };
@@ -73,18 +79,20 @@ export const useSettings = () => {
   const removeCustomModel = async (id: string) => {
     try {
       await database.deleteCustomModel(db, id);
-      setCustomModels((prev) => prev.filter(m => m.id !== id));
+      setCustomModels((prev) => prev.filter((m) => m.id !== id));
     } catch (error) {
-      console.error('useSettings: Delete model failed', error);
+      console.error("useSettings: Delete model failed", error);
     }
   };
 
   const renameCustomModel = async (id: string, newName: string) => {
     try {
       await database.updateCustomModelName(db, id, newName);
-      setCustomModels((prev) => prev.map(m => m.id === id ? { ...m, name: newName } : m));
+      setCustomModels((prev) =>
+        prev.map((m) => (m.id === id ? { ...m, name: newName } : m)),
+      );
     } catch (error) {
-      console.error('useSettings: Rename model failed', error);
+      console.error("useSettings: Rename model failed", error);
     }
   };
 

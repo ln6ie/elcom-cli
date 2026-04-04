@@ -1,8 +1,16 @@
-import React from 'react';
-import { Modal, View, Text, StyleSheet, TouchableOpacity, Linking, ScrollView } from 'react-native';
-import { COLORS, FONTS } from '../constants/theme';
-import { Download, XCircle, Info, ChevronRight } from 'lucide-react-native';
-import { UpdateInfo } from '../services/UpdateService';
+import React from "react";
+import {
+  Modal,
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Linking,
+  ScrollView,
+} from "react-native";
+import { COLORS, FONTS } from "../constants/theme";
+import { Download, XCircle, Info, ChevronRight } from "lucide-react-native";
+import { UpdateInfo } from "../services/UpdateService";
 
 interface UpdateModalProps {
   visible: boolean;
@@ -11,7 +19,12 @@ interface UpdateModalProps {
   onClose: () => void;
 }
 
-export const UpdateModal: React.FC<UpdateModalProps> = ({ visible, info, isForce, onClose }) => {
+export const UpdateModal: React.FC<UpdateModalProps> = ({
+  visible,
+  info,
+  isForce,
+  onClose,
+}) => {
   if (!info) return null;
 
   const handleUpdate = () => {
@@ -25,7 +38,9 @@ export const UpdateModal: React.FC<UpdateModalProps> = ({ visible, info, isForce
           <View style={styles.header}>
             <View style={styles.headerLeft}>
               <Text style={styles.systemTag}>SYSTEM_PATCH_NOTICE</Text>
-              <Text style={styles.title}>UPDATE_AVAILABLE_v{info.latestVersion}</Text>
+              <Text style={styles.title}>
+                UPDATE_AVAILABLE_v{info.latestVersion}
+              </Text>
             </View>
             <Info size={20} color={COLORS.primary} />
           </View>
@@ -39,7 +54,9 @@ export const UpdateModal: React.FC<UpdateModalProps> = ({ visible, info, isForce
             <View style={styles.details}>
               <View style={styles.detailRow}>
                 <ChevronRight size={14} color={COLORS.textDim} />
-                <Text style={styles.detailText}>STATUS: {isForce ? 'CRITICAL_UPDATE' : 'STABLE_ENHANCEMENT'}</Text>
+                <Text style={styles.detailText}>
+                  STATUS: {isForce ? "CRITICAL_UPDATE" : "STABLE_ENHANCEMENT"}
+                </Text>
               </View>
               <View style={styles.detailRow}>
                 <ChevronRight size={14} color={COLORS.textDim} />
@@ -59,11 +76,13 @@ export const UpdateModal: React.FC<UpdateModalProps> = ({ visible, info, isForce
               <Text style={styles.updateText}>DOWNLOAD_&_DEPLOY</Text>
             </TouchableOpacity>
           </View>
-          
+
           {isForce && (
             <View style={styles.forceBanner}>
               <XCircle size={14} color={COLORS.error} />
-              <Text style={styles.forceText}>THIS_UPDATE_IS_MANDATORY_FOR_SYSTEM_INTEGRITY</Text>
+              <Text style={styles.forceText}>
+                THIS_UPDATE_IS_MANDATORY_FOR_SYSTEM_INTEGRITY
+              </Text>
             </View>
           )}
         </View>
@@ -75,8 +94,8 @@ export const UpdateModal: React.FC<UpdateModalProps> = ({ visible, info, isForce
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.85)',
-    justifyContent: 'center',
+    backgroundColor: "rgba(0,0,0,0.85)",
+    justifyContent: "center",
     padding: 20,
   },
   content: {
@@ -85,7 +104,7 @@ const styles = StyleSheet.create({
     borderColor: COLORS.primaryDim,
     borderRadius: 4,
     padding: 20,
-    maxHeight: '80%',
+    maxHeight: "80%",
     shadowColor: COLORS.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
@@ -93,12 +112,12 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
     marginBottom: 20,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255,255,255,0.05)',
+    borderBottomColor: "rgba(255,255,255,0.05)",
     paddingBottom: 12,
   },
   headerLeft: {
@@ -112,7 +131,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   title: {
-    color: '#fff',
+    color: "#fff",
     fontFamily: FONTS.monoBold,
     fontSize: 18,
   },
@@ -126,7 +145,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   notesBox: {
-    backgroundColor: 'rgba(255,255,255,0.03)',
+    backgroundColor: "rgba(255,255,255,0.03)",
     padding: 15,
     borderLeftWidth: 2,
     borderLeftColor: COLORS.primary,
@@ -142,8 +161,8 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   detailRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 8,
   },
   detailText: {
@@ -152,15 +171,15 @@ const styles = StyleSheet.create({
     fontSize: 11,
   },
   footer: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 12,
   },
   skipBtn: {
     flex: 1,
     paddingVertical: 14,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
-    alignItems: 'center',
+    borderColor: "rgba(255,255,255,0.1)",
+    alignItems: "center",
     borderRadius: 4,
   },
   skipText: {
@@ -171,32 +190,32 @@ const styles = StyleSheet.create({
   updateBtn: {
     flex: 1.5,
     backgroundColor: COLORS.primary,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     paddingVertical: 14,
     borderRadius: 4,
     gap: 10,
   },
   updateText: {
-    color: '#000',
+    color: "#000",
     fontFamily: FONTS.monoBold,
     fontSize: 12,
   },
   forceBanner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     gap: 8,
     marginTop: 16,
     paddingTop: 16,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255,255,255,0.05)',
+    borderTopColor: "rgba(255,255,255,0.05)",
   },
   forceText: {
     color: COLORS.error,
     fontFamily: FONTS.mono,
     fontSize: 10,
-    textAlign: 'center',
-  }
+    textAlign: "center",
+  },
 });

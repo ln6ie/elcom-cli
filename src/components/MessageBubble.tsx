@@ -1,10 +1,10 @@
-import { View, Text, Pressable, StyleSheet, Image } from 'react-native';
-import { Message } from '../types/chat';
-import { useState } from 'react';
-import * as Clipboard from 'expo-clipboard';
-import { Copy, Check } from 'lucide-react-native';
-import { COLORS, FONTS } from '../constants/theme';
-import { MarkdownView } from './MarkdownView';
+import { View, Text, Pressable, StyleSheet, Image } from "react-native";
+import { Message } from "../types/chat";
+import { useState } from "react";
+import * as Clipboard from "expo-clipboard";
+import { Copy, Check } from "lucide-react-native";
+import { COLORS, FONTS } from "../constants/theme";
+import { MarkdownView } from "./MarkdownView";
 
 interface MessageBubbleProps {
   message: Message;
@@ -17,16 +17,22 @@ const isArabic = (text: string) => {
   return arabicPattern.test(text.slice(0, 50));
 };
 
-export const MessageBubble = ({ message, userName, modelName }: MessageBubbleProps) => {
+export const MessageBubble = ({
+  message,
+  userName,
+  modelName,
+}: MessageBubbleProps) => {
   const [showReasoning, setShowReasoning] = useState(false);
   const [copied, setCopied] = useState(false);
-  const isAssistant = message.role === 'assistant';
+  const isAssistant = message.role === "assistant";
   const rtl = isArabic(message.content);
 
-  const displayUser = userName || 'USER';
-  const displayAI = modelName || 'AI';
-  
-  const prefix = isAssistant ? `${displayAI.toUpperCase().slice(0, 12)} > ` : `${displayUser.toUpperCase().slice(0, 12)} > `;
+  const displayUser = userName || "USER";
+  const displayAI = modelName || "AI";
+
+  const prefix = isAssistant
+    ? `${displayAI.toUpperCase().slice(0, 12)} > `
+    : `${displayUser.toUpperCase().slice(0, 12)} > `;
   const prefixColor = isAssistant ? COLORS.success : COLORS.primary;
   const borderColor = isAssistant ? COLORS.success : COLORS.primary;
 
@@ -37,32 +43,32 @@ export const MessageBubble = ({ message, userName, modelName }: MessageBubblePro
   };
 
   return (
-    <View style={[
-      styles.container, 
-      { 
-        borderLeftColor: borderColor, 
-        borderRightColor: borderColor 
-      },
-      rtl && styles.rtlContainer
-    ]}>
+    <View
+      style={[
+        styles.container,
+        {
+          borderLeftColor: borderColor,
+          borderRightColor: borderColor,
+        },
+        rtl && styles.rtlContainer,
+      ]}
+    >
       <View style={[styles.prefixRow, rtl && styles.rtlRow]}>
-        <Text style={[styles.prefix, { color: prefixColor }]}>
-          {prefix}
-        </Text>
+        <Text style={[styles.prefix, { color: prefixColor }]}>{prefix}</Text>
       </View>
 
       <View style={styles.contentWrap}>
         {message.attachment && message.attachment.uri && (
           <View style={styles.attachmentBox}>
-            <Image 
-              source={{ uri: message.attachment.uri }} 
-              style={styles.attachedImage} 
+            <Image
+              source={{ uri: message.attachment.uri }}
+              style={styles.attachedImage}
               resizeMode="contain"
             />
           </View>
         )}
         <MarkdownView content={message.content} />
-        
+
         {isAssistant && message.content.length > 0 && (
           <View style={styles.actionRow}>
             <Pressable
@@ -75,8 +81,13 @@ export const MessageBubble = ({ message, userName, modelName }: MessageBubblePro
               ) : (
                 <Copy size={14} color={COLORS.primaryDim} />
               )}
-              <Text style={[styles.actionText, { color: copied ? COLORS.success : COLORS.primaryDim }]}>
-                {copied ? 'COPIED' : 'COPY_ALL'}
+              <Text
+                style={[
+                  styles.actionText,
+                  { color: copied ? COLORS.success : COLORS.primaryDim },
+                ]}
+              >
+                {copied ? "COPIED" : "COPY_ALL"}
               </Text>
             </Pressable>
           </View>
@@ -86,18 +97,21 @@ export const MessageBubble = ({ message, userName, modelName }: MessageBubblePro
       {message.reasoning && message.reasoning.trim().length > 0 && (
         <View style={styles.reasoningWrap}>
           <Pressable
-            onPress={() => setShowReasoning(prev => !prev)}
+            onPress={() => setShowReasoning((prev) => !prev)}
             style={[styles.reasoningToggle, rtl && styles.rtlRow]}
             hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
           >
             <Text style={styles.reasoningLabel}>
-              {showReasoning ? '[-] HIDE_REASONING' : '[+] SHOW_REASONING'}
+              {showReasoning ? "[-] HIDE_REASONING" : "[+] SHOW_REASONING"}
             </Text>
           </Pressable>
 
           {showReasoning && (
             <View style={styles.reasoningBox}>
-              <Text selectable style={[styles.reasoningText, rtl && styles.rtlText]}>
+              <Text
+                selectable
+                style={[styles.reasoningText, rtl && styles.rtlText]}
+              >
                 {message.reasoning}
               </Text>
             </View>
@@ -122,12 +136,12 @@ const styles = StyleSheet.create({
     borderRightWidth: 2,
   },
   prefixRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 6,
   },
   rtlRow: {
-    flexDirection: 'row-reverse',
+    flexDirection: "row-reverse",
   },
   prefix: {
     fontFamily: FONTS.monoBold,
@@ -137,16 +151,16 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   attachmentBox: {
-    width: '100%',
+    width: "100%",
     backgroundColor: COLORS.surface,
     borderWidth: 1,
     borderColor: COLORS.border,
     marginBottom: 12,
-    overflow: 'hidden',
+    overflow: "hidden",
     borderRadius: 4,
   },
   attachedImage: {
-    width: '100%',
+    width: "100%",
     height: 250,
   },
   reasoningWrap: {
@@ -156,8 +170,8 @@ const styles = StyleSheet.create({
     paddingTop: 10,
   },
   reasoningToggle: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   reasoningLabel: {
     color: COLORS.primaryDim,
@@ -175,22 +189,22 @@ const styles = StyleSheet.create({
     color: COLORS.success,
     fontFamily: FONTS.mono,
     fontSize: 11,
-    fontStyle: 'italic',
+    fontStyle: "italic",
     opacity: 0.7,
   },
   rtlText: {
-    textAlign: 'right',
+    textAlign: "right",
   },
   actionRow: {
-    flexDirection: 'row',
+    flexDirection: "row",
     marginTop: 8,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255,255,255,0.05)',
+    borderTopColor: "rgba(255,255,255,0.05)",
     paddingTop: 8,
   },
   copyAction: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     padding: 4,
   },
   actionText: {

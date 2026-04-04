@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Text, TextStyle, StyleSheet } from 'react-native';
-import { COLORS, FONTS } from '../constants/theme';
+import React, { useState, useEffect } from "react";
+import { Text, TextStyle, StyleSheet } from "react-native";
+import { COLORS, FONTS } from "../constants/theme";
 
 interface TypewriterTextProps {
   phrases: string[];
@@ -11,8 +11,15 @@ interface TypewriterTextProps {
   onComplete?: () => void;
 }
 
-export const TypewriterText = ({ phrases, speed = 40, deleteSpeed = 20, pause = 1500, style, onComplete }: TypewriterTextProps) => {
-  const [displayedText, setDisplayedText] = useState('');
+export const TypewriterText = ({
+  phrases,
+  speed = 40,
+  deleteSpeed = 20,
+  pause = 1500,
+  style,
+  onComplete,
+}: TypewriterTextProps) => {
+  const [displayedText, setDisplayedText] = useState("");
   const [phraseIndex, setPhraseIndex] = useState(0);
   const [charIndex, setCharIndex] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -20,7 +27,7 @@ export const TypewriterText = ({ phrases, speed = 40, deleteSpeed = 20, pause = 
   useEffect(() => {
     if (phraseIndex < phrases.length) {
       const currentPhrase = phrases[phraseIndex];
-      
+
       if (!isDeleting && charIndex < currentPhrase.length) {
         // Typing
         const timeout = setTimeout(() => {
@@ -46,7 +53,16 @@ export const TypewriterText = ({ phrases, speed = 40, deleteSpeed = 20, pause = 
         if (phraseIndex === phrases.length - 1 && onComplete) onComplete();
       }
     }
-  }, [charIndex, isDeleting, phraseIndex, phrases, speed, deleteSpeed, pause, onComplete]);
+  }, [
+    charIndex,
+    isDeleting,
+    phraseIndex,
+    phrases,
+    speed,
+    deleteSpeed,
+    pause,
+    onComplete,
+  ]);
 
   return (
     <Text style={[styles.text, style]}>
@@ -60,8 +76,8 @@ const styles = StyleSheet.create({
   text: {
     color: COLORS.text,
     fontFamily: FONTS.mono,
-    textAlign: 'right',
-    writingDirection: 'rtl',
+    textAlign: "right",
+    writingDirection: "rtl",
   },
   cursor: {
     color: COLORS.primary,

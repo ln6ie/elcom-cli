@@ -1,9 +1,15 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, Text, ScrollView, TouchableOpacity } from 'react-native';
-import Markdown from 'react-native-markdown-display';
-import * as Clipboard from 'expo-clipboard';
-import { Copy, Check } from 'lucide-react-native';
-import { COLORS, FONTS } from '../constants/theme';
+import React, { useState } from "react";
+import {
+  StyleSheet,
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+} from "react-native";
+import Markdown from "react-native-markdown-display";
+import * as Clipboard from "expo-clipboard";
+import { Copy, Check } from "lucide-react-native";
+import { COLORS, FONTS } from "../constants/theme";
 
 interface MarkdownViewProps {
   content: string;
@@ -37,8 +43,10 @@ export const MarkdownView = ({ content }: MarkdownViewProps) => {
           fence: (node, children, parent, styles) => (
             <View key={node.key} style={styles.codeBlock}>
               <View style={styles.codeHeader}>
-                <Text style={styles.codeLang}>[{node.attributes.language || 'CODE'}]</Text>
-                <TouchableOpacity 
+                <Text style={styles.codeLang}>
+                  [{node.attributes.language || "CODE"}]
+                </Text>
+                <TouchableOpacity
                   onPress={() => handleCopyCode(node.content.trim(), node.key)}
                   style={styles.copyBtn}
                 >
@@ -65,7 +73,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   rtlContainer: {
-    alignItems: 'flex-end',
+    alignItems: "flex-end",
   },
 });
 
@@ -119,7 +127,7 @@ const markdownStyles: any = {
   tr: {
     borderBottomWidth: 1,
     borderBottomColor: COLORS.border,
-    flexDirection: 'row',
+    flexDirection: "row",
   },
   th: {
     backgroundColor: COLORS.surface,
@@ -138,22 +146,22 @@ const markdownStyles: any = {
     borderColor: COLORS.border,
     padding: 12,
     marginVertical: 12,
-    width: '100%',
+    width: "100%",
   },
   codeHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 8,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255,255,255,0.05)',
+    borderBottomColor: "rgba(255,255,255,0.05)",
     paddingBottom: 4,
   },
   codeLang: {
     color: COLORS.textDim,
     fontFamily: FONTS.mono,
     fontSize: 9,
-    textTransform: 'uppercase',
+    textTransform: "uppercase",
   },
   copyBtn: {
     padding: 4,

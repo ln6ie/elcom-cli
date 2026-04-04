@@ -1,6 +1,6 @@
-import React from 'react';
-import { View, Text, StyleSheet, ViewStyle, TextStyle } from 'react-native';
-import { COLORS, FONTS } from '../constants/theme';
+import React from "react";
+import { View, Text, StyleSheet, ViewStyle, TextStyle } from "react-native";
+import { COLORS, FONTS } from "../constants/theme";
 
 export const APP_BRAND_ASCII = `
   ______ _      _____ ____  __  __ 
@@ -24,26 +24,26 @@ interface AppBrandProps {
   textStyle?: TextStyle;
 }
 
-export const AppBrand: React.FC<AppBrandProps> = ({ 
-  fontSize = 8, 
-  showVersion = true, 
-  style, 
-  textStyle 
+export const AppBrand: React.FC<AppBrandProps> = ({
+  fontSize = 8,
+  showVersion = true,
+  style,
+  textStyle,
 }) => {
   return (
     <View style={[styles.container, style]}>
-      <Text 
+      <Text
         style={[
-          styles.ascii, 
-          { fontSize, lineHeight: fontSize + 1 }, 
-          textStyle
+          styles.ascii,
+          { fontSize, lineHeight: fontSize + 1 },
+          textStyle,
         ]}
       >
         {APP_BRAND_ASCII}
       </Text>
       {showVersion && (
         <Text style={[styles.versionTag, { fontSize: fontSize + 2 }]}>
-           CLI_AI_v1.0.0 [STABLE]
+          CLI_AI_v1.0.0 [STABLE]
         </Text>
       )}
     </View>
@@ -52,20 +52,20 @@ export const AppBrand: React.FC<AppBrandProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   ascii: {
     color: COLORS.primary,
     fontFamily: FONTS.mono,
-    textAlign: 'center',
+    textAlign: "center",
   },
   versionTag: {
     color: COLORS.primary,
     fontFamily: FONTS.mono,
     opacity: 0.6,
-    textAlign: 'center',
+    textAlign: "center",
     marginTop: 10,
     letterSpacing: 2,
-  }
+  },
 });

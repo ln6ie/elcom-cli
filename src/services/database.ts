@@ -1,6 +1,6 @@
-import * as SQLite from 'expo-sqlite';
+import * as SQLite from "expo-sqlite";
 
-const DB_NAME = 'elcomcli.db';
+const DB_NAME = "elcomcli.db";
 
 export interface DatabaseSettings {
   api_key: string | null;
@@ -14,12 +14,13 @@ export interface DatabaseSettings {
 
 export const DEFAULT_SETTINGS: DatabaseSettings = {
   api_key: null,
-  selected_model: 'qwen/qwen3.6-plus:free',
-  system_prompt: 'You are ElcomCLI, a professional AI terminal assistant. Help the user with their queries in a concise and technical manner.',
+  selected_model: "qwen/qwen3.6-plus:free",
+  system_prompt:
+    "You are ElcomCLI, a professional AI terminal assistant. Help the user with their queries in a concise and technical manner.",
   max_tokens: 4096,
   temperature: 0.7,
   context_length: 15,
-  user_name: 'USER',
+  user_name: "USER",
 };
 
 export const initDb = async (db: SQLite.SQLiteDatabase) => {
@@ -61,7 +62,7 @@ export const initDb = async (db: SQLite.SQLiteDatabase) => {
 
     // Migration: Add model_id to messages if it doesn't exist
     try {
-      await db.execAsync('ALTER TABLE messages ADD COLUMN model_id TEXT;');
+      await db.execAsync("ALTER TABLE messages ADD COLUMN model_id TEXT;");
     } catch (e) {
       // Column might already exist
     }
@@ -84,20 +85,20 @@ export const initDb = async (db: SQLite.SQLiteDatabase) => {
     // Initialize default settings if they don't exist
     for (const [key, value] of Object.entries(DEFAULT_SETTINGS)) {
       const existing = await db.getFirstAsync<{ value: string }>(
-        'SELECT value FROM settings WHERE key = ?',
-        [key]
+        "SELECT value FROM settings WHERE key = ?",
+        [key],
       );
       if (!existing) {
-        await db.runAsync('INSERT INTO settings (key, value) VALUES (?, ?)', [
+        await db.runAsync("INSERT INTO settings (key, value) VALUES (?, ?)", [
           key,
-          value?.toString() || '',
+          value?.toString() || "",
         ]);
       }
     }
 
-    console.log('Database initialized successfully');
+    console.log("Database initialized successfully");
   } catch (error) {
-    console.error('Database: Initialization failed', error);
+    console.error("Database: Initialization failed", error);
     throw error;
   }
 };
@@ -106,11 +107,15 @@ export const database = {
   // Settings CRUD
   async getSettings(db: SQLite.SQLiteDatabase): Promise<DatabaseSettings> {
     const rows = await db.getAllAsync<{ key: string; value: string }>(
-      'SELECT key, value FROM settings'
+      "SELECT key, value FROM settings",
     );
     const settings: any = { ...DEFAULT_SETTINGS };
     rows.forEach((row) => {
-      if (row.key === 'max_tokens' || row.key === 'temperature' || row.key === 'context_length') {
+      if (
+        row.key === "max_tokens" ||
+        row.key === "temperature" ||
+        row.key === "context_length"
+      ) {
         settings[row.key] = parseFloat(row.value);
       } else {
         settings[row.key] = row.value;
@@ -119,43 +124,57 @@ export const database = {
     return settings as DatabaseSettings;
   },
 
-  async updateSetting(db: SQLite.SQLiteDatabase, key: string, value: string | number): Promise<void> {
-    await db.runAsync('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)', [
-      key,
-      value.toString(),
-    ]);
+  async updateSetting(
+    db: SQLite.SQLiteDatabase,
+    key: string,
+    value: string | number,
+  ): Promise<void> {
+    await db.runAsync(
+      "INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)",
+      [key, value.toString()],
+    );
   },
 
   // Conversation CRUD
-  async createConversation(db: SQLite.SQLiteDatabase, id: string, title: string, modelId: string): Promise<void> {
+  async createConversation(
+    db: SQLite.SQLiteDatabase,
+    id: string,
+    title: string,
+    modelId: string,
+  ): Promise<void> {
     await db.runAsync(
-      'INSERT INTO conversations (id, title, model_id) VALUES (?, ?, ?)',
-      [id, title, modelId]
+      "INSERT INTO conversations (id, title, model_id) VALUES (?, ?, ?)",
+      [id, title, modelId],
     );
   },
 
   async getAllConversations(db: SQLite.SQLiteDatabase) {
     return await db.getAllAsync(
-      'SELECT * FROM conversations ORDER BY last_message_at DESC'
+      "SELECT * FROM conversations ORDER BY last_message_at DESC",
     );
   },
 
   async getConversationById(db: SQLite.SQLiteDatabase, id: string) {
-    return await db.getFirstAsync<{ id: string; title: string; model_id: string }>(
-      'SELECT * FROM conversations WHERE id = ?',
-      [id]
-    );
+    return await db.getFirstAsync<{
+      id: string;
+      title: string;
+      model_id: string;
+    }>("SELECT * FROM conversations WHERE id = ?", [id]);
   },
 
   async deleteConversation(db: SQLite.SQLiteDatabase, id: string) {
-    await db.runAsync('DELETE FROM conversations WHERE id = ?', [id]);
+    await db.runAsync("DELETE FROM conversations WHERE id = ?", [id]);
   },
 
-  async updateConversationTitle(db: SQLite.SQLiteDatabase, id: string, title: string) {
-    await db.runAsync(
-      'UPDATE conversations SET title = ? WHERE id = ?',
-      [title, id]
-    );
+  async updateConversationTitle(
+    db: SQLite.SQLiteDatabase,
+    id: string,
+    title: string,
+  ) {
+    await db.runAsync("UPDATE conversations SET title = ? WHERE id = ?", [
+      title,
+      id,
+    ]);
   },
 
   // Message CRUD
@@ -168,56 +187,77 @@ export const database = {
     reasoning?: string,
     attachmentUri?: string,
     attachmentType?: string,
-    modelId?: string
+    modelId?: string,
   ): Promise<void> {
     await db.runAsync(
       `INSERT INTO messages (id, conversation_id, role, content, reasoning, attachment_uri, attachment_type, model_id) 
        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-      [id, conversationId, role, content, reasoning || null, attachmentUri || null, attachmentType || null, modelId || null]
+      [
+        id,
+        conversationId,
+        role,
+        content,
+        reasoning || null,
+        attachmentUri || null,
+        attachmentType || null,
+        modelId || null,
+      ],
     );
     // Update last_message_at in conversation
     await db.runAsync(
-      'UPDATE conversations SET last_message_at = CURRENT_TIMESTAMP WHERE id = ?',
-      [conversationId]
+      "UPDATE conversations SET last_message_at = CURRENT_TIMESTAMP WHERE id = ?",
+      [conversationId],
     );
   },
 
-  async getMessagesForConversation(db: SQLite.SQLiteDatabase, conversationId: string) {
+  async getMessagesForConversation(
+    db: SQLite.SQLiteDatabase,
+    conversationId: string,
+  ) {
     return await db.getAllAsync(
-      'SELECT * FROM messages WHERE conversation_id = ? ORDER BY created_at ASC',
-      [conversationId]
+      "SELECT * FROM messages WHERE conversation_id = ? ORDER BY created_at ASC",
+      [conversationId],
     );
   },
 
-  async getMessagesPaginated(db: SQLite.SQLiteDatabase, conversationId: string, limit: number, offset: number) {
+  async getMessagesPaginated(
+    db: SQLite.SQLiteDatabase,
+    conversationId: string,
+    limit: number,
+    offset: number,
+  ) {
     return await db.getAllAsync(
-      'SELECT * FROM messages WHERE conversation_id = ? ORDER BY created_at DESC LIMIT ? OFFSET ?',
-      [conversationId, limit, offset]
+      "SELECT * FROM messages WHERE conversation_id = ? ORDER BY created_at DESC LIMIT ? OFFSET ?",
+      [conversationId, limit, offset],
     );
   },
 
   // Custom Models
   async getCustomModels(db: SQLite.SQLiteDatabase) {
     return await db.getAllAsync<{ id: string; name: string }>(
-      'SELECT * FROM custom_models ORDER BY created_at DESC'
+      "SELECT * FROM custom_models ORDER BY created_at DESC",
     );
   },
 
   async addCustomModel(db: SQLite.SQLiteDatabase, id: string, name: string) {
-    await db.runAsync(
-      'INSERT INTO custom_models (id, name) VALUES (?, ?)',
-      [id, name]
-    );
+    await db.runAsync("INSERT INTO custom_models (id, name) VALUES (?, ?)", [
+      id,
+      name,
+    ]);
   },
 
   async deleteCustomModel(db: SQLite.SQLiteDatabase, id: string) {
-    await db.runAsync('DELETE FROM custom_models WHERE id = ?', [id]);
+    await db.runAsync("DELETE FROM custom_models WHERE id = ?", [id]);
   },
 
-  async updateCustomModelName(db: SQLite.SQLiteDatabase, id: string, newName: string) {
-    await db.runAsync(
-      'UPDATE custom_models SET name = ? WHERE id = ?',
-      [newName, id]
-    );
+  async updateCustomModelName(
+    db: SQLite.SQLiteDatabase,
+    id: string,
+    newName: string,
+  ) {
+    await db.runAsync("UPDATE custom_models SET name = ? WHERE id = ?", [
+      newName,
+      id,
+    ]);
   },
 };

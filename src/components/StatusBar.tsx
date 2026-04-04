@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -6,8 +6,8 @@ import {
   StyleSheet,
   ViewStyle,
   Animated,
-} from 'react-native';
-import { COLORS, FONTS } from '../constants/theme';
+} from "react-native";
+import { COLORS, FONTS } from "../constants/theme";
 
 interface StatusBarProps {
   title?: string;
@@ -15,7 +15,11 @@ interface StatusBarProps {
   style?: ViewStyle;
 }
 
-export const StatusBar = ({ title = 'ELCOM_CLI', subtitle = 'ONLINE', style }: StatusBarProps) => {
+export const StatusBar = ({
+  title = "ELCOM_CLI",
+  subtitle = "ONLINE",
+  style,
+}: StatusBarProps) => {
   return (
     <View style={[styles.container, style]}>
       <View style={styles.left}>
@@ -29,9 +33,9 @@ export const StatusBar = ({ title = 'ELCOM_CLI', subtitle = 'ONLINE', style }: S
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderBottomWidth: 2,
@@ -39,8 +43,8 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.background,
   },
   left: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   title: {
     color: COLORS.primary,
@@ -58,8 +62,8 @@ const styles = StyleSheet.create({
     fontSize: 10,
   },
   right: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 16,
   },
   button: {

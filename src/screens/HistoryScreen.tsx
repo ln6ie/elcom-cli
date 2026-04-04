@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback } from "react";
 import {
   View,
   Text,
@@ -7,13 +7,13 @@ import {
   StyleSheet,
   ActivityIndicator,
   Platform,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useSQLiteContext } from 'expo-sqlite';
-import { database } from '../services/database';
-import { COLORS, FONTS } from '../constants/theme';
-import { Trash2, MessageSquare, ChevronRight } from 'lucide-react-native';
-import { CliNotification } from '../components/CliNotification';
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useSQLiteContext } from "expo-sqlite";
+import { database } from "../services/database";
+import { COLORS, FONTS } from "../constants/theme";
+import { Trash2, MessageSquare, ChevronRight } from "lucide-react-native";
+import { CliNotification } from "../components/CliNotification";
 
 interface HistoryScreenProps {
   onSelect: (id: string) => void;
@@ -21,14 +21,22 @@ interface HistoryScreenProps {
   onNew: () => void;
 }
 
-export const HistoryScreen = ({ onSelect, onBack, onNew }: HistoryScreenProps) => {
+export const HistoryScreen = ({
+  onSelect,
+  onBack,
+  onNew,
+}: HistoryScreenProps) => {
   const db = useSQLiteContext();
   const [conversations, setConversations] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [notification, setNotification] = useState<{ visible: boolean; message: string | string[]; type: 'success' | 'error' | 'info' }>({
+  const [notification, setNotification] = useState<{
+    visible: boolean;
+    message: string | string[];
+    type: "success" | "error" | "info";
+  }>({
     visible: false,
-    message: '',
-    type: 'success'
+    message: "",
+    type: "success",
   });
 
   const loadHistory = useCallback(async () => {
@@ -37,7 +45,7 @@ export const HistoryScreen = ({ onSelect, onBack, onNew }: HistoryScreenProps) =
       const data = await database.getAllConversations(db);
       setConversations(data);
     } catch (error) {
-      console.error('History: Failed to load', error);
+      console.error("History: Failed to load", error);
     } finally {
       setIsLoading(false);
     }
@@ -53,35 +61,40 @@ export const HistoryScreen = ({ onSelect, onBack, onNew }: HistoryScreenProps) =
       setConversations((prev) => prev.filter((c) => c.id !== id));
       setNotification({
         visible: true,
-        message: [`SESSION_ID_${id.slice(0, 4)}_DELETED`, 'FS_CLEANUP_COMPLETE'],
-        type: 'success',
+        message: [
+          `SESSION_ID_${id.slice(0, 4)}_DELETED`,
+          "FS_CLEANUP_COMPLETE",
+        ],
+        type: "success",
       });
     } catch (error) {
       setNotification({
         visible: true,
-        message: 'SYSTEM_ERROR: DELETE_OPERATION_FAILED',
-        type: 'error',
+        message: "SYSTEM_ERROR: DELETE_OPERATION_FAILED",
+        type: "error",
       });
     }
   };
 
   const renderItem = ({ item }: { item: any }) => (
     <View style={styles.itemContainer}>
-      <TouchableOpacity 
-        style={styles.itemMain} 
+      <TouchableOpacity
+        style={styles.itemMain}
         onPress={() => onSelect(item.id)}
       >
         <View style={styles.itemHeader}>
           <Text style={styles.itemTitle} numberOfLines={1}>
-            {item.title || 'UNNAMED_SESSION'}
+            {item.title || "UNNAMED_SESSION"}
           </Text>
-          <Text style={styles.itemDate}>{new Date(item.last_message_at).toLocaleDateString()}</Text>
+          <Text style={styles.itemDate}>
+            {new Date(item.last_message_at).toLocaleDateString()}
+          </Text>
         </View>
         <Text style={styles.itemModel}>{item.model_id}</Text>
       </TouchableOpacity>
-      
-      <TouchableOpacity 
-        style={styles.deleteButton} 
+
+      <TouchableOpacity
+        style={styles.deleteButton}
         onPress={() => handleDelete(item.id)}
       >
         <Trash2 size={18} color={COLORS.error} />
@@ -90,14 +103,14 @@ export const HistoryScreen = ({ onSelect, onBack, onNew }: HistoryScreenProps) =
   );
 
   return (
-    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
-      <CliNotification 
+    <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
+      <CliNotification
         visible={notification.visible}
         message={notification.message}
         type={notification.type}
-        onHide={() => setNotification(prev => ({ ...prev, visible: false }))}
+        onHide={() => setNotification((prev) => ({ ...prev, visible: false }))}
       />
-      
+
       <View style={styles.header}>
         <Text style={styles.headerTitle}>LOG_ARCHIVE // SESSIONS</Text>
         <TouchableOpacity onPress={onBack}>
@@ -121,10 +134,12 @@ export const HistoryScreen = ({ onSelect, onBack, onNew }: HistoryScreenProps) =
           contentContainerStyle={styles.list}
           ListEmptyComponent={
             <View style={styles.center}>
-              <Text style={styles.emptyText}>NO_RECORDS_FOUND. START_FIRST_LOG?</Text>
+              <Text style={styles.emptyText}>
+                NO_RECORDS_FOUND. START_FIRST_LOG?
+              </Text>
             </View>
           }
-          removeClippedSubviews={Platform.OS === 'android'}
+          removeClippedSubviews={Platform.OS === "android"}
           initialNumToRender={10}
           maxToRenderPerBatch={10}
           windowSize={5}
@@ -140,9 +155,9 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.background,
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     padding: 16,
     borderBottomWidth: 1,
     borderBottomColor: COLORS.border,
@@ -161,8 +176,8 @@ const styles = StyleSheet.create({
     padding: 16,
     borderWidth: 1,
     borderColor: COLORS.success,
-    borderStyle: 'dashed',
-    alignItems: 'center',
+    borderStyle: "dashed",
+    alignItems: "center",
   },
   newButtonText: {
     color: COLORS.success,
@@ -173,21 +188,21 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   itemContainer: {
-    flexDirection: 'row',
+    flexDirection: "row",
     backgroundColor: COLORS.surface,
     borderWidth: 1,
     borderColor: COLORS.border,
     marginBottom: 12,
-    alignItems: 'center',
+    alignItems: "center",
   },
   itemMain: {
     flex: 1,
     padding: 12,
   },
   itemHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 4,
   },
   itemTitle: {
@@ -214,14 +229,14 @@ const styles = StyleSheet.create({
   },
   center: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     marginTop: 40,
   },
   emptyText: {
     color: COLORS.textDim,
     fontFamily: FONTS.mono,
     fontSize: 12,
-    textAlign: 'center',
+    textAlign: "center",
   },
 });

@@ -1,15 +1,15 @@
-import * as ImagePicker from 'expo-image-picker';
-import * as FileSystem from 'expo-file-system/legacy';
-import { useCallback, useState } from 'react';
-import { Alert } from 'react-native';
+import * as ImagePicker from "expo-image-picker";
+import * as FileSystem from "expo-file-system/legacy";
+import { useCallback, useState } from "react";
+import { Alert } from "react-native";
 
 export const useImagePicker = () => {
   const [isPicking, setIsPicking] = useState(false);
 
   const pickImage = useCallback(async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== 'granted') {
-      Alert.alert('PERMISSION_DENIED', 'MEDIA_LIBRARY_ACCESS_REQUIRED');
+    if (status !== "granted") {
+      Alert.alert("PERMISSION_DENIED", "MEDIA_LIBRARY_ACCESS_REQUIRED");
       return null;
     }
 
@@ -26,22 +26,22 @@ export const useImagePicker = () => {
         const asset = result.assets[0];
         const filename = `img_${Date.now()}.jpg`;
         const permanentUri = `${(FileSystem as any).documentDirectory}${filename}`;
-        
+
         // Copy to permanent storage
         await (FileSystem as any).copyAsync({
           from: asset.uri,
-          to: permanentUri
+          to: permanentUri,
         });
 
         return {
           uri: permanentUri,
           base64: asset.base64,
-          type: 'image/jpeg',
+          type: "image/jpeg",
         };
       }
     } catch (error) {
-      console.error('ImagePicker: Failed', error);
-      Alert.alert('SYSTEM_ERROR', 'FAILED_TO_LOAD_IMAGE');
+      console.error("ImagePicker: Failed", error);
+      Alert.alert("SYSTEM_ERROR", "FAILED_TO_LOAD_IMAGE");
     } finally {
       setIsPicking(false);
     }
@@ -50,8 +50,8 @@ export const useImagePicker = () => {
 
   const takePhoto = useCallback(async () => {
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
-    if (status !== 'granted') {
-      Alert.alert('PERMISSION_DENIED', 'CAMERA_ACCESS_REQUIRED');
+    if (status !== "granted") {
+      Alert.alert("PERMISSION_DENIED", "CAMERA_ACCESS_REQUIRED");
       return null;
     }
 
@@ -71,18 +71,18 @@ export const useImagePicker = () => {
         // Copy to permanent storage
         await (FileSystem as any).copyAsync({
           from: asset.uri,
-          to: permanentUri
+          to: permanentUri,
         });
 
         return {
           uri: permanentUri,
           base64: asset.base64,
-          type: 'image/jpeg',
+          type: "image/jpeg",
         };
       }
     } catch (error) {
-      console.error('Camera: Failed', error);
-      Alert.alert('SYSTEM_ERROR', 'FAILED_TO_CAPTURE_PHOTO');
+      console.error("Camera: Failed", error);
+      Alert.alert("SYSTEM_ERROR", "FAILED_TO_CAPTURE_PHOTO");
     } finally {
       setIsPicking(false);
     }

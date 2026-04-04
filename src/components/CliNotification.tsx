@@ -1,18 +1,13 @@
-import React, { useEffect, useRef } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Animated,
-} from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { COLORS, FONTS } from '../constants/theme';
-import { CheckCircle2, AlertCircle, Info } from 'lucide-react-native';
+import React, { useEffect, useRef } from "react";
+import { View, Text, StyleSheet, Animated } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { COLORS, FONTS } from "../constants/theme";
+import { CheckCircle2, AlertCircle, Info } from "lucide-react-native";
 
 interface CliNotificationProps {
   visible: boolean;
   message: string | string[];
-  type?: 'success' | 'error' | 'info';
+  type?: "success" | "error" | "info";
   duration?: number;
   onHide?: () => void;
 }
@@ -20,7 +15,7 @@ interface CliNotificationProps {
 export const CliNotification = ({
   visible,
   message,
-  type = 'success',
+  type = "success",
   duration = 3000,
   onHide,
 }: CliNotificationProps) => {
@@ -70,16 +65,28 @@ export const CliNotification = ({
   if (!visible) return null;
 
   const borderColor =
-    type === 'error' ? COLORS.error : type === 'info' ? COLORS.primary : COLORS.success;
+    type === "error"
+      ? COLORS.error
+      : type === "info"
+        ? COLORS.primary
+        : COLORS.success;
 
   const iconColor =
-    type === 'error' ? COLORS.error : type === 'info' ? COLORS.primary : COLORS.success;
+    type === "error"
+      ? COLORS.error
+      : type === "info"
+        ? COLORS.primary
+        : COLORS.success;
 
   const labelColor =
-    type === 'error' ? COLORS.error : type === 'info' ? COLORS.primary : COLORS.success;
+    type === "error"
+      ? COLORS.error
+      : type === "info"
+        ? COLORS.primary
+        : COLORS.success;
 
   const Icon =
-    type === 'error' ? AlertCircle : type === 'info' ? Info : CheckCircle2;
+    type === "error" ? AlertCircle : type === "info" ? Info : CheckCircle2;
 
   const messages = Array.isArray(message) ? message : [message];
 
@@ -87,9 +94,9 @@ export const CliNotification = ({
     <Animated.View
       style={[
         styles.container,
-        { 
-          borderColor, 
-          transform: [{ translateY }], 
+        {
+          borderColor,
+          transform: [{ translateY }],
           opacity,
           paddingTop: insets.top + 10,
         },
@@ -115,7 +122,7 @@ export const CliNotification = ({
 
 const styles = StyleSheet.create({
   container: {
-    position: 'absolute',
+    position: "absolute",
     top: 0,
     left: 0,
     right: 0,
@@ -126,8 +133,8 @@ const styles = StyleSheet.create({
     paddingBottom: 12,
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 6,
     marginBottom: 4,
   },

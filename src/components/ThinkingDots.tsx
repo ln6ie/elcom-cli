@@ -1,6 +1,6 @@
-import { useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, Animated } from 'react-native';
-import { COLORS, FONTS } from '../constants/theme';
+import { useEffect, useRef } from "react";
+import { View, Text, StyleSheet, Animated } from "react-native";
+import { COLORS, FONTS } from "../constants/theme";
 
 export const ThinkingDots = () => {
   const opacity = useRef(new Animated.Value(0.3)).current;
@@ -18,7 +18,7 @@ export const ThinkingDots = () => {
           duration: 400,
           useNativeDriver: true,
         }),
-      ])
+      ]),
     );
     animation.start();
     return () => animation.stop();
@@ -34,8 +34,8 @@ export const ThinkingDots = () => {
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginLeft: 8,
   },
   label: {

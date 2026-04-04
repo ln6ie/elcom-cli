@@ -7,20 +7,20 @@ import {
   ScrollView,
   StyleSheet,
   Animated,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useState, useRef, useEffect } from 'react';
-import { Eye, EyeOff } from 'lucide-react-native';
-import { COLORS, FONTS } from '../constants/theme';
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useState, useRef, useEffect } from "react";
+import { Eye, EyeOff } from "lucide-react-native";
+import { COLORS, FONTS } from "../constants/theme";
 
-import { AppBrand } from '../components/AppBrand';
+import { AppBrand } from "../components/AppBrand";
 
 interface SetupScreenProps {
   onConnect: (key: string) => void;
 }
 
 export const SetupScreen = ({ onConnect }: SetupScreenProps) => {
-  const [key, setKey] = useState('');
+  const [key, setKey] = useState("");
   const [showKey, setShowKey] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
@@ -38,7 +38,7 @@ export const SetupScreen = ({ onConnect }: SetupScreenProps) => {
   };
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
+    <SafeAreaView style={styles.safe} edges={["top", "bottom"]}>
       <ScrollView
         style={styles.scroll}
         contentContainerStyle={styles.scrollContent}
@@ -88,7 +88,11 @@ export const SetupScreen = ({ onConnect }: SetupScreenProps) => {
 
             <View style={styles.linkWrap}>
               <TouchableOpacity
-                onPress={() => Linking.openURL(process.env.EXPO_PUBLIC_OPENROUTER_KEYS_URL || '')}
+                onPress={() =>
+                  Linking.openURL(
+                    process.env.EXPO_PUBLIC_OPENROUTER_KEYS_URL || "",
+                  )
+                }
               >
                 <Text style={styles.linkText}>GET KEY: openrouter.ai</Text>
               </TouchableOpacity>
@@ -110,11 +114,11 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    justifyContent: 'center',
+    justifyContent: "center",
     padding: 24,
   },
   inner: {
-    alignItems: 'center',
+    alignItems: "center",
   },
   brandContainer: {
     marginBottom: 32,
@@ -127,7 +131,7 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   form: {
-    width: '100%',
+    width: "100%",
     maxWidth: 400,
   },
   label: {
@@ -137,8 +141,8 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   inputRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     borderWidth: 1,
     borderColor: COLORS.border,
     backgroundColor: COLORS.surface,
@@ -158,11 +162,11 @@ const styles = StyleSheet.create({
     marginLeft: 12,
   },
   connectButton: {
-    width: '100%',
+    width: "100%",
     paddingVertical: 16,
     borderWidth: 2,
     borderColor: COLORS.primary,
-    alignItems: 'center',
+    alignItems: "center",
     opacity: 1,
   },
   connectDisabled: {
@@ -175,12 +179,12 @@ const styles = StyleSheet.create({
   },
   linkWrap: {
     marginTop: 32,
-    alignItems: 'center',
+    alignItems: "center",
   },
   linkText: {
     color: COLORS.textDim,
     fontFamily: FONTS.mono,
     fontSize: 10,
-    textDecorationLine: 'underline',
+    textDecorationLine: "underline",
   },
 });
