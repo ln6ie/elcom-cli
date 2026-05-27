@@ -158,4 +158,5 @@ jobs:
             --file "$IPA_PATH" \
             --type ios \
             --apiKey "$API_KEY_ID" \
-            --apiIssuer "$ISSUER_ID"
+            --apiIssuer "$ISSUER_ID" \
+            --app-id 6773801672
