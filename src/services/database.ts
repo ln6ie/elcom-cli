@@ -10,6 +10,7 @@ export interface DatabaseSettings {
   temperature: number;
   context_length: number;
   user_name: string;
+  language: "ar" | "en";
 }
 
 export const DEFAULT_SETTINGS: DatabaseSettings = {
@@ -21,6 +22,7 @@ export const DEFAULT_SETTINGS: DatabaseSettings = {
   temperature: 0.7,
   context_length: 15,
   user_name: "USER",
+  language: "ar",
 };
 
 export const initDb = async (db: SQLite.SQLiteDatabase) => {

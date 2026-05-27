@@ -187,6 +187,7 @@ export const ChatScreen = ({
           }}
           customModels={customModels}
           modelPresets={modelPresets}
+          language={settings.language}
           disabled={isLoading}
           onLayoutY={setInputTopY}
         />

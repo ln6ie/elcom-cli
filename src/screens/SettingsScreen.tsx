@@ -12,6 +12,7 @@ import { COLORS, FONTS } from "../constants/theme";
 import { DatabaseSettings } from "../services/database";
 import { CliNotification } from "../components/CliNotification";
 import { ModelSelector } from "../components/settings/ModelSelector";
+import { TRANSLATIONS } from "../constants/translations";
 
 interface SettingsScreenProps {
   settings: DatabaseSettings;
@@ -42,13 +43,17 @@ export const SettingsScreen = ({
     type: "success" | "error" | "info";
   }>({ visible: false, message: "", type: "success" });
 
+  const t = TRANSLATIONS[localSettings.language || "ar"];
+
   const handleSave = async () => {
     setIsSaving(true);
     try {
       await onSave(localSettings);
       setNotification({
         visible: true,
-        message: ["SYSTEM_SYNC_COMPLETE", "CONFIG_REGISTRY_UPDATED"],
+        message: localSettings.language === "ar" 
+          ? ["تمت المزامنة بنجاح", "تم تحديث سجل الإعدادات"] 
+          : ["SYSTEM_SYNC_COMPLETE", "CONFIG_REGISTRY_UPDATED"],
         type: "success",
       });
       setTimeout(() => {
@@ -58,7 +63,7 @@ export const SettingsScreen = ({
     } catch (error) {
       setNotification({
         visible: true,
-        message: "SYSTEM_SYNC_ERROR",
+        message: localSettings.language === "ar" ? "خطأ في المزامنة" : "SYSTEM_SYNC_ERROR",
         type: "error",
       });
       setIsSaving(false);
@@ -95,18 +100,18 @@ export const SettingsScreen = ({
         onHide={() => setNotification((v) => ({ ...v, visible: false }))}
       />
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>CONFIG_SYSTEM // SETTINGS</Text>
+        <Text style={styles.headerTitle}>{t.config_system}</Text>
         <TouchableOpacity onPress={onBack} disabled={isSaving}>
           <Text style={[styles.backButton, isSaving && { opacity: 0.3 }]}>
-            [EXIT]
+            {t.exit}
           </Text>
         </TouchableOpacity>
       </View>
       <ScrollView contentContainerStyle={styles.scroll}>
-        <Text style={styles.sectionTitle}>--- API_CONFIGURATION ---</Text>
-        {renderInput("OPENROUTER_KEY", "api_key", "sk-or-v1-...")}
-        <Text style={styles.sectionTitle}>--- USER_IDENTITY ---</Text>
-        {renderInput("USER_LABEL", "user_name", "ENTER_NAME...")}
+        <Text style={styles.sectionTitle}>{t.api_config}</Text>
+        {renderInput(t.api_key, "api_key", "sk-or-v1-...")}
+        <Text style={styles.sectionTitle}>{t.user_identity}</Text>
+        {renderInput(t.user_label, "user_name", "ENTER_NAME...")}
 
         <ModelSelector
           selectedModel={localSettings.selected_model}
@@ -120,11 +125,31 @@ export const SettingsScreen = ({
           onRename={onRenameCustomModel}
         />
 
-        {renderInput("MANUAL_MODEL_ID", "selected_model", "vendor/model:type")}
-        <Text style={styles.sectionTitle}>--- PARAMETERS ---</Text>
-        {renderInput("MAX_TOKENS", "max_tokens", "4096")}
-        {renderInput("TEMPERATURE", "temperature", "0.7")}
-        {renderInput("CONTEXT_LIMIT", "context_length", "15")}
+        {renderInput(t.manual_model, "selected_model", "vendor/model:type")}
+        <Text style={styles.sectionTitle}>{t.parameters}</Text>
+        {renderInput(t.max_tokens, "max_tokens", "4096")}
+        {renderInput(t.temperature, "temperature", "0.7")}
+        {renderInput(t.context_limit, "context_length", "15")}
+
+        <Text style={styles.sectionTitle}>--- {t.language} ---</Text>
+        <View style={styles.langSelector}>
+          <TouchableOpacity
+            style={[styles.langBtn, localSettings.language === "ar" && styles.activeLang]}
+            onPress={() => setLocalSettings({ ...localSettings, language: "ar" })}
+          >
+            <Text style={[styles.langText, localSettings.language === "ar" && styles.activeLangText]}>
+              العربية (ARABIC)
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.langBtn, localSettings.language === "en" && styles.activeLang]}
+            onPress={() => setLocalSettings({ ...localSettings, language: "en" })}
+          >
+            <Text style={[styles.langText, localSettings.language === "en" && styles.activeLangText]}>
+              ENGLISH (EN)
+            </Text>
+          </TouchableOpacity>
+        </View>
 
         <TouchableOpacity
           style={[styles.saveButton, isSaving && styles.disabled]}
@@ -132,7 +157,7 @@ export const SettingsScreen = ({
           disabled={isSaving}
         >
           <Text style={styles.saveText}>
-            {isSaving ? "SAVING..." : "APPLY_CHANGES"}
+            {isSaving ? t.saving : t.apply_changes}
           </Text>
         </TouchableOpacity>
       </ScrollView>
@@ -193,4 +218,29 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   disabled: { opacity: 0.5 },
+  langSelector: {
+    flexDirection: "row",
+    gap: 12,
+    marginBottom: 24,
+  },
+  langBtn: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    paddingVertical: 12,
+    alignItems: "center",
+    backgroundColor: COLORS.surface,
+  },
+  activeLang: {
+    borderColor: COLORS.success,
+    backgroundColor: "rgba(0, 224, 163, 0.1)",
+  },
+  langText: {
+    color: COLORS.textDim,
+    fontFamily: FONTS.monoBold,
+    fontSize: 12,
+  },
+  activeLangText: {
+    color: COLORS.success,
+  },
 });

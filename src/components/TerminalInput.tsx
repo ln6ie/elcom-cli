@@ -21,6 +21,7 @@ import {
   Send,
 } from "lucide-react-native";
 import { useImagePicker } from "../hooks/useImagePicker";
+import { TRANSLATIONS } from "../constants/translations";
 
 interface TerminalInputProps {
   onSend: (
@@ -31,6 +32,7 @@ interface TerminalInputProps {
   onCommand: (command: string, args: string[]) => void;
   customModels: { id: string; name: string }[];
   modelPresets: { id: string; name: string }[];
+  language: "ar" | "en";
   disabled?: boolean;
   onLayoutY?: (y: number) => void;
 }
@@ -50,9 +52,11 @@ export const TerminalInput = ({
   onCommand,
   customModels,
   modelPresets,
+  language,
   disabled,
   onLayoutY,
 }: TerminalInputProps) => {
+  const t = TRANSLATIONS[language || "ar"];
   const [text, setText] = useState("");
   const [attachment, setAttachment] = useState<{
     uri: string;
@@ -152,9 +156,9 @@ export const TerminalInput = ({
         <SafeAreaView style={styles.editorSafe} edges={["top", "bottom"]}>
           <View style={styles.editorHeader}>
             <View style={styles.editorHeaderLeft}>
-              <Text style={styles.editorTitle}>SYSTEM_EDITOR_v1.0</Text>
+              <Text style={styles.editorTitle}>{t.editor_title}</Text>
               <Text style={styles.editorSubtitle}>
-                // MODE: LONG_FORMAT_TEXT
+                {t.editor_mode}
               </Text>
             </View>
             <TouchableOpacity
@@ -170,7 +174,7 @@ export const TerminalInput = ({
             onChangeText={setText}
             multiline
             autoFocus
-            placeholder="TYPE_YOUR_THOUGHTS_HERE..."
+            placeholder={t.message_placeholder}
             placeholderTextColor={COLORS.textDim}
           />
           <View style={styles.editorFooter}>
@@ -183,7 +187,7 @@ export const TerminalInput = ({
               }}
             >
               <Send size={18} color="#000" />
-              <Text style={styles.editorSendText}>COMMIT & SEND</Text>
+              <Text style={styles.editorSendText}>{t.commit_send}</Text>
             </TouchableOpacity>
           </View>
         </SafeAreaView>
@@ -274,10 +278,10 @@ export const TerminalInput = ({
             onChangeText={setText}
             placeholder={
               isSearchCmd
-                ? "SEARCH_QUERY..."
+                ? t.search_placeholder
                 : isCommand
-                  ? "COMMAND..."
-                  : "MESSAGE..."
+                  ? t.command_placeholder
+                  : t.message_placeholder
             }
             placeholderTextColor={COLORS.textDim}
             style={[
