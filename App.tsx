@@ -150,7 +150,9 @@ function AppContent() {
         )}
 
         {isSetup && (
-          <SetupScreen onConnect={(key) => updateSetting('api_key', key)} />
+          <SetupScreen onConnect={async (key, lang) => {
+            await updateMultipleSettings({ api_key: key, language: lang });
+          }} />
         )}
 
         {currentScreen === 'history' && (

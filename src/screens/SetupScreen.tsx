@@ -10,18 +10,45 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useState, useRef, useEffect } from "react";
-import { Eye, EyeOff } from "lucide-react-native";
+import { Eye, EyeOff, Globe } from "lucide-react-native";
 import { COLORS, FONTS } from "../constants/theme";
-
 import { AppBrand } from "../components/AppBrand";
 
 interface SetupScreenProps {
-  onConnect: (key: string) => void;
+  onConnect: (key: string, lang: "ar" | "en") => void;
 }
+
+const INSTRUCTIONS = {
+  ar: {
+    title: "أدخل مفتاح واجهة البرمجة (API Key):",
+    connect: "اتصال ومزامنة",
+    getKey: "الذهاب لإنشاء مفتاح: openrouter.ai 🌐",
+    stepsTitle: "📋 خطوات الحصول على مفتاح API مجاناً:",
+    steps: [
+      "1. انقر على الرابط في الأسفل لفتح موقع OpenRouter الرسمي.",
+      "2. قم بإنشاء حساب جديد (بثواني عن طريق Google أو إيميل).",
+      "3. اذهب لتبويب المطورين ثم انقر على زر (Create Key).",
+      "4. انسخ المفتاح المتولد بالكامل (sk-or-...) والصقه في الحقل أعلاه."
+    ]
+  },
+  en: {
+    title: "ENTER OPENROUTER API KEY:",
+    connect: "CONNECT & SYNC",
+    getKey: "CREATE API KEY: openrouter.ai 🌐",
+    stepsTitle: "📋 STEPS TO GET YOUR FREE API KEY:",
+    steps: [
+      "1. Click the link below to open the official OpenRouter website.",
+      "2. Create a free account (via Google or Email in seconds).",
+      "3. Go to Keys tab and click the (Create Key) button.",
+      "4. Copy the generated key (starts with sk-or-...) and paste it above."
+    ]
+  }
+} as const;
 
 export const SetupScreen = ({ onConnect }: SetupScreenProps) => {
   const [key, setKey] = useState("");
   const [showKey, setShowKey] = useState(false);
+  const [lang, setLang] = useState<"ar" | "en">("ar");
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -34,11 +61,31 @@ export const SetupScreen = ({ onConnect }: SetupScreenProps) => {
 
   const handleConnect = () => {
     if (!key.trim()) return;
-    onConnect(key.trim());
+    onConnect(key.trim(), lang);
   };
+
+  const t = INSTRUCTIONS[lang];
 
   return (
     <SafeAreaView style={styles.safe} edges={["top", "bottom"]}>
+      {/* Small Dynamic Language Toggle */}
+      <View style={styles.langHeader}>
+        <Globe size={14} color={COLORS.primaryDim} style={{ marginRight: 6 }} />
+        <TouchableOpacity
+          onPress={() => setLang("ar")}
+          style={[styles.langBtn, lang === "ar" && styles.activeLang]}
+        >
+          <Text style={[styles.langBtnText, lang === "ar" && styles.activeLangText]}>العربية</Text>
+        </TouchableOpacity>
+        <Text style={styles.langSeparator}>|</Text>
+        <TouchableOpacity
+          onPress={() => setLang("en")}
+          style={[styles.langBtn, lang === "en" && styles.activeLang]}
+        >
+          <Text style={[styles.langBtnText, lang === "en" && styles.activeLangText]}>EN</Text>
+        </TouchableOpacity>
+      </View>
+
       <ScrollView
         style={styles.scroll}
         contentContainerStyle={styles.scrollContent}
@@ -48,14 +95,14 @@ export const SetupScreen = ({ onConnect }: SetupScreenProps) => {
           <AppBrand fontSize={10} style={styles.brandContainer} />
 
           <View style={styles.form}>
-            <Text style={styles.label}>ENTER_API_KEY:</Text>
+            <Text style={styles.label}>{t.title}</Text>
 
             <View style={styles.inputRow}>
               <TextInput
                 value={key}
                 onChangeText={setKey}
                 secureTextEntry={!showKey}
-                placeholder="SK-OR-..."
+                placeholder="sk-or-v1-..."
                 placeholderTextColor="#333333"
                 style={styles.input}
                 autoCorrect={false}
@@ -74,6 +121,16 @@ export const SetupScreen = ({ onConnect }: SetupScreenProps) => {
               </TouchableOpacity>
             </View>
 
+            {/* Step-by-Step Instructions Container */}
+            <View style={styles.stepsContainer}>
+              <Text style={styles.stepsHeader}>{t.stepsTitle}</Text>
+              {t.steps.map((step, idx) => (
+                <Text key={idx} style={styles.stepText}>
+                  {step}
+                </Text>
+              ))}
+            </View>
+
             <TouchableOpacity
               onPress={handleConnect}
               disabled={!key.trim()}
@@ -83,18 +140,18 @@ export const SetupScreen = ({ onConnect }: SetupScreenProps) => {
                 !key.trim() && styles.connectDisabled,
               ]}
             >
-              <Text style={styles.connectText}>CONNECT</Text>
+              <Text style={styles.connectText}>{t.connect}</Text>
             </TouchableOpacity>
 
             <View style={styles.linkWrap}>
               <TouchableOpacity
                 onPress={() =>
                   Linking.openURL(
-                    process.env.EXPO_PUBLIC_OPENROUTER_KEYS_URL || "",
+                    process.env.EXPO_PUBLIC_OPENROUTER_KEYS_URL || "https://openrouter.ai/keys",
                   )
                 }
               >
-                <Text style={styles.linkText}>GET KEY: openrouter.ai</Text>
+                <Text style={styles.linkText}>{t.getKey}</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -109,6 +166,36 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.background,
   },
+  langHeader: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    alignItems: "center",
+    paddingHorizontal: 24,
+    paddingTop: 12,
+  },
+  langBtn: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+  },
+  langBtnText: {
+    color: COLORS.textDim,
+    fontFamily: FONTS.monoBold,
+    fontSize: 11,
+  },
+  activeLang: {
+    backgroundColor: "rgba(0, 224, 163, 0.1)",
+    borderWidth: 1,
+    borderColor: COLORS.success,
+  },
+  activeLangText: {
+    color: COLORS.success,
+  },
+  langSeparator: {
+    color: COLORS.border,
+    fontFamily: FONTS.mono,
+    fontSize: 11,
+    marginHorizontal: 4,
+  },
   scroll: {
     flex: 1,
   },
@@ -121,14 +208,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   brandContainer: {
-    marginBottom: 32,
-  },
-  ascii: {
-    color: COLORS.primary,
-    fontFamily: FONTS.mono,
-    fontSize: 8,
-    lineHeight: 9,
-    marginBottom: 32,
+    marginBottom: 24,
   },
   form: {
     width: "100%",
@@ -148,7 +228,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.surface,
     paddingHorizontal: 16,
     paddingVertical: 12,
-    marginBottom: 24,
+    marginBottom: 20,
   },
   input: {
     flex: 1,
@@ -160,6 +240,26 @@ const styles = StyleSheet.create({
   },
   eyeButton: {
     marginLeft: 12,
+  },
+  stepsContainer: {
+    backgroundColor: COLORS.surface,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    padding: 16,
+    marginBottom: 24,
+  },
+  stepsHeader: {
+    color: COLORS.primary,
+    fontFamily: FONTS.monoBold,
+    fontSize: 11,
+    marginBottom: 12,
+  },
+  stepText: {
+    color: COLORS.textDim,
+    fontFamily: FONTS.mono,
+    fontSize: 10.5,
+    lineHeight: 18,
+    marginBottom: 8,
   },
   connectButton: {
     width: "100%",
@@ -178,13 +278,13 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
   linkWrap: {
-    marginTop: 32,
+    marginTop: 24,
     alignItems: "center",
   },
   linkText: {
-    color: COLORS.textDim,
-    fontFamily: FONTS.mono,
-    fontSize: 10,
+    color: COLORS.text,
+    fontFamily: FONTS.monoBold,
+    fontSize: 11,
     textDecorationLine: "underline",
   },
 });
