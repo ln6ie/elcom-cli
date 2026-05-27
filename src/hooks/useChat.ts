@@ -2,16 +2,14 @@ import { useState, useCallback, useEffect, useRef } from "react";
 import { useSQLiteContext } from "expo-sqlite";
 import { Message } from "../types/chat";
 import { openRouterClient } from "../services/openrouter";
-import { database } from "../services/database";
-import { useSettings } from "./useSettings";
+import { database, DatabaseSettings } from "../services/database";
 import * as Crypto from "expo-crypto";
 import { attachmentService } from "../services/attachment";
 
 const PAGE_SIZE = 20;
 
-export const useChat = (conversationId?: string) => {
+export const useChat = (conversationId: string | undefined, settings: DatabaseSettings) => {
   const db = useSQLiteContext();
-  const { settings } = useSettings();
   const [messages, setMessages] = useState<Message[]>([]);
   const [conversationTitle, setConversationTitle] =
     useState<string>("LOADING_SESSION...");

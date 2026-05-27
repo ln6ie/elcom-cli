@@ -16,6 +16,7 @@ import { ModelSelector } from "../components/settings/ModelSelector";
 interface SettingsScreenProps {
   settings: DatabaseSettings;
   customModels: { id: string; name: string }[];
+  modelPresets: { id: string; name: string }[];
   onSave: (settings: Partial<DatabaseSettings>) => Promise<void>;
   onAddCustomModel: (id: string, name: string) => Promise<void>;
   onRemoveCustomModel: (id: string) => Promise<void>;
@@ -26,6 +27,7 @@ interface SettingsScreenProps {
 export const SettingsScreen = ({
   settings,
   customModels,
+  modelPresets,
   onSave,
   onAddCustomModel,
   onRemoveCustomModel,
@@ -109,6 +111,7 @@ export const SettingsScreen = ({
         <ModelSelector
           selectedModel={localSettings.selected_model}
           customModels={customModels}
+          modelPresets={modelPresets}
           onSelect={(id) =>
             setLocalSettings({ ...localSettings, selected_model: id })
           }

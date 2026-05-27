@@ -14,7 +14,7 @@ import { CliNotification } from "../components/CliNotification";
 import { WalkingCharacter } from "../components/WalkingCharacter";
 import { useRef, useEffect, useState } from "react";
 import { COLORS } from "../constants/theme";
-import { MODEL_PRESETS } from "../constants/models";
+import { DatabaseSettings } from "../services/database";
 
 import { HistoryLoader } from "../components/chat/HistoryLoader";
 import { StatusArea } from "../components/chat/StatusArea";
@@ -22,15 +22,17 @@ import { EmptyState } from "../components/chat/EmptyState";
 
 interface ChatScreenProps {
   conversationId: string;
-  userName: string;
+  settings: DatabaseSettings;
   customModels: { id: string; name: string }[];
+  modelPresets: { id: string; name: string }[];
   onCommand: (cmd: string, args: string[]) => void;
 }
 
 export const ChatScreen = ({
   conversationId,
-  userName,
+  settings,
   customModels,
+  modelPresets,
   onCommand,
 }: ChatScreenProps) => {
   const {
@@ -42,7 +44,7 @@ export const ChatScreen = ({
     sendMessage,
     stopStreaming,
     loadMore,
-  } = useChat(conversationId);
+  } = useChat(conversationId, settings);
 
   const [inputTopY, setInputTopY] = useState(0);
   const [notification, setNotification] = useState<{
@@ -123,14 +125,14 @@ export const ChatScreen = ({
           contentContainerStyle={styles.listContent}
           ListFooterComponent={<HistoryLoader isLoadingMore={isLoadingMore} />}
           renderItem={({ item }) => {
-            const allModels = [...MODEL_PRESETS, ...customModels];
+            const allModels = [...modelPresets, ...customModels];
             const currentMessageModel = allModels.find(
               (m) => m.id === item.modelId,
             );
             return (
               <MessageBubble
                 message={item}
-                userName={userName}
+                userName={settings.user_name}
                 modelName={
                   item.role === "assistant"
                     ? currentMessageModel?.name || "AI"
@@ -184,6 +186,7 @@ export const ChatScreen = ({
             } else onCommand(cmd, args);
           }}
           customModels={customModels}
+          modelPresets={modelPresets}
           disabled={isLoading}
           onLayoutY={setInputTopY}
         />

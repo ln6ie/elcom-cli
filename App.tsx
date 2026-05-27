@@ -34,6 +34,7 @@ function AppContent() {
   const { 
     settings, 
     customModels,
+    modelPresets,
     isLoading: isSettingsLoading, 
     updateSetting, 
     updateMultipleSettings,
@@ -140,8 +141,9 @@ function AppContent() {
           <View style={[styles.flex1, currentScreen !== 'chat' && styles.hidden]}>
             <ChatScreen 
               conversationId={activeConvId} 
-              userName={settings.user_name}
+              settings={settings}
               customModels={customModels}
+              modelPresets={modelPresets}
               onCommand={handleCommand}
             />
           </View>
@@ -166,6 +168,7 @@ function AppContent() {
             <SettingsScreen 
               settings={settings} 
               customModels={customModels}
+              modelPresets={modelPresets}
               onSave={updateMultipleSettings}
               onAddCustomModel={addCustomModel}
               onRemoveCustomModel={removeCustomModel}

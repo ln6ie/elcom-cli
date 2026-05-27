@@ -5,6 +5,7 @@ import {
   DatabaseSettings,
   DEFAULT_SETTINGS,
 } from "../services/database";
+import { MODEL_PRESETS } from "../constants/models";
 
 export const useSettings = () => {
   const db = useSQLiteContext();
@@ -12,6 +13,7 @@ export const useSettings = () => {
   const [customModels, setCustomModels] = useState<
     { id: string; name: string }[]
   >([]);
+  const [modelPresets, setModelPresets] = useState<{ id: string; name: string }[]>(MODEL_PRESETS);
   const [isLoading, setIsLoading] = useState(true);
 
   const loadSettings = useCallback(async () => {
@@ -22,8 +24,18 @@ export const useSettings = () => {
       ]);
       setSettings(data);
       setCustomModels(models);
+
+      // Fetch remote models list with fallback
+      const modelsUrl = process.env.EXPO_PUBLIC_MODELS_URL || "https://cli.elcomlab.site/models.json";
+      const response = await fetch(modelsUrl);
+      if (response.ok) {
+        const remoteModels = await response.json();
+        if (Array.isArray(remoteModels) && remoteModels.length > 0) {
+          setModelPresets(remoteModels);
+        }
+      }
     } catch (error) {
-      console.error("useSettings: Failed to load settings", error);
+      console.log("useSettings: Failed to fetch remote models, fallback to presets", error);
     } finally {
       setIsLoading(false);
     }
@@ -103,6 +115,7 @@ export const useSettings = () => {
   return {
     settings,
     customModels,
+    modelPresets,
     isLoading,
     updateSetting,
     updateMultipleSettings,

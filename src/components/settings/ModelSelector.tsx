@@ -8,11 +8,11 @@ import {
 } from "react-native";
 import { COLORS, FONTS } from "../../constants/theme";
 import { Trash2, Edit2, Plus, Check, X } from "lucide-react-native";
-import { MODEL_PRESETS } from "../../constants/models";
 
 interface ModelSelectorProps {
   selectedModel: string;
   customModels: { id: string; name: string }[];
+  modelPresets: { id: string; name: string }[];
   onSelect: (id: string) => void;
   onAdd: (id: string, name: string) => Promise<void>;
   onRemove: (id: string) => Promise<void>;
@@ -22,6 +22,7 @@ interface ModelSelectorProps {
 export const ModelSelector = ({
   selectedModel,
   customModels,
+  modelPresets,
   onSelect,
   onAdd,
   onRemove,
@@ -31,9 +32,11 @@ export const ModelSelector = ({
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState("");
 
-  const handleAdd = () => {
+  const handleAdd = async () => {
     if (newModelId.trim()) {
-      onAdd(newModelId.trim(), newModelId.trim());
+      const id = newModelId.trim();
+      await onAdd(id, id);
+      onSelect(id);
       setNewModelId("");
     }
   };
@@ -50,7 +53,7 @@ export const ModelSelector = ({
       <Text style={styles.sectionTitle}>--- MODEL_IDENTITY (MEMORY) ---</Text>
       <Text style={styles.label}>SAVED_MODELS // FAVORITES</Text>
       <View style={styles.favList}>
-        {MODEL_PRESETS.map((m) => (
+        {modelPresets.map((m) => (
           <TouchableOpacity
             key={`preset-${m.id}`}
             onPress={() => onSelect(m.id)}

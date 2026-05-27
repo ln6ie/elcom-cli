@@ -16,7 +16,7 @@ export const useImagePicker = () => {
     setIsPicking(true);
     try {
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        mediaTypes: ['images'],
         allowsEditing: false, // Don't force crop, stay natural
         quality: 0.8,
         base64: true,

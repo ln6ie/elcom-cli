@@ -30,6 +30,7 @@ interface TerminalInputProps {
   onStop?: () => void;
   onCommand: (command: string, args: string[]) => void;
   customModels: { id: string; name: string }[];
+  modelPresets: { id: string; name: string }[];
   disabled?: boolean;
   onLayoutY?: (y: number) => void;
 }
@@ -43,18 +44,12 @@ const SUGGESTIONS = [
   { cmd: "search/", desc: "WEB_SEARCH_QUERY" },
 ];
 
-const MODEL_PRESETS = [
-  { id: "qwen/qwen3.6-plus:free", name: "QWEN_3.6_PLUS" },
-  { id: "meta-llama/llama-3.3-70b-instruct:free", name: "LLAMA_3.3_70B" },
-  { id: "google/gemma-2-9b-it:free", name: "GEMMA_2_9B" },
-  { id: "mistralai/mistral-7b-instruct:free", name: "MISTRAL_7B" },
-];
-
 export const TerminalInput = ({
   onSend,
   onStop,
   onCommand,
   customModels,
+  modelPresets,
   disabled,
   onLayoutY,
 }: TerminalInputProps) => {
@@ -85,7 +80,7 @@ export const TerminalInput = ({
     !isModelCmd;
   const showModelPresets = isModelCmd && !text.includes(" ");
 
-  const allModels = [...MODEL_PRESETS, ...customModels];
+  const allModels = [...modelPresets, ...customModels];
 
   const handleAction = () => {
     if (disabled) {
