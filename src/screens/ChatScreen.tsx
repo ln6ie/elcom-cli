@@ -15,6 +15,7 @@ import { WalkingCharacter } from "../components/WalkingCharacter";
 import { useRef, useEffect, useState } from "react";
 import { COLORS } from "../constants/theme";
 import { DatabaseSettings } from "../services/database";
+import { TRANSLATIONS } from "../constants/translations";
 
 import { HistoryLoader } from "../components/chat/HistoryLoader";
 import { StatusArea } from "../components/chat/StatusArea";
@@ -46,6 +47,8 @@ export const ChatScreen = ({
     loadMore,
   } = useChat(conversationId, settings);
 
+  const t = TRANSLATIONS[settings.language || "ar"];
+
   const [inputTopY, setInputTopY] = useState(0);
   const [notification, setNotification] = useState<{
     visible: boolean;
@@ -67,22 +70,22 @@ export const ChatScreen = ({
     setNotification({
       visible: true,
       message: [
-        `BOOTING_SESSION: ${conversationId.slice(0, 8)}`,
-        "STATUS: SYSTEM_READY_SECURE",
+        `${t.boot_session}${conversationId.slice(0, 8)}`,
+        t.status_ready,
       ],
       type: "success",
     });
-  }, [conversationId]);
+  }, [conversationId, t]);
 
   useEffect(() => {
     if (error) {
       setNotification({
         visible: true,
-        message: `FATAL_ERROR: ${error}`,
+        message: `${t.fatal_error}${error}`,
         type: "error",
       });
     }
-  }, [error]);
+  }, [error, t]);
 
   useEffect(() => {
     setTimeout(() => {

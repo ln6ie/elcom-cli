@@ -22,8 +22,8 @@ const INSTRUCTIONS = {
   ar: {
     title: "أدخل مفتاح واجهة البرمجة (API Key):",
     connect: "اتصال ومزامنة",
-    getKey: "الذهاب لإنشاء مفتاح: openrouter.ai 🌐",
-    stepsTitle: "📋 خطوات الحصول على مفتاح API مجاناً:",
+    getKey: "الذهاب لإنشاء مفتاح: openrouter.ai",
+    stepsTitle: " خطوات الحصول على مفتاح API مجاناً:",
     steps: [
       "1. انقر على الرابط في الأسفل لفتح موقع OpenRouter الرسمي.",
       "2. قم بإنشاء حساب جديد (بثواني عن طريق Google أو إيميل).",
@@ -34,8 +34,8 @@ const INSTRUCTIONS = {
   en: {
     title: "ENTER OPENROUTER API KEY:",
     connect: "CONNECT & SYNC",
-    getKey: "CREATE API KEY: openrouter.ai 🌐",
-    stepsTitle: "📋 STEPS TO GET YOUR FREE API KEY:",
+    getKey: "CREATE API KEY: openrouter.ai ",
+    stepsTitle: " STEPS TO GET YOUR FREE API KEY:",
     steps: [
       "1. Click the link below to open the official OpenRouter website.",
       "2. Create a free account (via Google or Email in seconds).",

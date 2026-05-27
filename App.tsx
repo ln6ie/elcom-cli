@@ -24,6 +24,7 @@ import { SQLiteProvider, useSQLiteContext } from 'expo-sqlite';
 import { initDb, database } from './src/services/database';
 import * as Crypto from 'expo-crypto';
 import 'react-native-get-random-values';
+import { TRANSLATIONS } from './src/constants/translations';
 
 
 
@@ -42,6 +43,7 @@ function AppContent() {
     removeCustomModel,
     renameCustomModel
   } = useSettings();
+  const t = TRANSLATIONS[settings.language || "ar"];
   const [currentScreen, setCurrentScreen] = useState<Screen>('chat');
   const [activeConvId, setActiveConvId] = useState<string | null>(null);
   
@@ -107,7 +109,7 @@ function AppContent() {
       case 'model':
         if (args[0]) {
           await updateSetting('selected_model', args[0]);
-          Alert.alert('SYSTEM', `MODEL_CHANGED_TO: ${args[0]}`);
+          Alert.alert('SYSTEM', `${t.model_changed}${args[0]}`);
         }
         break;
       case 'clear':
@@ -122,7 +124,7 @@ function AppContent() {
         setCurrentScreen('chat');
         break;
       default:
-        Alert.alert('SYSTEM_ERROR', `UNKNOWN_COMMAND: ${cmd}`);
+        Alert.alert(t.sys_error, `${t.unknown_command}${cmd}`);
     }
   }, [db, settings, activeConvId]);
 

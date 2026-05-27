@@ -23,6 +23,15 @@ export const TRANSLATIONS = {
     editor_title: "محرر النظام SYSTEM_EDITOR_v1.0",
     editor_mode: "// النمط: نص طويل",
     commit_send: "تأكيد وإرسال COMMIT & SEND",
+    boot_session: "بدء الجلسة النشطة: BOOT_SESSION",
+    status_ready: "حالة النظام: جاهز وآمن STATUS_READY",
+    fatal_error: "خطأ فادح في النظام FATAL_ERROR",
+    model_changed: "تم تغيير النموذج الذكي بنجاح إلى: ",
+    unknown_command: "أمر غير معروف أو غير مدعوم: ",
+    sys_error: "خطأ في النظام SYSTEM_ERROR",
+    success_sync: "اكتملت مزامنة النظام بنجاح",
+    registry_updated: "تم تحديث سجل الإعدادات",
+    sync_error: "خطأ في مزامنة الإعدادات SYSTEM_SYNC_ERROR",
   },
   en: {
     config_system: "CONFIG_SYSTEM // SETTINGS",
@@ -48,6 +57,15 @@ export const TRANSLATIONS = {
     editor_title: "SYSTEM_EDITOR_v1.0",
     editor_mode: "// MODE: LONG_FORMAT_TEXT",
     commit_send: "COMMIT & SEND",
+    boot_session: "BOOTING_SESSION: ",
+    status_ready: "STATUS: SYSTEM_READY_SECURE",
+    fatal_error: "FATAL_ERROR: ",
+    model_changed: "MODEL_CHANGED_TO: ",
+    unknown_command: "UNKNOWN_COMMAND: ",
+    sys_error: "SYSTEM_ERROR",
+    success_sync: "SYSTEM_SYNC_COMPLETE",
+    registry_updated: "CONFIG_REGISTRY_UPDATED",
+    sync_error: "SYSTEM_SYNC_ERROR",
   }
 } as const;
 
