@@ -15,7 +15,7 @@ export interface DatabaseSettings {
 
 export const DEFAULT_SETTINGS: DatabaseSettings = {
   api_key: null,
-  selected_model: "qwen/qwen3.6-plus:free",
+  selected_model: "openrouter/free",
   system_prompt:
     "You are ElcomCLI, a professional AI terminal assistant. Help the user with their queries in a concise and technical manner.",
   max_tokens: 4096,
