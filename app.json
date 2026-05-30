@@ -9,7 +9,11 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.elcomlab.elcomcli"
+      "bundleIdentifier": "com.elcomlab.elcomcli",
+      "infoPlist": {
+        "NSPhotoLibraryUsageDescription": "ElcomCLI needs access to your photo library so you can select and upload images or screenshots directly into your chat threads to describe them to the AI.",
+        "NSCameraUsageDescription": "ElcomCLI needs access to your camera so you can take photos of code or objects and directly upload them into your chat threads to analyze them with the AI."
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -22,7 +26,14 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "expo-sqlite"
+      "expo-sqlite",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "ElcomCLI needs access to your photo library so you can select and upload images or screenshots directly into your chat threads to describe them to the AI.",
+          "cameraPermission": "ElcomCLI needs access to your camera so you can take photos of code or objects and directly upload them into your chat threads to analyze them with the AI."
+        }
+      ]
     ]
   }
 }
