@@ -41,16 +41,26 @@ export const openRouterClient = {
 
       const contentParts: any[] = [{ type: "text", text: content || "" }];
       if (msg.attachment.type.startsWith("image/")) {
+        const b64Length = msg.attachment.base64?.length || 0;
+        console.log(`[ElcomCLI/API] Attaching image: uri=${msg.attachment.uri}, type=${msg.attachment.type}, base64Length=${b64Length} chars`);
+        if (b64Length === 0) {
+          console.warn("[ElcomCLI/API] Warning: Image base64 data is empty or undefined!");
+        }
         contentParts.push({
           type: "image_url",
           image_url: {
-            url: `data:${msg.attachment.type};base64,${msg.attachment.base64}`,
+            url: `data:${msg.attachment.type};base64,${msg.attachment.base64 || ""}`,
           },
         });
       } else if (msg.attachment.type === "application/pdf") {
+        const b64Length = msg.attachment.base64?.length || 0;
+        console.log(`[ElcomCLI/API] Attaching PDF: uri=${msg.attachment.uri}, type=${msg.attachment.type}, base64Length=${b64Length} chars`);
+        if (b64Length === 0) {
+          console.warn("[ElcomCLI/API] Warning: PDF base64 data is empty or undefined!");
+        }
         contentParts.push({
           type: "file",
-          file: { url: `data:application/pdf;base64,${msg.attachment.base64}` },
+          file: { url: `data:application/pdf;base64,${msg.attachment.base64 || ""}` },
         });
       }
       return { role: msg.role, content: contentParts };

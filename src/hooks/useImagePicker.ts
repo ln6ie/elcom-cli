@@ -1,5 +1,5 @@
 import * as ImagePicker from "expo-image-picker";
-import * as FileSystem from "expo-file-system/legacy";
+import * as FileSystem from "expo-file-system";
 import { useCallback, useState } from "react";
 import { Alert } from "react-native";
 
@@ -13,7 +13,7 @@ export const useImagePicker = () => {
       return null;
     }
 
-    setIsPicking(true);
+  setIsPicking(true);
     try {
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ['images'],
@@ -25,10 +25,10 @@ export const useImagePicker = () => {
       if (!result.canceled && result.assets && result.assets[0]) {
         const asset = result.assets[0];
         const filename = `img_${Date.now()}.jpg`;
-        const permanentUri = `${(FileSystem as any).documentDirectory}${filename}`;
+        const permanentUri = `${FileSystem.documentDirectory}${filename}`;
 
         // Copy to permanent storage
-        await (FileSystem as any).copyAsync({
+        await FileSystem.copyAsync({
           from: asset.uri,
           to: permanentUri,
         });
@@ -66,10 +66,10 @@ export const useImagePicker = () => {
       if (!result.canceled && result.assets && result.assets[0]) {
         const asset = result.assets[0];
         const filename = `photo_${Date.now()}.jpg`;
-        const permanentUri = `${(FileSystem as any).documentDirectory}${filename}`;
+        const permanentUri = `${FileSystem.documentDirectory}${filename}`;
 
         // Copy to permanent storage
-        await (FileSystem as any).copyAsync({
+        await FileSystem.copyAsync({
           from: asset.uri,
           to: permanentUri,
         });
