@@ -1,11 +1,10 @@
-import * as FileSystem from "expo-file-system";
+import * as FileSystem from "expo-file-system/legacy";
 
 export const attachmentService = {
   async getBase64(uri: string): Promise<string | null> {
     try {
       return await FileSystem.readAsStringAsync(uri, { encoding: "base64" });
     } catch (e) {
-      console.error("attachmentService: Failed to read file", uri, e);
       return null;
     }
   },

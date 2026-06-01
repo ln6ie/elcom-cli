@@ -25,6 +25,7 @@ export const useChat = (conversationId: string | undefined, settings: DatabaseSe
       if (!conversationId) return;
       if (isInitial) {
         setIsLoading(true);
+        setError(null); // Reset any previous conversation errors immediately!
         offsetRef.current = 0;
         try {
           const conv = await database.getConversationById(db, conversationId);
@@ -121,6 +122,7 @@ export const useChat = (conversationId: string | undefined, settings: DatabaseSe
         role: "assistant",
         content: "",
         reasoning: "",
+        modelId: settings.selected_model, // Set immediately so the correct model name shows while streaming!
       };
 
       try {

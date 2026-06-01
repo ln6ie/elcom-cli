@@ -69,7 +69,11 @@ export const openRouterClient = {
     const body: any = {
       model: selected_model || "qwen/qwen3.6-plus:free",
       messages: [
-        { role: "system", content: INTERNAL_SYSTEM_PROMPT },
+        { 
+          role: "system", 
+          content: INTERNAL_SYSTEM_PROMPT,
+          cache_control: { type: "ephemeral" } // Enables OpenRouter/Anthropic Prompt Caching to process it only once!
+        },
         ...formattedMessages,
       ],
       stream: true,

@@ -7,6 +7,7 @@ import {
   Image,
   Modal,
   Platform,
+  ScrollView,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useState } from "react";
@@ -84,7 +85,9 @@ export const TerminalInput = ({
     !isModelCmd;
   const showModelPresets = isModelCmd && !text.includes(" ");
 
-  const allModels = [...modelPresets, ...customModels];
+  const allModels = Array.from(
+    new Map([...modelPresets, ...customModels].map((m) => [m.id, m])).values()
+  );
 
   const handleAction = () => {
     if (disabled) {
@@ -136,10 +139,17 @@ export const TerminalInput = ({
     ) {
       onCommand(cmd.replace("/", ""), []);
       setText("");
+    } else if (cmd.startsWith("model/ ")) {
+      const modelId = cmd.slice(7);
+      onCommand("model", [modelId]);
+      setText("");
     } else {
       setText(cmd);
     }
   };
+
+  const suggestionsBottom =
+    Math.min(Math.max(64, inputHeight + 20), 200) + (attachment ? 84 : 0) + 8;
 
   const showEditorButton = text.split("\n").length >= 3 || text.length > 100;
 
@@ -194,34 +204,44 @@ export const TerminalInput = ({
       </Modal>
 
       {showSuggestions && (
-        <View style={styles.suggestionsBox}>
-          {SUGGESTIONS.map((s) => (
-            <TouchableOpacity
-              key={s.cmd}
-              style={styles.suggestionItem}
-              onPress={() => selectSuggestion(s.cmd)}
-            >
-              <Text style={styles.suggestionCmd}>{s.cmd}</Text>
-              <Text style={styles.suggestionDesc}>// {s.desc}</Text>
-            </TouchableOpacity>
-          ))}
+        <View style={[styles.suggestionsBox, { bottom: suggestionsBottom }]}>
+          <ScrollView keyboardShouldPersistTaps="handled">
+            {SUGGESTIONS.map((s) => (
+              <TouchableOpacity
+                key={s.cmd}
+                style={styles.suggestionItem}
+                onPress={() => selectSuggestion(s.cmd)}
+              >
+                <Text style={styles.suggestionCmd} numberOfLines={1}>
+                  {s.cmd}
+                </Text>
+                <Text style={styles.suggestionDesc} numberOfLines={1}>
+                  // {s.desc}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
         </View>
       )}
 
       {showModelPresets && (
-        <View style={styles.suggestionsBox}>
-          {allModels.map((m) => (
-            <TouchableOpacity
-              key={m.id}
-              style={styles.suggestionItem}
-              onPress={() => selectSuggestion(`model/ ${m.id}`)}
-            >
-              <Text style={styles.suggestionCmd}>{m.name.slice(0, 15)}</Text>
-              <Text style={styles.suggestionDesc}>
-                // {m.id.slice(0, 30)}...
-              </Text>
-            </TouchableOpacity>
-          ))}
+        <View style={[styles.suggestionsBox, { bottom: suggestionsBottom }]}>
+          <ScrollView keyboardShouldPersistTaps="handled">
+            {allModels.map((m) => (
+              <TouchableOpacity
+                key={m.id}
+                style={styles.suggestionItem}
+                onPress={() => selectSuggestion(`model/ ${m.id}`)}
+              >
+                <Text style={styles.suggestionCmd} numberOfLines={1}>
+                  {m.name}
+                </Text>
+                <Text style={styles.suggestionDesc} numberOfLines={1}>
+                  // {m.id}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
         </View>
       )}
 
@@ -383,14 +403,21 @@ const styles = StyleSheet.create({
   sendBtnText: { color: COLORS.text, fontFamily: FONTS.monoBold, fontSize: FONT_SIZES.small },
   suggestionsBox: {
     position: "absolute",
-    bottom: "100%",
-    left: 0,
-    right: 0,
+    left: 12,
+    right: 12,
     backgroundColor: COLORS.surface,
-    borderTopWidth: 1,
-    borderTopColor: COLORS.primary,
+    borderWidth: 1,
+    borderColor: COLORS.primary,
+    borderRadius: 8, // Modern curved terminal style overlay
     padding: 8,
-    maxHeight: 200,
+    maxHeight: 220,
+    zIndex: 9999, // Render on top of all lists/bubbles
+    overflow: "hidden", // Cleanly clip overflow scroll items
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+    elevation: 10,
   },
   suggestionItem: {
     flexDirection: "row",
@@ -404,7 +431,7 @@ const styles = StyleSheet.create({
     color: COLORS.success,
     fontFamily: FONTS.monoBold,
     fontSize: FONT_SIZES.small,
-    width: 100,
+    marginRight: 12,
   },
   suggestionDesc: {
     color: COLORS.textDim,
