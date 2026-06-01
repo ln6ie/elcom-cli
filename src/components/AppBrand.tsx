@@ -4,14 +4,19 @@ import { COLORS, FONTS } from "../constants/theme";
 import Constants from "expo-constants";
 
 export const APP_BRAND_ASCII = `
- ___ _      ___  ___  __  __ 
-| __| |    / __|/ _ \\|  \\/  |
-| _| |    | (__| (_) | |\\/| |
-|___|______\\___|\\___/|_|  |_|
-  ___ _    ___ 
- / __| |  |_ _|
-| (__| |__ | | 
- \\___|____|___|
+  ______   _        _____   ____    __  __ 
+ |  ____| | |      / ____| / __ \\  |  \\/  |
+ | |__    | |     | |     | |  | | | \\  / |
+ |  __|   | |     | |     | |  | | | |\\/| |
+ | |____  | |____ | |____ | |__| | | |  | |
+ |______| |______| \\_____| \\____/  |_|  |_|
+
+    _____   _        _____ 
+   / ____| | |      |_   _|
+  | |      | |        | |  
+  | |      | |        | |  
+  | |____  | |____   _| |_ 
+   \\_____| |______| |_____|
 `;
 
 interface AppBrandProps {
@@ -36,7 +41,7 @@ export const AppBrand: React.FC<AppBrandProps> = ({
           styles.ascii,
           { fontSize, lineHeight: fontSize + 1 },
           textStyle,
-         ]}
+        ]}
       >
         {APP_BRAND_ASCII}
       </Text>
@@ -58,6 +63,9 @@ const styles = StyleSheet.create({
     color: COLORS.primary,
     fontFamily: FONTS.mono,
     textAlign: "center",
+    textShadowColor: COLORS.primary,
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 8, // Neon radiant glow effect satisfying Guideline 4 Design
   },
   versionTag: {
     color: COLORS.primary,
@@ -66,5 +74,8 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginTop: 10,
     letterSpacing: 2,
+    textShadowColor: COLORS.primary,
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 4,
   },
 });
