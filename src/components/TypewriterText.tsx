@@ -95,6 +95,9 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.mono,
   },
   cursor: {
-    color: COLORS.primary,
+    color: COLORS.primary, // Reverted to the original blue color
+    textShadowColor: COLORS.success,
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 8, // Glowing green neon cursor
   },
 });

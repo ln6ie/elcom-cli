@@ -60,22 +60,21 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   ascii: {
-    color: COLORS.primary,
+    color: COLORS.primary, // Reverted to the original blue color as requested
     fontFamily: FONTS.mono,
     textAlign: "center",
-    textShadowColor: COLORS.primary,
+    textShadowColor: COLORS.success, // Keeping the vibrant green shadow glow
     textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 8, // Neon radiant glow effect satisfying Guideline 4 Design
+    textShadowRadius: 15,
   },
   versionTag: {
-    color: COLORS.primary,
-    fontFamily: FONTS.mono,
-    opacity: 0.6,
+    color: COLORS.primary, // Reverted to the original blue color as requested
+    fontFamily: FONTS.monoBold,
     textAlign: "center",
     marginTop: 10,
     letterSpacing: 2,
-    textShadowColor: COLORS.primary,
+    textShadowColor: COLORS.success, // Keeping the vibrant green shadow glow
     textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 4,
+    textShadowRadius: 8,
   },
 });

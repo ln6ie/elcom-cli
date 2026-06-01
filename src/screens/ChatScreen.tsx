@@ -126,7 +126,11 @@ export const ChatScreen = ({
           inverted
           keyExtractor={(item, index) => item.id || index.toString()}
           contentContainerStyle={styles.listContent}
-          ListFooterComponent={<HistoryLoader isLoadingMore={isLoadingMore} />}
+          ListFooterComponent={
+            messages.length > 0 ? (
+              <HistoryLoader isLoadingMore={isLoadingMore} />
+            ) : null
+          }
           renderItem={({ item }) => {
             const allModels = [...modelPresets, ...customModels];
             const currentMessageModel = allModels.find(

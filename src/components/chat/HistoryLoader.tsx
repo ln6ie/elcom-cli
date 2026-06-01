@@ -51,14 +51,17 @@ const styles = StyleSheet.create({
   headerWrap: {
     marginBottom: 32,
     alignItems: "center",
-    opacity: 0.4,
+    opacity: 1.0, // High visibility (was 0.4 which made it extremely dim)
   },
   readyText: {
-    color: COLORS.textDim,
+    color: COLORS.text, // Bright white text
     fontFamily: FONTS.mono,
     fontSize: 10,
     marginTop: 8,
     letterSpacing: 2,
+    textShadowColor: COLORS.success, // Glowing green shadow
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 6,
   },
   divider: {
     height: 1,
@@ -67,9 +70,12 @@ const styles = StyleSheet.create({
     marginVertical: 8,
   },
   connectionText: {
-    color: COLORS.primary,
+    color: COLORS.primary, // Reverted to original blue color
     fontFamily: FONTS.mono,
     fontSize: 10,
     textAlign: "center",
+    textShadowColor: COLORS.success, // Keeping the vibrant green shadow glow
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 6,
   },
 });
