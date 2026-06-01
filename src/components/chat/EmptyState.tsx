@@ -1,6 +1,6 @@
 import React from "react";
 import { View, StyleSheet } from "react-native";
-import { COLORS, FONTS } from "../../constants/theme";
+import { COLORS, FONTS, FONT_SIZES } from "../../constants/theme";
 import { TypewriterText } from "../TypewriterText";
 
 interface EmptyStateProps {
@@ -40,6 +40,6 @@ const styles = StyleSheet.create({
   emptyText: {
     color: COLORS.textDim,
     fontFamily: FONTS.mono,
-    fontSize: 13,
+    fontSize: FONT_SIZES.body,
   },
 });

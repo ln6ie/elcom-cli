@@ -1,13 +1,16 @@
-import { StyleSheet } from "react-native";
+import { StyleSheet, Dimensions } from "react-native";
+
+const { width, height } = Dimensions.get("window");
+export const isTablet = Math.min(width, height) >= 600;
 
 export const COLORS = {
   background: "#0E0E0E",
   surface: "#141414",
   border: "#1E1E1E",
   primary: "#00A3E0",
-  primaryDim: "#0077A8",
+  primaryDim: "#33B5E5", // Made brighter (was #0077A8) to increase contrast on dark backgrounds
   text: "#E8E8E8",
-  textDim: "#555555",
+  textDim: "#9EAEB8",   // Made much brighter (was #555555) to satisfy Apple Guideline 4 contrast requirements
   success: "#00E0A3",
   error: "#E04A00",
 } as const;
@@ -15,6 +18,17 @@ export const COLORS = {
 export const FONTS = {
   mono: "SpaceMono_400Regular",
   monoBold: "SpaceMono_700Bold",
+} as const;
+
+// Responsive Font Sizes for Accessibility & Guidelines Compliance
+export const FONT_SIZES = {
+  body: isTablet ? 17 : 14.5,
+  heading1: isTablet ? 26 : 22,
+  heading2: isTablet ? 21 : 18,
+  title: isTablet ? 16 : 14,
+  label: isTablet ? 14 : 12,
+  small: isTablet ? 13 : 11,
+  tiny: isTablet ? 11 : 9.5,
 } as const;
 
 export const SPACING = {

@@ -1,20 +1,17 @@
 import React from "react";
 import { View, Text, StyleSheet, ViewStyle, TextStyle } from "react-native";
 import { COLORS, FONTS } from "../constants/theme";
+import Constants from "expo-constants";
 
 export const APP_BRAND_ASCII = `
-  ______ _      _____ ____  __  __ 
- |  ____| |    / ____/ __ \\|  \\/  |
- | |__  | |   | |   | |  | | \\  / |
- |  __| | |   | |   | |  | | |\\/| |
- | |____| |___| |___| |__| | |  | |
- |______|______\\____\\____/|_|  |_|
-  _____ _      _____ 
- / ____| |    |_   _|
-| |    | |      | |  
-| |    | |      | |  
-| |____| |____ _| |_ 
- \\_____|______|_____|
+ ___ _      ___  ___  __  __ 
+| __| |    / __|/ _ \\|  \\/  |
+| _| |    | (__| (_) | |\\/| |
+|___|______\\___|\\___/|_|  |_|
+  ___ _    ___ 
+ / __| |  |_ _|
+| (__| |__ | | 
+ \\___|____|___|
 `;
 
 interface AppBrandProps {
@@ -30,6 +27,8 @@ export const AppBrand: React.FC<AppBrandProps> = ({
   style,
   textStyle,
 }) => {
+  const appVersion = Constants.expoConfig?.version || "1.0.2";
+
   return (
     <View style={[styles.container, style]}>
       <Text
@@ -37,13 +36,13 @@ export const AppBrand: React.FC<AppBrandProps> = ({
           styles.ascii,
           { fontSize, lineHeight: fontSize + 1 },
           textStyle,
-        ]}
+         ]}
       >
         {APP_BRAND_ASCII}
       </Text>
       {showVersion && (
         <Text style={[styles.versionTag, { fontSize: fontSize + 2 }]}>
-          CLI_AI_v1.0.0 [STABLE]
+          CLI_AI_v{appVersion} [STABLE]
         </Text>
       )}
     </View>

@@ -9,7 +9,7 @@ import {
 import Markdown from "react-native-markdown-display";
 import * as Clipboard from "expo-clipboard";
 import { Copy, Check } from "lucide-react-native";
-import { COLORS, FONTS } from "../constants/theme";
+import { COLORS, FONTS, FONT_SIZES } from "../constants/theme";
 
 interface MarkdownViewProps {
   content: string;
@@ -81,20 +81,20 @@ const markdownStyles: any = {
   body: {
     color: COLORS.text,
     fontFamily: FONTS.mono,
-    fontSize: 13,
-    lineHeight: 20,
+    fontSize: FONT_SIZES.body,
+    lineHeight: Math.round(FONT_SIZES.body * 1.5),
   },
   heading1: {
     color: COLORS.primary,
     fontFamily: FONTS.monoBold,
-    fontSize: 22,
+    fontSize: FONT_SIZES.heading1,
     marginTop: 16,
     marginBottom: 8,
   },
   heading2: {
     color: COLORS.primary,
     fontFamily: FONTS.monoBold,
-    fontSize: 18,
+    fontSize: FONT_SIZES.heading2,
     marginTop: 12,
     marginBottom: 6,
   },
@@ -160,7 +160,7 @@ const markdownStyles: any = {
   codeLang: {
     color: COLORS.textDim,
     fontFamily: FONTS.mono,
-    fontSize: 9,
+    fontSize: FONT_SIZES.tiny,
     textTransform: "uppercase",
   },
   copyBtn: {
@@ -169,7 +169,7 @@ const markdownStyles: any = {
   codeText: {
     color: COLORS.primary,
     fontFamily: FONTS.mono,
-    fontSize: 11,
+    fontSize: FONT_SIZES.small,
   },
   // Bullet points
   bullet_list: {

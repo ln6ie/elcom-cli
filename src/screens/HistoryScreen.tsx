@@ -11,7 +11,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useSQLiteContext } from "expo-sqlite";
 import { database } from "../services/database";
-import { COLORS, FONTS } from "../constants/theme";
+import { COLORS, FONTS, FONT_SIZES } from "../constants/theme";
 import { Trash2, MessageSquare, ChevronRight } from "lucide-react-native";
 import { CliNotification } from "../components/CliNotification";
 
@@ -165,11 +165,12 @@ const styles = StyleSheet.create({
   headerTitle: {
     color: COLORS.primary,
     fontFamily: FONTS.monoBold,
-    fontSize: 14,
+    fontSize: FONT_SIZES.title,
   },
   backButton: {
     color: COLORS.error,
     fontFamily: FONTS.monoBold,
+    fontSize: FONT_SIZES.label,
   },
   newButton: {
     margin: 16,
@@ -182,7 +183,7 @@ const styles = StyleSheet.create({
   newButtonText: {
     color: COLORS.success,
     fontFamily: FONTS.monoBold,
-    fontSize: 12,
+    fontSize: FONT_SIZES.label,
   },
   list: {
     padding: 16,
@@ -208,19 +209,19 @@ const styles = StyleSheet.create({
   itemTitle: {
     color: COLORS.text,
     fontFamily: FONTS.monoBold,
-    fontSize: 13,
+    fontSize: FONT_SIZES.body,
     flex: 1,
     marginRight: 8,
   },
   itemDate: {
     color: COLORS.textDim,
     fontFamily: FONTS.mono,
-    fontSize: 10,
+    fontSize: FONT_SIZES.small,
   },
   itemModel: {
     color: COLORS.primaryDim,
     fontFamily: FONTS.mono,
-    fontSize: 9,
+    fontSize: FONT_SIZES.tiny,
   },
   deleteButton: {
     padding: 16,
@@ -236,7 +237,7 @@ const styles = StyleSheet.create({
   emptyText: {
     color: COLORS.textDim,
     fontFamily: FONTS.mono,
-    fontSize: 12,
+    fontSize: FONT_SIZES.label,
     textAlign: "center",
   },
 });

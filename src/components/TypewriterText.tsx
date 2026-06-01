@@ -11,6 +11,11 @@ interface TypewriterTextProps {
   onComplete?: () => void;
 }
 
+const isArabic = (text: string) => {
+  const arabicPattern = /[\u0600-\u06FF\u0750-\u077F]/;
+  return arabicPattern.test(text);
+};
+
 export const TypewriterText = ({
   phrases,
   speed = 40,
@@ -23,6 +28,9 @@ export const TypewriterText = ({
   const [phraseIndex, setPhraseIndex] = useState(0);
   const [charIndex, setCharIndex] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  const currentPhrase = phrases[phraseIndex] || "";
+  const rtl = isArabic(currentPhrase);
 
   useEffect(() => {
     if (phraseIndex < phrases.length) {
@@ -65,7 +73,16 @@ export const TypewriterText = ({
   ]);
 
   return (
-    <Text style={[styles.text, style]}>
+    <Text
+      style={[
+        styles.text,
+        {
+          textAlign: rtl ? "right" : "left",
+          writingDirection: rtl ? "rtl" : "ltr",
+        },
+        style,
+      ]}
+    >
       {displayedText}
       <Text style={styles.cursor}>█</Text>
     </Text>
@@ -76,8 +93,6 @@ const styles = StyleSheet.create({
   text: {
     color: COLORS.text,
     fontFamily: FONTS.mono,
-    textAlign: "right",
-    writingDirection: "rtl",
   },
   cursor: {
     color: COLORS.primary,

@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useState } from "react";
-import { COLORS, FONTS } from "../constants/theme";
+import { COLORS, FONTS, FONT_SIZES } from "../constants/theme";
 import {
   Paperclip,
   Camera,
@@ -353,7 +353,7 @@ const styles = StyleSheet.create({
     flex: 1,
     color: COLORS.text,
     fontFamily: FONTS.mono,
-    fontSize: 14,
+    fontSize: FONT_SIZES.body,
     paddingVertical: 8,
     textAlignVertical: "bottom",
   },
@@ -361,7 +361,7 @@ const styles = StyleSheet.create({
   prompt: {
     color: COLORS.textDim,
     fontFamily: FONTS.mono,
-    fontSize: 18,
+    fontSize: FONT_SIZES.body + 2,
     marginBottom: 10,
     marginRight: 6,
   },
@@ -380,7 +380,7 @@ const styles = StyleSheet.create({
   },
   execBtn: { borderColor: COLORS.success },
   webBtn: { borderColor: COLORS.primary },
-  sendBtnText: { color: COLORS.text, fontFamily: FONTS.monoBold, fontSize: 12 },
+  sendBtnText: { color: COLORS.text, fontFamily: FONTS.monoBold, fontSize: FONT_SIZES.small },
   suggestionsBox: {
     position: "absolute",
     bottom: "100%",
@@ -403,13 +403,13 @@ const styles = StyleSheet.create({
   suggestionCmd: {
     color: COLORS.success,
     fontFamily: FONTS.monoBold,
-    fontSize: 12,
+    fontSize: FONT_SIZES.small,
     width: 100,
   },
   suggestionDesc: {
     color: COLORS.textDim,
     fontFamily: FONTS.mono,
-    fontSize: 10,
+    fontSize: FONT_SIZES.tiny,
     flex: 1,
   },
   previewContainer: {

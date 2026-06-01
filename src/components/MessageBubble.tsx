@@ -3,7 +3,7 @@ import { Message } from "../types/chat";
 import { useState } from "react";
 import * as Clipboard from "expo-clipboard";
 import { Copy, Check } from "lucide-react-native";
-import { COLORS, FONTS } from "../constants/theme";
+import { COLORS, FONTS, FONT_SIZES } from "../constants/theme";
 import { MarkdownView } from "./MarkdownView";
 
 interface MessageBubbleProps {
@@ -145,7 +145,7 @@ const styles = StyleSheet.create({
   },
   prefix: {
     fontFamily: FONTS.monoBold,
-    fontSize: 13,
+    fontSize: FONT_SIZES.label,
   },
   contentWrap: {
     flex: 1,
@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
   reasoningLabel: {
     color: COLORS.primaryDim,
     fontFamily: FONTS.mono,
-    fontSize: 11,
+    fontSize: FONT_SIZES.small,
   },
   reasoningBox: {
     marginTop: 10,
@@ -188,9 +188,9 @@ const styles = StyleSheet.create({
   reasoningText: {
     color: COLORS.success,
     fontFamily: FONTS.mono,
-    fontSize: 11,
+    fontSize: FONT_SIZES.small,
     fontStyle: "italic",
-    opacity: 0.7,
+    opacity: 0.9,
   },
   rtlText: {
     textAlign: "right",
@@ -209,7 +209,7 @@ const styles = StyleSheet.create({
   },
   actionText: {
     fontFamily: FONTS.mono,
-    fontSize: 9,
+    fontSize: FONT_SIZES.tiny,
     marginLeft: 6,
     letterSpacing: 1,
   },

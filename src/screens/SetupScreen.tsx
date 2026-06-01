@@ -11,7 +11,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useState, useRef, useEffect } from "react";
 import { Eye, EyeOff, Globe } from "lucide-react-native";
-import { COLORS, FONTS } from "../constants/theme";
+import { COLORS, FONTS, FONT_SIZES, isTablet } from "../constants/theme";
 import { AppBrand } from "../components/AppBrand";
 
 interface SetupScreenProps {
@@ -92,7 +92,7 @@ export const SetupScreen = ({ onConnect }: SetupScreenProps) => {
         keyboardShouldPersistTaps="handled"
       >
         <Animated.View style={[styles.inner, { opacity: fadeAnim }]}>
-          <AppBrand fontSize={10} style={styles.brandContainer} />
+          <AppBrand fontSize={isTablet ? 14 : 10} style={styles.brandContainer} />
 
           <View style={styles.form}>
             <Text style={styles.label}>{t.title}</Text>
@@ -180,7 +180,7 @@ const styles = StyleSheet.create({
   langBtnText: {
     color: COLORS.textDim,
     fontFamily: FONTS.monoBold,
-    fontSize: 11,
+    fontSize: FONT_SIZES.small,
   },
   activeLang: {
     backgroundColor: "rgba(0, 224, 163, 0.1)",
@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
   langSeparator: {
     color: COLORS.border,
     fontFamily: FONTS.mono,
-    fontSize: 11,
+    fontSize: FONT_SIZES.small,
     marginHorizontal: 4,
   },
   scroll: {
@@ -217,7 +217,7 @@ const styles = StyleSheet.create({
   label: {
     color: COLORS.primary,
     fontFamily: FONTS.monoBold,
-    fontSize: 11,
+    fontSize: FONT_SIZES.label,
     marginBottom: 12,
   },
   inputRow: {
@@ -234,7 +234,7 @@ const styles = StyleSheet.create({
     flex: 1,
     color: COLORS.text,
     fontFamily: FONTS.mono,
-    fontSize: 13,
+    fontSize: FONT_SIZES.body,
     height: 40,
     padding: 0,
   },
@@ -251,14 +251,14 @@ const styles = StyleSheet.create({
   stepsHeader: {
     color: COLORS.primary,
     fontFamily: FONTS.monoBold,
-    fontSize: 11,
+    fontSize: FONT_SIZES.label,
     marginBottom: 12,
   },
   stepText: {
     color: COLORS.textDim,
     fontFamily: FONTS.mono,
-    fontSize: 10.5,
-    lineHeight: 18,
+    fontSize: FONT_SIZES.small,
+    lineHeight: Math.round(FONT_SIZES.small * 1.6),
     marginBottom: 8,
   },
   connectButton: {
@@ -275,7 +275,7 @@ const styles = StyleSheet.create({
   connectText: {
     color: COLORS.primary,
     fontFamily: FONTS.monoBold,
-    fontSize: 15,
+    fontSize: FONT_SIZES.body,
   },
   linkWrap: {
     marginTop: 24,
@@ -284,7 +284,7 @@ const styles = StyleSheet.create({
   linkText: {
     color: COLORS.text,
     fontFamily: FONTS.monoBold,
-    fontSize: 11,
+    fontSize: FONT_SIZES.label,
     textDecorationLine: "underline",
   },
 });

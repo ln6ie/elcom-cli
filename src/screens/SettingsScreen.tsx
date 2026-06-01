@@ -8,7 +8,7 @@ import {
   StyleSheet,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { COLORS, FONTS } from "../constants/theme";
+import { COLORS, FONTS, FONT_SIZES } from "../constants/theme";
 import { DatabaseSettings } from "../services/database";
 import { CliNotification } from "../components/CliNotification";
 import { ModelSelector } from "../components/settings/ModelSelector";
@@ -178,14 +178,14 @@ const styles = StyleSheet.create({
   headerTitle: {
     color: COLORS.primary,
     fontFamily: FONTS.monoBold,
-    fontSize: 14,
+    fontSize: FONT_SIZES.title,
   },
-  backButton: { color: COLORS.error, fontFamily: FONTS.monoBold },
+  backButton: { color: COLORS.error, fontFamily: FONTS.monoBold, fontSize: FONT_SIZES.label },
   scroll: { padding: 16 },
   sectionTitle: {
     color: COLORS.textDim,
     fontFamily: FONTS.monoBold,
-    fontSize: 12,
+    fontSize: FONT_SIZES.label,
     marginTop: 12,
     marginBottom: 16,
   },
@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
   label: {
     color: COLORS.primary,
     fontFamily: FONTS.mono,
-    fontSize: 11,
+    fontSize: FONT_SIZES.label,
     marginBottom: 8,
   },
   input: {
@@ -202,7 +202,7 @@ const styles = StyleSheet.create({
     borderColor: COLORS.border,
     color: COLORS.text,
     fontFamily: FONTS.mono,
-    fontSize: 13,
+    fontSize: FONT_SIZES.body,
     padding: 12,
   },
   saveButton: {
@@ -215,7 +215,7 @@ const styles = StyleSheet.create({
   saveText: {
     color: COLORS.background,
     fontFamily: FONTS.monoBold,
-    fontSize: 14,
+    fontSize: FONT_SIZES.body,
   },
   disabled: { opacity: 0.5 },
   langSelector: {
@@ -238,7 +238,7 @@ const styles = StyleSheet.create({
   langText: {
     color: COLORS.textDim,
     fontFamily: FONTS.monoBold,
-    fontSize: 12,
+    fontSize: FONT_SIZES.label,
   },
   activeLangText: {
     color: COLORS.success,

@@ -7,7 +7,7 @@ import {
   ViewStyle,
   Animated,
 } from "react-native";
-import { COLORS, FONTS } from "../constants/theme";
+import { COLORS, FONTS, FONT_SIZES } from "../constants/theme";
 
 interface StatusBarProps {
   title?: string;
@@ -49,17 +49,17 @@ const styles = StyleSheet.create({
   title: {
     color: COLORS.primary,
     fontFamily: FONTS.monoBold,
-    fontSize: 11,
+    fontSize: FONT_SIZES.label,
   },
   separator: {
     color: COLORS.textDim,
     fontFamily: FONTS.mono,
-    fontSize: 11,
+    fontSize: FONT_SIZES.label,
   },
   subtitle: {
     color: COLORS.success,
     fontFamily: FONTS.mono,
-    fontSize: 10,
+    fontSize: FONT_SIZES.label,
   },
   right: {
     flexDirection: "row",
@@ -75,7 +75,7 @@ const styles = StyleSheet.create({
   buttonText: {
     color: COLORS.primary,
     fontFamily: FONTS.mono,
-    fontSize: 10,
+    fontSize: FONT_SIZES.small,
   },
   bold: {
     fontFamily: FONTS.monoBold,
