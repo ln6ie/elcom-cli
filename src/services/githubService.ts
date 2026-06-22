@@ -15,22 +15,27 @@ export const githubService = {
     clientSecret: string,
     redirectUri: string,
   ): Promise<string> {
+    const body = new URLSearchParams({
+      client_id: clientId,
+      client_secret: clientSecret,
+      code,
+      redirect_uri: redirectUri,
+    });
+
     const response = await fetch("https://github.com/login/oauth/access_token", {
       method: "POST",
       headers: {
         Accept: "application/json",
-        "Content-Type": "application/json",
+        "Content-Type": "application/x-www-form-urlencoded",
       },
-      body: JSON.stringify({
-        client_id: clientId,
-        client_secret: clientSecret,
-        code,
-        redirect_uri: redirectUri,
-      }),
+      body: body.toString(),
     });
 
     if (!response.ok) {
-      throw new Error(`TOKEN_EXCHANGE_FAILED: ${response.status}`);
+      const errorBody = await response.json().catch(() => ({}));
+      throw new Error(
+        `TOKEN_EXCHANGE_FAILED: ${response.status} - ${errorBody.error_description || errorBody.error || "Unknown"}`
+      );
     }
 
     const data = await response.json();

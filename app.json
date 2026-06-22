@@ -15,7 +15,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.elcomlab.elcomcli",
-      "buildNumber": "3",
+      "buildNumber": "4",
       "infoPlist": {
         "NSPhotoLibraryUsageDescription": "ElcomCLI needs access to your photo library so you can select and upload images or screenshots directly into your chat threads to describe them to the AI.",
         "NSCameraUsageDescription": "ElcomCLI needs access to your camera so you can take photos of code or objects and directly upload them into your chat threads to analyze them with the AI."
@@ -39,8 +39,7 @@
           "photosPermission": "ElcomCLI needs access to your photo library so you can select and upload images or screenshots directly into your chat threads to describe them to the AI.",
           "cameraPermission": "ElcomCLI needs access to your camera so you can take photos of code or objects and directly upload them into your chat threads to analyze them with the AI."
         }
-      ],
-      "./plugins/withAlternateIcons"
+      ]
     ]
   }
 }
