@@ -88,6 +88,7 @@ export const useGitHub = () => {
           clientId,
           clientSecret,
           redirectUri,
+          request?.codeVerifier,
         );
 
         await SecureStore.setItemAsync(TOKEN_KEY, accessToken);

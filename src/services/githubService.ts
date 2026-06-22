@@ -14,6 +14,7 @@ export const githubService = {
     clientId: string,
     clientSecret: string,
     redirectUri: string,
+    codeVerifier?: string,
   ): Promise<string> {
     const body = new URLSearchParams({
       client_id: clientId,
@@ -21,6 +22,10 @@ export const githubService = {
       code,
       redirect_uri: redirectUri,
     });
+
+    if (codeVerifier) {
+      body.append("code_verifier", codeVerifier);
+    }
 
     const response = await fetch("https://github.com/login/oauth/access_token", {
       method: "POST",

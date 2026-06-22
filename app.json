@@ -3,7 +3,7 @@
     "name": "ElcomCLI",
     "slug": "elcomcli",
     "scheme": "elcomcli",
-    "version": "1.0.6",
+    "version": "1.0.7",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "splash": {
@@ -15,7 +15,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.elcomlab.elcomcli",
-      "buildNumber": "4",
+      "buildNumber": "5",
       "infoPlist": {
         "NSPhotoLibraryUsageDescription": "ElcomCLI needs access to your photo library so you can select and upload images or screenshots directly into your chat threads to describe them to the AI.",
         "NSCameraUsageDescription": "ElcomCLI needs access to your camera so you can take photos of code or objects and directly upload them into your chat threads to analyze them with the AI."
@@ -24,7 +24,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#002060"
+        "backgroundColor": "#000000"
       },
       "package": "com.anonymous.elcomcli"
     },
