@@ -36,6 +36,15 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Read version from app.json
+        id: version
+        run: |
+          chmod +x scripts/version.sh
+          source <(scripts/version.sh)
+          echo "MARKETING_VERSION=$VERSION" >> $GITHUB_OUTPUT
+          echo "CURRENT_PROJECT_VERSION=${{ github.run_number }}" >> $GITHUB_OUTPUT
+          echo "App version: $VERSION (build ${{ github.run_number }})"
+
       - name: Create .env file from secrets
         run: |
           echo 'EXPO_PUBLIC_OPENROUTER_URL=https://openrouter.ai/api/v1/chat/completions' >> .env
@@ -133,9 +142,10 @@ jobs:
                      PROVISIONING_PROFILE="$PROFILE_UUID" \
                      PRODUCT_BUNDLE_IDENTIFIER="$BUNDLE_ID" \
                      CODE_SIGN_STYLE="Manual" \
-                     CODE_SIGN_IDENTITY="Apple Distribution" \
-                     CURRENT_PROJECT_VERSION="${{ github.run_number }}" \
-                     archive
+                      CODE_SIGN_IDENTITY="Apple Distribution" \
+                      MARKETING_VERSION="${{ steps.version.outputs.MARKETING_VERSION }}" \
+                      CURRENT_PROJECT_VERSION="${{ steps.version.outputs.CURRENT_PROJECT_VERSION }}" \
+                      archive
 
           xcodebuild -exportArchive \
                      -archivePath $RUNNER_TEMP/$APP_NAME.xcarchive \
