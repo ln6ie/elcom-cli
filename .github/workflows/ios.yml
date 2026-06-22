@@ -94,6 +94,13 @@ jobs:
       - name: Generate Native iOS Directory (Expo Prebuild)
         run: npx expo prebuild --platform ios --no-install
 
+      - name: Set build number in Info.plist
+        run: |
+          INFO_PLIST=$(find ios -name "Info.plist" -maxdepth 3 | head -1)
+          echo "Patching $INFO_PLIST with build number: ${{ steps.version.outputs.CURRENT_PROJECT_VERSION }}"
+          /usr/libexec/PlistBuddy -c "Set :CFBundleVersion ${{ steps.version.outputs.CURRENT_PROJECT_VERSION }}" "$INFO_PLIST" 2>/dev/null || \
+          /usr/libexec/PlistBuddy -c "Add :CFBundleVersion string ${{ steps.version.outputs.CURRENT_PROJECT_VERSION }}" "$INFO_PLIST"
+
       - name: Install CocoaPods Dependencies
         run: |
           cd ios
