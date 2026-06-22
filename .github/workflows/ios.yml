@@ -42,8 +42,8 @@ jobs:
           chmod +x scripts/version.sh
           source <(scripts/version.sh)
           echo "MARKETING_VERSION=$VERSION" >> $GITHUB_OUTPUT
-          echo "CURRENT_PROJECT_VERSION=${{ github.run_number }}" >> $GITHUB_OUTPUT
-          echo "App version: $VERSION (build ${{ github.run_number }})"
+          echo "CURRENT_PROJECT_VERSION=$BUILD_NUMBER" >> $GITHUB_OUTPUT
+          echo "App version: $VERSION (build $BUILD_NUMBER)"
 
       - name: Create .env file from secrets
         run: |

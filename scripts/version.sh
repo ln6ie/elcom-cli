@@ -2,8 +2,8 @@
 set -euo pipefail
 
 # Reads version from app.json, generates build number
-# In CI: uses GITHUB_RUN_NUMBER for auto-incrementing build number
-# Local: uses git commit count as fallback
+# Build number uses git commit count + date for guaranteed uniqueness
+# Apple requires CFBundleVersion to strictly increment per build
 
 APP_JSON="${1:-app.json}"
 
@@ -19,12 +19,15 @@ if [ -z "$VERSION" ]; then
   exit 1
 fi
 
-# Use GITHUB_RUN_NUMBER in CI, git commit count locally
-if [ -n "${GITHUB_RUN_NUMBER:-}" ]; then
-  BUILD_NUMBER="$GITHUB_RUN_NUMBER"
-else
-  BUILD_NUMBER=$(git rev-list --count HEAD 2>/dev/null || echo "1")
-fi
+# Use git commit count (never resets) + date prefix for sorting
+COMMIT_COUNT=$(git rev-list --count HEAD 2>/dev/null || echo "1")
+DATE_TAG=$(date +%Y%m%d)
+
+# Format: YYYYMMDD.commitcount (e.g. 20260622.36)
+# - Date ensures chronological order across days
+# - Commit count ensures uniqueness within a day
+# - Always higher than previously uploaded version "1"
+BUILD_NUMBER="${DATE_TAG}.${COMMIT_COUNT}"
 
 echo "VERSION=$VERSION"
 echo "BUILD_NUMBER=$BUILD_NUMBER"
