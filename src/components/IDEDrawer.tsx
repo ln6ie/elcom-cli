@@ -25,10 +25,11 @@ interface IDEDrawerProps {
   onClose: () => void;
   onSelectFile: (path: string) => void;
   openFiles: OpenFile[];
+  language?: "ar" | "en";
 }
 
-export const IDEDrawer: React.FC<IDEDrawerProps> = ({ onClose, onSelectFile, openFiles }) => {
-  const { token, user, isLoading: authLoading, loginWithOAuth, loginWithToken, logout } = useGitHub();
+export const IDEDrawer: React.FC<IDEDrawerProps> = ({ onClose, onSelectFile, openFiles, language = "ar" }) => {
+  const { token, user, isLoading: authLoading, loginWithOAuth, loginWithToken, logout, redirectUri } = useGitHub();
   const {
     selectedRepo,
     fileTree,
@@ -179,7 +180,7 @@ export const IDEDrawer: React.FC<IDEDrawerProps> = ({ onClose, onSelectFile, ope
           <ActivityIndicator size="small" color={COLORS.primary} />
         </View>
       ) : !token ? (
-        <GithubConnect loginWithOAuth={loginWithOAuth} loginWithToken={loginWithToken} />
+        <GithubConnect loginWithOAuth={loginWithOAuth} loginWithToken={loginWithToken} redirectUri={redirectUri} language={language} />
       ) : isCloning ? (
         <View style={styles.center}>
           <ActivityIndicator size="large" color={COLORS.primary} />

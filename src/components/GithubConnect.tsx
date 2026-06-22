@@ -5,46 +5,61 @@ import {
   StyleSheet,
   TextInput,
   TouchableOpacity,
+  ScrollView,
 } from "react-native";
-import { FolderGit, Key } from "lucide-react-native";
+import { FolderGit, Key, Link as LinkIcon } from "lucide-react-native";
 import { COLORS, FONTS, FONT_SIZES } from "../constants/theme";
+import { TRANSLATIONS, Language } from "../constants/translations";
 
 interface GithubConnectProps {
   loginWithOAuth: () => void;
   loginWithToken: (token: string) => Promise<boolean>;
+  redirectUri?: string;
+  language?: Language;
+  isLoading?: boolean;
 }
 
-// مكون تسجيل الدخول إلى جيت هاب
 export const GithubConnect: React.FC<GithubConnectProps> = ({
   loginWithOAuth,
   loginWithToken,
+  redirectUri,
+  language = "ar",
+  isLoading,
 }) => {
+  const t = TRANSLATIONS[language];
   const [patInput, setPatInput] = useState("");
 
-  // معالجة تسجيل الدخول برمز الوصول الشخصي
   const handlePatLogin = async () => {
     if (!patInput.trim()) return;
     const success = await loginWithToken(patInput.trim());
-    if (success) {
-      setPatInput("");
-    }
+    if (success) setPatInput("");
   };
 
   return (
-    <View style={styles.authContainer}>
+    <ScrollView contentContainerStyle={styles.authContainer}>
       <FolderGit size={64} color={COLORS.primary} style={{ marginBottom: 16 }} />
-      <Text style={styles.authTitle}>CONNECT_GITHUB</Text>
-      <Text style={styles.authDesc}>
-        Authenticate to pull, edit, and push code repositories directly.
-      </Text>
+      <Text style={styles.authTitle}>{t.connect_github}</Text>
 
-      <TouchableOpacity style={styles.oauthBtn} onPress={loginWithOAuth}>
-        <Text style={styles.oauthBtnText}>AUTHENTICATE_WITH_OAUTH</Text>
+      <TouchableOpacity style={styles.oauthBtn} onPress={loginWithOAuth} disabled={isLoading}>
+        <Text style={styles.oauthBtnText}>
+          {isLoading ? t.authenticating : t.github_oauth}
+        </Text>
       </TouchableOpacity>
+
+      {redirectUri && (
+        <View style={styles.redirectBox}>
+          <View style={styles.redirectHeader}>
+            <LinkIcon size={14} color={COLORS.textDim} />
+            <Text style={styles.redirectLabel}> {t.github_redirect_uri}</Text>
+          </View>
+          <Text style={styles.redirectValue} selectable>{redirectUri}</Text>
+          <Text style={styles.redirectNote}>{t.github_redirect_note}</Text>
+        </View>
+      )}
 
       <View style={styles.dividerRow}>
         <View style={styles.dividerLine} />
-        <Text style={styles.dividerText}>OR_PAT</Text>
+        <Text style={styles.dividerText}>{t.or_pat}</Text>
         <View style={styles.dividerLine} />
       </View>
 
@@ -55,7 +70,7 @@ export const GithubConnect: React.FC<GithubConnectProps> = ({
             style={styles.patInput}
             value={patInput}
             onChangeText={setPatInput}
-            placeholder="Paste GitHub PAT (ghp_...)"
+            placeholder={t.paste_pat}
             placeholderTextColor={COLORS.textDim}
             secureTextEntry
             autoCapitalize="none"
@@ -63,32 +78,24 @@ export const GithubConnect: React.FC<GithubConnectProps> = ({
           />
         </View>
         <TouchableOpacity
-          style={[styles.patBtn, !patInput.trim() && styles.disabledBtn]}
+          style={[styles.patBtn, (!patInput.trim() || isLoading) && styles.disabledBtn]}
           onPress={handlePatLogin}
-          disabled={!patInput.trim()}
+          disabled={!patInput.trim() || isLoading}
         >
-          <Text style={styles.patBtnText}>CONNECT_WITH_PAT</Text>
+          <Text style={styles.patBtnText}>{t.authenticate}</Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
-  authContainer: { flex: 1, justifyContent: "center", alignItems: "center", padding: 24, width: "100%" },
+  authContainer: { flexGrow: 1, justifyContent: "center", alignItems: "center", padding: 24 },
   authTitle: {
     fontFamily: FONTS.monoBold,
     fontSize: FONT_SIZES.heading1,
     color: COLORS.primary,
-    marginBottom: 8,
-  },
-  authDesc: {
-    fontFamily: FONTS.mono,
-    fontSize: FONT_SIZES.body,
-    color: COLORS.textDim,
-    textAlign: "center",
-    lineHeight: 20,
-    marginBottom: 32,
+    marginBottom: 24,
   },
   oauthBtn: {
     width: "100%",
@@ -96,9 +103,28 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     borderRadius: 4,
     alignItems: "center",
-    marginBottom: 24,
+    marginBottom: 16,
   },
   oauthBtnText: { color: "#0E0E0E", fontFamily: FONTS.monoBold, fontSize: FONT_SIZES.body },
+  redirectBox: {
+    width: "100%",
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    backgroundColor: COLORS.surface,
+    padding: 12,
+    marginBottom: 16,
+  },
+  redirectHeader: { flexDirection: "row", alignItems: "center", marginBottom: 6 },
+  redirectLabel: { color: COLORS.textDim, fontFamily: FONTS.mono, fontSize: FONT_SIZES.small },
+  redirectValue: {
+    color: COLORS.text,
+    fontFamily: FONTS.mono,
+    fontSize: FONT_SIZES.small,
+    backgroundColor: COLORS.background,
+    padding: 8,
+    marginBottom: 8,
+  },
+  redirectNote: { color: COLORS.error, fontFamily: FONTS.mono, fontSize: FONT_SIZES.small, lineHeight: 18 },
   dividerRow: { flexDirection: "row", alignItems: "center", width: "100%", marginBottom: 24 },
   dividerLine: { flex: 1, height: 1, backgroundColor: COLORS.border },
   dividerText: {

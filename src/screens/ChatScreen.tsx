@@ -47,6 +47,7 @@ import { useLocalFiles } from "../hooks/useLocalFiles";
 import { githubService } from "../services/githubService";
 import { base64Service } from "../services/base64Service";
 import { diffService } from "../services/diffService";
+import { ModelInfo } from "../services/modelService";
 
 const { width } = Dimensions.get("window");
 const DRAWER_WIDTH = width * 0.75;
@@ -57,6 +58,11 @@ interface ChatScreenProps {
   customModels: { id: string; name: string }[];
   modelPresets: { id: string; name: string }[];
   onCommand: (cmd: string, args: string[]) => void;
+  openRouterModels: ModelInfo[];
+  openCodeModels: ModelInfo[];
+  modelsLoading?: boolean;
+  modelsError?: string | null;
+  onRetryModels?: () => void;
 }
 
 // شاشة المحادثة الموحدة الحاوية لبيئة التطوير
@@ -66,6 +72,11 @@ export const ChatScreen = ({
   customModels,
   modelPresets,
   onCommand,
+  openRouterModels,
+  openCodeModels,
+  modelsLoading,
+  modelsError,
+  onRetryModels,
 }: ChatScreenProps) => {
   const insets = useSafeAreaInsets();
   const db = useSQLiteContext();
@@ -729,6 +740,7 @@ export const ChatScreen = ({
             console.log(`[IDEDrawer] selected file: ${path}`);
           }}
           openFiles={openFiles}
+          language={settings.language || "ar"}
         />
       </Animated.View>
 
@@ -753,6 +765,10 @@ export const ChatScreen = ({
           settings={settings}
           customModels={customModels}
           modelPresets={modelPresets}
+          openRouterModels={openRouterModels}
+          openCodeModels={openCodeModels}
+          modelsLoading={modelsLoading}
+          modelsError={modelsError}
           onSave={async (newSettings) => {
             for (const [key, value] of Object.entries(newSettings)) {
               if (value !== undefined && value !== null) {
@@ -770,6 +786,7 @@ export const ChatScreen = ({
             await database.updateCustomModelName(db, id, name);
           }}
           onBack={toggleSettings}
+          onRetryModels={onRetryModels}
         />
       </Animated.View>
 

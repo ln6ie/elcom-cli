@@ -125,5 +125,6 @@ export const useGitHub = () => {
     loginWithToken,
     logout,
     authRequest: request,
+    redirectUri,
   };
 };

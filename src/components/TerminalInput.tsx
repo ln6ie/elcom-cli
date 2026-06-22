@@ -46,7 +46,6 @@ interface TerminalInputProps {
 }
 
 const SUGGESTIONS = [
-  { cmd: "agent/", desc: "TOGGLE_AGENT_MODE" },
   { cmd: "chat/", desc: "INIT_NEW_SESSION" },
   { cmd: "history/", desc: "LOG_ARCHIVE" },
   { cmd: "settings/", desc: "CONFIG_SYSTEM" },

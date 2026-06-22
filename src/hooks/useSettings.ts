@@ -6,6 +6,7 @@ import {
   DEFAULT_SETTINGS,
 } from "../services/database";
 import { MODEL_PRESETS } from "../constants/models";
+import { modelService, ModelInfo } from "../services/modelService";
 
 export const useSettings = () => {
   const db = useSQLiteContext();
@@ -14,7 +15,28 @@ export const useSettings = () => {
     { id: string; name: string }[]
   >([]);
   const [modelPresets, setModelPresets] = useState<{ id: string; name: string }[]>(MODEL_PRESETS);
+
+  // Dynamic models from APIs
+  const [openRouterModels, setOpenRouterModels] = useState<ModelInfo[]>([]);
+  const [openCodeModels, setOpenCodeModels] = useState<ModelInfo[]>([]);
+  const [modelsLoading, setModelsLoading] = useState(false);
+  const [modelsError, setModelsError] = useState<string | null>(null);
+
   const [isLoading, setIsLoading] = useState(true);
+
+  const fetchModels = useCallback(async () => {
+    setModelsLoading(true);
+    setModelsError(null);
+    try {
+      const result = await modelService.fetchAll();
+      setOpenRouterModels(result.openrouter);
+      setOpenCodeModels(result.opencode);
+    } catch (e: any) {
+      setModelsError(e.message || "Failed to fetch models");
+    } finally {
+      setModelsLoading(false);
+    }
+  }, []);
 
   const loadSettings = useCallback(async () => {
     try {
@@ -27,19 +49,42 @@ export const useSettings = () => {
 
       // Fetch remote models list with fallback
       const modelsUrl = process.env.EXPO_PUBLIC_MODELS_URL || "https://cli.elcomlab.site/models.json";
-      const response = await fetch(modelsUrl);
-      if (response.ok) {
-        const remoteModels = await response.json();
-        if (Array.isArray(remoteModels) && remoteModels.length > 0) {
-          setModelPresets(remoteModels);
+      try {
+        const response = await fetch(modelsUrl);
+        if (response.ok) {
+          const remoteModels = await response.json();
+          if (Array.isArray(remoteModels) && remoteModels.length > 0) {
+            setModelPresets(remoteModels);
+          }
         }
+      } catch (e) {
+        console.log("useSettings: Failed to fetch remote models, fallback to presets");
       }
+
+      // Fetch dynamic models from OpenRouter and OpenCode APIs
+      await fetchModels();
     } catch (error) {
-      console.log("useSettings: Failed to fetch remote models, fallback to presets", error);
+      console.log("useSettings: Failed to load settings", error);
     } finally {
       setIsLoading(false);
     }
-  }, [db]);
+  }, [db, fetchModels]);
+
+  const getModelsForProvider = useCallback(
+    (provider: "openrouter" | "opencode"): (ModelInfo | { id: string; name: string })[] => {
+      if (provider === "opencode") {
+        // Merge OpenCode API models with presets (dedup by id)
+        const apiIds = new Set(openCodeModels.map((m) => m.id));
+        const presets = modelPresets.filter((m) => !apiIds.has(m.id));
+        return [...openCodeModels, ...presets];
+      }
+      // OpenRouter: merge API models with presets
+      const apiIds = new Set(openRouterModels.map((m) => m.id));
+      const presets = modelPresets.filter((m) => !apiIds.has(m.id));
+      return [...openRouterModels, ...presets];
+    },
+    [openRouterModels, openCodeModels, modelPresets],
+  );
 
   const updateSetting = useCallback(
     async (key: keyof DatabaseSettings, value: string | number) => {
@@ -79,7 +124,6 @@ export const useSettings = () => {
     } catch (error: any) {
       if (error?.message?.includes("UNIQUE constraint failed")) {
         console.log("useSettings: Model already exists in DB");
-        // Refresh custom models list just to be safe
         const models = await database.getCustomModels(db);
         setCustomModels(models);
       } else {
@@ -117,11 +161,17 @@ export const useSettings = () => {
     customModels,
     modelPresets,
     isLoading,
+    modelsLoading,
+    modelsError,
+    openRouterModels,
+    openCodeModels,
+    getModelsForProvider,
     updateSetting,
     updateMultipleSettings,
     addCustomModel,
     removeCustomModel,
     renameCustomModel,
     refresh: loadSettings,
+    refreshModels: fetchModels,
   };
 };

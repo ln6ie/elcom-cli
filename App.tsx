@@ -20,6 +20,7 @@ import { initDb, database } from './src/services/database';
 import * as Crypto from 'expo-crypto';
 import 'react-native-get-random-values';
 import { TRANSLATIONS } from './src/constants/translations';
+import './src/services/i18n';
 
 // IDE Imports
 import { IDEProvider } from './src/hooks/useIDEState';
@@ -38,7 +39,12 @@ function AppContent() {
     updateMultipleSettings,
     addCustomModel,
     removeCustomModel,
-    renameCustomModel
+    renameCustomModel,
+    openRouterModels,
+    openCodeModels,
+    modelsLoading,
+    modelsError,
+    refreshModels
   } = useSettings();
   const t = TRANSLATIONS[settings.language || "ar"];
   const [currentScreen, setCurrentScreen] = useState<Screen>('chat');
@@ -153,6 +159,11 @@ function AppContent() {
               settings={settings}
               customModels={customModels}
               modelPresets={modelPresets}
+              openRouterModels={openRouterModels}
+              openCodeModels={openCodeModels}
+              modelsLoading={modelsLoading}
+              modelsError={modelsError}
+              onRetryModels={refreshModels}
               onCommand={handleCommand}
             />
           </View>
@@ -180,11 +191,16 @@ function AppContent() {
               settings={settings} 
               customModels={customModels}
               modelPresets={modelPresets}
+              openRouterModels={openRouterModels}
+              openCodeModels={openCodeModels}
+              modelsLoading={modelsLoading}
+              modelsError={modelsError}
               onSave={updateMultipleSettings}
               onAddCustomModel={addCustomModel}
               onRemoveCustomModel={removeCustomModel}
               onRenameCustomModel={renameCustomModel}
               onBack={() => setCurrentScreen('chat')}
+              onRetryModels={refreshModels}
             />
           </View>
         )}
