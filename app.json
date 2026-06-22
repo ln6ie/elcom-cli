@@ -2,11 +2,16 @@
   "expo": {
     "name": "ElcomCLI",
     "slug": "elcomcli",
-    "version": "1.0.4",
+    "scheme": "elcomcli",
+    "version": "1.0.5",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/newlogo.png",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#000000"
+    },
     "userInterfaceStyle": "dark",
-    "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.elcomlab.elcomcli",

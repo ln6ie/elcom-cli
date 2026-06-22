@@ -4,11 +4,6 @@ import {
   SpaceMono_400Regular,
   SpaceMono_700Bold,
 } from '@expo-google-fonts/space-mono';
-
-// Force LTR for professional terminal look and ASCII integrity
-I18nManager.allowRTL(false);
-I18nManager.forceRTL(false);
-
 import { useSettings } from './src/hooks/useSettings';
 import { SetupScreen } from './src/screens/SetupScreen';
 import { ChatScreen } from './src/screens/ChatScreen';
@@ -26,9 +21,11 @@ import * as Crypto from 'expo-crypto';
 import 'react-native-get-random-values';
 import { TRANSLATIONS } from './src/constants/translations';
 
-
-
-type Screen = 'setup' | 'chat' | 'history' | 'settings';
+// IDE Imports
+import { IDEProvider } from './src/hooks/useIDEState';
+I18nManager.allowRTL(false);
+I18nManager.forceRTL(false);
+type Screen = 'setup' | 'chat' | 'history' | 'settings' | 'ide_repos' | 'ide_tree' | 'ide_editor' | 'ide_diff' | 'ide_chat';
 
 function AppContent() {
   const db = useSQLiteContext();
@@ -70,7 +67,8 @@ function AppContent() {
   // Handle first-time setup or no API key and resume last session
   useEffect(() => {
     const initSession = async () => {
-      if (isSettingsLoading || !settings.api_key || !db) return;
+      const hasKey = settings.api_key || settings.opencode_api_key;
+      if (isSettingsLoading || !hasKey || !db) return;
 
       if (!activeConvId) {
         const history = await database.getAllConversations(db);
@@ -89,7 +87,7 @@ function AppContent() {
     };
     
     initSession();
-  }, [isSettingsLoading, settings.api_key, db]);
+  }, [isSettingsLoading, settings.api_key, settings.opencode_api_key, db]);
 
   const handleCommand = useCallback(async (cmd: string, args: string[]) => {
     switch (cmd) {
@@ -112,6 +110,12 @@ function AppContent() {
           Alert.alert('SYSTEM', `${t.model_changed}${args[0]}`);
         }
         break;
+      case 'provider':
+        if (args[0]) {
+          await updateSetting('ai_provider', args[0] as 'openrouter' | 'opencode');
+          Alert.alert('SYSTEM', settings.language === 'ar' ? `تم تغيير مزود الخدمة إلى ${args[0].toUpperCase()}` : `AI Provider changed to ${args[0].toUpperCase()}`);
+        }
+        break;
       case 'clear':
         if (activeConvId) {
           await db.runAsync('DELETE FROM messages WHERE conversation_id = ?', [activeConvId]);
@@ -122,6 +126,9 @@ function AppContent() {
         break;
       case 'exit':
         setCurrentScreen('chat');
+        break;
+      case 'ide':
+        setCurrentScreen('ide_repos');
         break;
       default:
         Alert.alert(t.sys_error, `${t.unknown_command}${cmd}`);
@@ -135,7 +142,7 @@ function AppContent() {
   );
 
   const renderScreen = () => {
-    const isSetup = !settings.api_key || currentScreen === 'setup';
+    const isSetup = (!settings.api_key && !settings.opencode_api_key) || currentScreen === 'setup';
     
     return (
       <View style={styles.flex1}>
@@ -181,6 +188,8 @@ function AppContent() {
             />
           </View>
         )}
+
+
       </View>
     );
   };
@@ -212,7 +221,9 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <SQLiteProvider databaseName="elcomcli.db" onInit={initDb}>
-        <AppContent />
+        <IDEProvider>
+          <AppContent />
+        </IDEProvider>
       </SQLiteProvider>
     </SafeAreaProvider>
   );

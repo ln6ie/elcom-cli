@@ -1,15 +1,17 @@
 import { View, Text, Pressable, StyleSheet, Image, Animated } from "react-native";
 import { Message } from "../types/chat";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import * as Clipboard from "expo-clipboard";
 import { Copy, Check } from "lucide-react-native";
 import { COLORS, FONTS, FONT_SIZES } from "../constants/theme";
 import { MarkdownView } from "./MarkdownView";
+import { parseToolCalls, ToolCallCard, FileContentCard, ToolResultCard, parseToolCallActions, ToolCallActionCard } from "./ToolCallCard";
 
 interface MessageBubbleProps {
   message: Message;
   userName?: string;
   modelName?: string;
+  onEditCode?: (code: string, language?: string) => void;
 }
 
 const isArabic = (text: string) => {
@@ -21,18 +23,47 @@ export const MessageBubble = ({
   message,
   userName,
   modelName,
+  onEditCode,
 }: MessageBubbleProps) => {
   const [showReasoning, setShowReasoning] = useState(false);
   const [copied, setCopied] = useState(false);
   const [elapsed, setElapsed] = useState(0);
   const [isThinkingActive, setIsThinkingActive] = useState(false);
-  
+
   const timerRef = useRef<any>(null);
   const lastReasoningLen = useRef(0);
   const skeletonOpacity = useRef(new Animated.Value(0.3)).current;
+
+  // Check if this is a file content message
+  const isFileContent = message.role === "user" && message.content.startsWith("[FILE_CONTENT:");
+
+  // Check if this is a tool result message
+  const isToolResult = message.role === "user" && message.content.startsWith("[TOOL_RESULT:");
+  const toolResultName = isToolResult
+    ? message.content.match(/\[TOOL_RESULT:\s*(\w*)\]/)?.[1]?.trim() || ""
+    : "";
+  const toolResultContent = isToolResult
+    ? message.content.replace(/\[TOOL_RESULT:\s*\w*\]\n?/, "").trim()
+    : "";
+
+  // Check if this is a tool action message (assistant describing a tool call)
+  const isToolAction = message.role === "assistant" && message.content.startsWith("[TOOL_CALL:");
+  const toolActions = useMemo(() => {
+    if (isToolAction) return parseToolCallActions(message.content);
+    return [];
+  }, [message.content, isToolAction]);
+
+  const { text: cleanContent, calls: toolCalls } = useMemo(() => {
+    if (isFileContent || isToolResult || isToolAction) return { text: "", calls: [] };
+    return parseToolCalls(message.content);
+  }, [message.content, isFileContent, isToolResult, isToolAction]);
+
+  const fileContentPath = isFileContent
+    ? message.content.match(/\[FILE_CONTENT:\s*([^\]]*)\]/)?.[1]?.trim() || ""
+    : "";
   
   const isAssistant = message.role === "assistant";
-  const rtl = isArabic(message.content);
+  const rtl = isArabic(cleanContent || message.content);
 
   const displayUser = userName || "USER";
   const displayAI = modelName || "AI";
@@ -113,6 +144,24 @@ export const MessageBubble = ({
     setTimeout(() => setCopied(false), 2000);
   };
 
+  if (isToolResult) {
+    return <ToolResultCard toolName={toolResultName} result={toolResultContent} />;
+  }
+
+  if (isToolAction) {
+    return (
+      <View style={styles.toolActionsWrap}>
+        {toolActions.map((action, idx) => (
+          <ToolCallActionCard key={idx} action={action} />
+        ))}
+      </View>
+    );
+  }
+
+  if (isFileContent) {
+    return <FileContentCard path={fileContentPath} />;
+  }
+
   return (
     <View
       style={[
@@ -138,9 +187,20 @@ export const MessageBubble = ({
             />
           </View>
         )}
-        <MarkdownView content={message.content} />
+        <MarkdownView
+          content={cleanContent}
+          onEditCode={onEditCode}
+        />
 
-        {isAssistant && message.content.length > 0 && (
+        {toolCalls.length > 0 && (
+          <View style={styles.toolCallsWrap}>
+            {toolCalls.map((call, idx) => (
+              <ToolCallCard key={idx} call={call} />
+            ))}
+          </View>
+        )}
+
+        {isAssistant && (cleanContent.length > 0 || toolCalls.length > 0) && (
           <View style={styles.actionRow}>
             <Pressable
               onPress={handleCopyAll}
@@ -272,6 +332,13 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: COLORS.border,
     paddingTop: 10,
+  },
+  toolCallsWrap: {
+    marginTop: 8,
+    gap: 6,
+  },
+  toolActionsWrap: {
+    gap: 6,
   },
   reasoningToggle: {
     flexDirection: "row",

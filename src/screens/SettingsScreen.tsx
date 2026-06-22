@@ -11,6 +11,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { COLORS, FONTS, FONT_SIZES } from "../constants/theme";
 import { DatabaseSettings } from "../services/database";
 import { CliNotification } from "../components/CliNotification";
+import { SharedHeader } from "../components/SharedHeader";
 import { ModelSelector } from "../components/settings/ModelSelector";
 import { TRANSLATIONS } from "../constants/translations";
 
@@ -92,24 +93,22 @@ export const SettingsScreen = ({
   );
 
   return (
-    <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
+    <SafeAreaView style={styles.container} edges={["bottom"]}>
       <CliNotification
         visible={notification.visible}
         message={notification.message}
         type={notification.type}
         onHide={() => setNotification((v) => ({ ...v, visible: false }))}
       />
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>{t.config_system}</Text>
-        <TouchableOpacity onPress={onBack} disabled={isSaving}>
-          <Text style={[styles.backButton, isSaving && { opacity: 0.3 }]}>
-            {t.exit}
-          </Text>
-        </TouchableOpacity>
-      </View>
-      <ScrollView contentContainerStyle={styles.scroll}>
+      <SharedHeader
+        title={t.config_system}
+        rightText={{ label: t.exit, onPress: onBack, disabled: isSaving }}
+        variant="floating"
+      />
+      <ScrollView contentContainerStyle={[styles.scroll, { paddingTop: 110 }]}>
         <Text style={styles.sectionTitle}>{t.api_config}</Text>
         {renderInput(t.api_key, "api_key", "sk-or-v1-...")}
+        {renderInput(t.opencode_key, "opencode_api_key", "opencode-...")}
         <Text style={styles.sectionTitle}>{t.user_identity}</Text>
         {renderInput(t.user_label, "user_name", "ENTER_NAME...")}
 
@@ -167,20 +166,7 @@ export const SettingsScreen = ({
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.background },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
-  },
-  headerTitle: {
-    color: COLORS.primary,
-    fontFamily: FONTS.monoBold,
-    fontSize: FONT_SIZES.title,
-  },
-  backButton: { color: COLORS.error, fontFamily: FONTS.monoBold, fontSize: FONT_SIZES.label },
+
   scroll: { padding: 16 },
   sectionTitle: {
     color: COLORS.textDim,

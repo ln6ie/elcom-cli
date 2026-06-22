@@ -4,6 +4,8 @@ const DB_NAME = "elcomcli.db";
 
 export interface DatabaseSettings {
   api_key: string | null;
+  opencode_api_key: string | null;
+  ai_provider: "openrouter" | "opencode";
   selected_model: string;
   system_prompt: string;
   max_tokens: number;
@@ -15,12 +17,14 @@ export interface DatabaseSettings {
 
 export const DEFAULT_SETTINGS: DatabaseSettings = {
   api_key: null,
+  opencode_api_key: null,
+  ai_provider: "openrouter",
   selected_model: "openrouter/free",
   system_prompt:
     "You are ElcomCLI, a professional AI terminal assistant. Help the user with their queries in a concise and technical manner.",
   max_tokens: 4096,
   temperature: 0.7,
-  context_length: 15,
+  context_length: 25,
   user_name: "USER",
   language: "ar",
 };
@@ -41,6 +45,8 @@ export const initDb = async (db: SQLite.SQLiteDatabase) => {
         id TEXT PRIMARY KEY,
         title TEXT,
         model_id TEXT,
+        repo_name TEXT,
+        repo_owner TEXT,
         last_message_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
       );
@@ -67,6 +73,14 @@ export const initDb = async (db: SQLite.SQLiteDatabase) => {
       await db.execAsync("ALTER TABLE messages ADD COLUMN model_id TEXT;");
     } catch (e) {
       // Column might already exist
+    }
+
+    // Migration: Add repo_name and repo_owner to conversations
+    try {
+      await db.execAsync("ALTER TABLE conversations ADD COLUMN repo_name TEXT;");
+      await db.execAsync("ALTER TABLE conversations ADD COLUMN repo_owner TEXT;");
+    } catch (e) {
+      // Columns might already exist
     }
 
     // Custom Models table
@@ -161,6 +175,8 @@ export const database = {
       id: string;
       title: string;
       model_id: string;
+      repo_name: string | null;
+      repo_owner: string | null;
     }>("SELECT * FROM conversations WHERE id = ?", [id]);
   },
 
@@ -176,6 +192,17 @@ export const database = {
     await db.runAsync("UPDATE conversations SET title = ? WHERE id = ?", [
       title,
       id,
+    ]);
+  },
+
+  async updateConversationRepo(
+    db: SQLite.SQLiteDatabase,
+    id: string,
+    repoName: string,
+    repoOwner: string,
+  ) {
+    await db.runAsync("UPDATE conversations SET repo_name = ?, repo_owner = ? WHERE id = ?", [
+      repoName, repoOwner, id,
     ]);
   },
 
@@ -220,6 +247,10 @@ export const database = {
       "SELECT * FROM messages WHERE conversation_id = ? ORDER BY created_at ASC",
       [conversationId],
     );
+  },
+
+  async deleteMessage(db: SQLite.SQLiteDatabase, messageId: string): Promise<void> {
+    await db.runAsync("DELETE FROM messages WHERE id = ?", [messageId]);
   },
 
   async getMessagesPaginated(

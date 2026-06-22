@@ -1,24 +1,23 @@
 import { Message } from "../types/chat";
+import { StreamUpdate, ToolCall } from "../types/tools";
+import { TOOL_DEFINITIONS } from "./tools";
 import EventSource from "react-native-sse";
 import { DatabaseSettings } from "./database";
 import { INTERNAL_SYSTEM_PROMPT } from "../constants/prompts";
 
-export interface StreamUpdate {
-  content?: string;
-  reasoning?: string;
-  done?: boolean;
-}
-
 import { env } from "./env";
 
 const OPENROUTER_URL = env.EXPO_PUBLIC_OPENROUTER_URL;
+
 export const openRouterClient = {
   async *sendMessageStreaming(
     history: Message[],
     settings: DatabaseSettings,
     signal?: AbortSignal,
     webSearch?: boolean,
+    customSystemPrompt?: string,
   ): AsyncGenerator<StreamUpdate> {
+    console.log(`[openRouter.sendMessageStreaming] >>> HTTP POST model="${settings.selected_model}" msgCount=${history.length} webSearch=${!!webSearch}`);
     const { api_key, selected_model, max_tokens, temperature } = settings;
 
     if (!api_key) throw new Error("API_KEY_NOT_SET");
@@ -32,7 +31,6 @@ export const openRouterClient = {
 
     const formattedMessages = history.map((msg, idx) => {
       let content = msg.content;
-      // Force search instruction for the latest user message
       if (webSearch && idx === history.length - 1 && msg.role === "user") {
         content = `${content}\n\n[SYSTEM: WEB_SEARCH_ENABLED. Use the openrouter:web_search tool to find real-time data for this specific query.]`;
       }
@@ -69,21 +67,22 @@ export const openRouterClient = {
     const body: any = {
       model: selected_model || "qwen/qwen3.6-plus:free",
       messages: [
-        { 
-          role: "system", 
-          content: INTERNAL_SYSTEM_PROMPT,
-          cache_control: { type: "ephemeral" } // Enables OpenRouter/Anthropic Prompt Caching to process it only once!
+        {
+          role: "system",
+          content: customSystemPrompt || INTERNAL_SYSTEM_PROMPT,
+          cache_control: { type: "ephemeral" },
         },
         ...formattedMessages,
       ],
       stream: true,
       max_tokens,
       temperature,
+      tools: TOOL_DEFINITIONS,
+      tool_choice: "auto",
     };
 
     if (webSearch) {
-      body.tools = [{ type: "openrouter:web_search" }];
-      body.tool_choice = "auto";
+      body.tools = [...TOOL_DEFINITIONS, { type: "openrouter:web_search" }];
     }
 
     const es = new EventSource(OPENROUTER_URL, {
@@ -91,10 +90,11 @@ export const openRouterClient = {
       headers,
       body: JSON.stringify(body),
     });
+
     const queue: (StreamUpdate | Error)[] = [];
     let resolveNext: ((value: void) => void) | null = null;
+    const accumulatedCalls = new Map<string, ToolCall>();
 
-    let searchingReported = false;
     const onMessage = (event: any) => {
       try {
         if (event.data === "[DONE]") {
@@ -103,26 +103,41 @@ export const openRouterClient = {
           const parsed = JSON.parse(event.data || "{}");
           const delta = parsed.choices?.[0]?.delta;
           if (delta) {
-            // Handle content, reasoning and tool calls (search results synthesized by OR)
             if (delta.content || delta.reasoning || delta.thought) {
               const rText = delta.reasoning || delta.thought;
-              const updateObj: StreamUpdate = { content: delta.content };
+              queue.push({
+                content: delta.content,
+                reasoning: rText,
+              });
+            }
 
-              if (rText && typeof rText === "string") {
-                updateObj.reasoning = rText;
+            if (delta.tool_calls) {
+              for (const tc of delta.tool_calls) {
+                if (tc.id) {
+                  if (!accumulatedCalls.has(tc.id)) {
+                    accumulatedCalls.set(tc.id, {
+                      id: tc.id,
+                      type: "function",
+                      function: { name: tc.function?.name || "", arguments: tc.function?.arguments || "" },
+                    });
+                  }
+                } else {
+                  const lastCall = [...accumulatedCalls.values()].pop();
+                  if (lastCall && tc.function?.arguments) {
+                    lastCall.function.arguments += tc.function.arguments;
+                  }
+                }
               }
-
-              queue.push(updateObj);
-            } else if (delta.tool_calls && !searchingReported) {
-              searchingReported = true;
-              // Signal search activity
-              queue.push({ content: " // SEARCHING_WEB...\n" });
             }
           }
+
+          const finishReason = parsed.choices?.[0]?.finish_reason;
+          if (finishReason === "tool_calls" && accumulatedCalls.size > 0) {
+            queue.push({ tool_calls: [...accumulatedCalls.values()] });
+            accumulatedCalls.clear();
+          }
         }
-      } catch (e) {
-        // Silently skip parse errors which often happen mid-stream
-      }
+      } catch (e) {}
       resolveNext?.();
     };
 
@@ -144,9 +159,7 @@ export const openRouterClient = {
         } else if (event.type === "error" && event.xhrStatus) {
           errorMsg = `HTTP_ERROR_${event.xhrStatus}`;
         }
-      } catch (e) {
-        // Fallback
-      }
+      } catch (e) {}
       console.error("SSE Error Parsed:", errorMsg);
       queue.push(new Error(errorMsg));
       resolveNext?.();
@@ -182,6 +195,7 @@ export const openRouterClient = {
         if (signal?.aborted) break;
       }
     } finally {
+      console.log(`[openRouter.sendMessageStreaming] <<< DONE model="${settings.selected_model}"`);
       es.removeEventListener("message", onMessage);
       es.removeEventListener("error", onError);
       es.close();

@@ -14,6 +14,7 @@ import { database } from "../services/database";
 import { COLORS, FONTS, FONT_SIZES } from "../constants/theme";
 import { Trash2, MessageSquare, ChevronRight } from "lucide-react-native";
 import { CliNotification } from "../components/CliNotification";
+import { SharedHeader } from "../components/SharedHeader";
 
 interface HistoryScreenProps {
   onSelect: (id: string) => void;
@@ -90,7 +91,14 @@ export const HistoryScreen = ({
             {new Date(item.last_message_at).toLocaleDateString()}
           </Text>
         </View>
-        <Text style={styles.itemModel}>{item.model_id}</Text>
+        <View style={styles.itemMeta}>
+          <Text style={styles.itemModel}>{item.model_id}</Text>
+          {item.repo_name && (
+            <View style={styles.repoBadge}>
+              <Text style={styles.repoBadgeText}>{item.repo_name}</Text>
+            </View>
+          )}
+        </View>
       </TouchableOpacity>
 
       <TouchableOpacity
@@ -103,7 +111,7 @@ export const HistoryScreen = ({
   );
 
   return (
-    <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
+    <SafeAreaView style={styles.container} edges={["bottom"]}>
       <CliNotification
         visible={notification.visible}
         message={notification.message}
@@ -111,40 +119,41 @@ export const HistoryScreen = ({
         onHide={() => setNotification((prev) => ({ ...prev, visible: false }))}
       />
 
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>LOG_ARCHIVE // SESSIONS</Text>
-        <TouchableOpacity onPress={onBack}>
-          <Text style={styles.backButton}>[EXIT]</Text>
+      <SharedHeader
+        title="LOG_ARCHIVE // SESSIONS"
+        rightText={{ label: "[EXIT]", onPress: onBack }}
+        variant="floating"
+      />
+
+      <View style={{ flex: 1, paddingTop: 56 }}>
+        <TouchableOpacity style={styles.newButton} onPress={onNew}>
+          <Text style={styles.newButtonText}>+ INIT_NEW_SESSION</Text>
         </TouchableOpacity>
+
+        {isLoading ? (
+          <View style={styles.center}>
+            <ActivityIndicator color={COLORS.primary} />
+          </View>
+        ) : (
+          <FlatList
+            data={conversations}
+            keyExtractor={(item) => item.id}
+            renderItem={renderItem}
+            contentContainerStyle={styles.list}
+            ListEmptyComponent={
+              <View style={styles.center}>
+                <Text style={styles.emptyText}>
+                  NO_RECORDS_FOUND. START_FIRST_LOG?
+                </Text>
+              </View>
+            }
+            removeClippedSubviews={Platform.OS === "android"}
+            initialNumToRender={10}
+            maxToRenderPerBatch={10}
+            windowSize={5}
+          />
+        )}
       </View>
-
-      <TouchableOpacity style={styles.newButton} onPress={onNew}>
-        <Text style={styles.newButtonText}>+ INIT_NEW_SESSION</Text>
-      </TouchableOpacity>
-
-      {isLoading ? (
-        <View style={styles.center}>
-          <ActivityIndicator color={COLORS.primary} />
-        </View>
-      ) : (
-        <FlatList
-          data={conversations}
-          keyExtractor={(item) => item.id}
-          renderItem={renderItem}
-          contentContainerStyle={styles.list}
-          ListEmptyComponent={
-            <View style={styles.center}>
-              <Text style={styles.emptyText}>
-                NO_RECORDS_FOUND. START_FIRST_LOG?
-              </Text>
-            </View>
-          }
-          removeClippedSubviews={Platform.OS === "android"}
-          initialNumToRender={10}
-          maxToRenderPerBatch={10}
-          windowSize={5}
-        />
-      )}
     </SafeAreaView>
   );
 };
@@ -154,24 +163,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.background,
   },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
-  },
-  headerTitle: {
-    color: COLORS.primary,
-    fontFamily: FONTS.monoBold,
-    fontSize: FONT_SIZES.title,
-  },
-  backButton: {
-    color: COLORS.error,
-    fontFamily: FONTS.monoBold,
-    fontSize: FONT_SIZES.label,
-  },
+
   newButton: {
     margin: 16,
     padding: 16,
@@ -221,6 +213,24 @@ const styles = StyleSheet.create({
   itemModel: {
     color: COLORS.primaryDim,
     fontFamily: FONTS.mono,
+    fontSize: FONT_SIZES.tiny,
+  },
+  itemMeta: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  repoBadge: {
+    backgroundColor: "rgba(0, 224, 163, 0.1)",
+    borderWidth: 1,
+    borderColor: COLORS.success,
+    borderRadius: 4,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+  },
+  repoBadgeText: {
+    color: COLORS.success,
+    fontFamily: FONTS.monoBold,
     fontSize: FONT_SIZES.tiny,
   },
   deleteButton: {

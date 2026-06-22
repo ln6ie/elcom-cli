@@ -38,7 +38,7 @@ export const EmptyState = ({ isVisible }: EmptyStateProps) => {
 
 const styles = StyleSheet.create({
   emptyWrap: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     justifyContent: "flex-start", // Aligns content starting from the top
     alignItems: "center",
     paddingHorizontal: 24,
