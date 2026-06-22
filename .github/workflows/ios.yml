@@ -45,6 +45,16 @@ jobs:
           echo "CURRENT_PROJECT_VERSION=$BUILD_NUMBER" >> $GITHUB_OUTPUT
           echo "App version: $VERSION (build $BUILD_NUMBER)"
 
+      - name: Write build number to app.json
+        run: |
+          echo "Writing ios.buildNumber = ${{ steps.version.outputs.CURRENT_PROJECT_VERSION }} to app.json"
+          node -e "
+            const fs = require('fs');
+            const app = JSON.parse(fs.readFileSync('app.json', 'utf8'));
+            app.expo.ios.buildNumber = '${{ steps.version.outputs.CURRENT_PROJECT_VERSION }}';
+            fs.writeFileSync('app.json', JSON.stringify(app, null, 2) + '\n');
+          "
+
       - name: Create .env file from secrets
         run: |
           echo 'EXPO_PUBLIC_OPENROUTER_URL=https://openrouter.ai/api/v1/chat/completions' >> .env
@@ -93,13 +103,6 @@ jobs:
 
       - name: Generate Native iOS Directory (Expo Prebuild)
         run: npx expo prebuild --platform ios --no-install
-
-      - name: Set build number in Info.plist
-        run: |
-          INFO_PLIST=$(find ios -name "Info.plist" -maxdepth 3 | head -1)
-          echo "Patching $INFO_PLIST with build number: ${{ steps.version.outputs.CURRENT_PROJECT_VERSION }}"
-          /usr/libexec/PlistBuddy -c "Set :CFBundleVersion ${{ steps.version.outputs.CURRENT_PROJECT_VERSION }}" "$INFO_PLIST" 2>/dev/null || \
-          /usr/libexec/PlistBuddy -c "Add :CFBundleVersion string ${{ steps.version.outputs.CURRENT_PROJECT_VERSION }}" "$INFO_PLIST"
 
       - name: Install CocoaPods Dependencies
         run: |
