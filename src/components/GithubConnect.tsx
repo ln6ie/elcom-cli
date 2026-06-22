@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   ScrollView,
 } from "react-native";
-import { FolderGit, Key, Link as LinkIcon } from "lucide-react-native";
+import { FolderGit, Key } from "lucide-react-native";
 import { COLORS, FONTS, FONT_SIZES } from "../constants/theme";
 import { TRANSLATIONS, Language } from "../constants/translations";
 
@@ -45,17 +45,6 @@ export const GithubConnect: React.FC<GithubConnectProps> = ({
           {isLoading ? t.authenticating : t.github_oauth}
         </Text>
       </TouchableOpacity>
-
-      {redirectUri && (
-        <View style={styles.redirectBox}>
-          <View style={styles.redirectHeader}>
-            <LinkIcon size={14} color={COLORS.textDim} />
-            <Text style={styles.redirectLabel}> {t.github_redirect_uri}</Text>
-          </View>
-          <Text style={styles.redirectValue} selectable>{redirectUri}</Text>
-          <Text style={styles.redirectNote}>{t.github_redirect_note}</Text>
-        </View>
-      )}
 
       <View style={styles.dividerRow}>
         <View style={styles.dividerLine} />
@@ -106,25 +95,6 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   oauthBtnText: { color: "#0E0E0E", fontFamily: FONTS.monoBold, fontSize: FONT_SIZES.body },
-  redirectBox: {
-    width: "100%",
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    backgroundColor: COLORS.surface,
-    padding: 12,
-    marginBottom: 16,
-  },
-  redirectHeader: { flexDirection: "row", alignItems: "center", marginBottom: 6 },
-  redirectLabel: { color: COLORS.textDim, fontFamily: FONTS.mono, fontSize: FONT_SIZES.small },
-  redirectValue: {
-    color: COLORS.text,
-    fontFamily: FONTS.mono,
-    fontSize: FONT_SIZES.small,
-    backgroundColor: COLORS.background,
-    padding: 8,
-    marginBottom: 8,
-  },
-  redirectNote: { color: COLORS.error, fontFamily: FONTS.mono, fontSize: FONT_SIZES.small, lineHeight: 18 },
   dividerRow: { flexDirection: "row", alignItems: "center", width: "100%", marginBottom: 24 },
   dividerLine: { flex: 1, height: 1, backgroundColor: COLORS.border },
   dividerText: {

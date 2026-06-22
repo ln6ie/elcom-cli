@@ -4,9 +4,9 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  FlatList,
   StyleSheet,
   ActivityIndicator,
+  ScrollView,
 } from "react-native";
 import { Search, RefreshCw } from "lucide-react-native";
 import { COLORS, FONTS, FONT_SIZES } from "../../constants/theme";
@@ -81,38 +81,39 @@ export const ModelPicker = ({
           autoCorrect={false}
         />
       </View>
-      <FlatList
-        data={filtered}
-        keyExtractor={(item) => item.id}
-        style={styles.list}
-        ListEmptyComponent={
-          <Text style={styles.emptyText}>{t("no_models")}</Text>
-        }
-        renderItem={({ item }) => {
-          const isSelected = item.id === selectedId;
-          return (
-            <TouchableOpacity
-              style={[styles.item, isSelected && styles.itemSelected]}
-              onPress={() => onSelect(item.id)}
-            >
-              <Text
-                style={[styles.itemId, isSelected && styles.itemIdSelected]}
-                numberOfLines={1}
-              >
-                {item.id}
-              </Text>
-              <Text style={styles.itemName} numberOfLines={1}>
-                {item.name}
-              </Text>
-              {item.context_length && (
-                <Text style={styles.itemCtx}>
-                  {Math.round(item.context_length / 1000)}K
-                </Text>
-              )}
-            </TouchableOpacity>
-          );
-        }}
-      />
+      <View style={styles.listContainer}>
+        <ScrollView style={styles.list} nestedScrollEnabled>
+          {filtered.length === 0 ? (
+            <Text style={styles.emptyText}>{t("no_models")}</Text>
+          ) : (
+            filtered.map((item) => {
+              const isSelected = item.id === selectedId;
+              return (
+                <TouchableOpacity
+                  key={item.id}
+                  style={[styles.item, isSelected && styles.itemSelected]}
+                  onPress={() => onSelect(item.id)}
+                >
+                  <Text
+                    style={[styles.itemId, isSelected && styles.itemIdSelected]}
+                    numberOfLines={1}
+                  >
+                    {item.id}
+                  </Text>
+                  <Text style={styles.itemName} numberOfLines={1}>
+                    {item.name}
+                  </Text>
+                  {item.context_length && (
+                    <Text style={styles.itemCtx}>
+                      {Math.round(item.context_length / 1000)}K
+                    </Text>
+                  )}
+                </TouchableOpacity>
+              );
+            })
+          )}
+        </ScrollView>
+      </View>
     </View>
   );
 };
@@ -149,6 +150,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     marginLeft: 8,
   },
+  listContainer: { maxHeight: 300, borderWidth: 1, borderColor: COLORS.border },
   list: { maxHeight: 300 },
   item: {
     flexDirection: "row",
