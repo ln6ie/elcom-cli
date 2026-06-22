@@ -36,6 +36,16 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Create .env file from secrets
+        run: |
+          echo 'EXPO_PUBLIC_OPENROUTER_URL=https://openrouter.ai/api/v1/chat/completions' >> .env
+          echo 'EXPO_PUBLIC_UPDATE_URL=https://cli.elcomlab.site/version.json' >> .env
+          echo 'EXPO_PUBLIC_OPENROUTER_KEYS_URL=https://openrouter.ai/keys' >> .env
+          echo 'EXPO_PUBLIC_LANDING_PAGE_URL=https://cli.elcomlab.site' >> .env
+          echo 'EXPO_PUBLIC_MODELS_URL=https://cli.elcomlab.site/models.json' >> .env
+          echo "EXPO_PUBLIC_GITHUB_CLIENT_ID=${{ secrets.GH_CLIENT_ID }}" >> .env
+          echo "EXPO_PUBLIC_GITHUB_CLIENT_SECRET=${{ secrets.GH_CLIENT_SECRET }}" >> .env
+
       - name: Install Apple Certificate and Provisioning Profile
         env:
           BUILD_CERTIFICATE_BASE64: ${{ secrets.IOS_CERTIFICATE_BASE64 }}
