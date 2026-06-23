@@ -36,21 +36,9 @@ export const GithubConnect: React.FC<GithubConnectProps> = ({
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.authContainer}>
+    <ScrollView style={styles.flex1} contentContainerStyle={styles.authContainer} keyboardShouldPersistTaps="handled">
       <FolderGit size={64} color={COLORS.primary} style={{ marginBottom: 16 }} />
       <Text style={styles.authTitle}>{t.connect_github}</Text>
-
-      <TouchableOpacity style={styles.oauthBtn} onPress={loginWithOAuth} disabled={isLoading}>
-        <Text style={styles.oauthBtnText}>
-          {isLoading ? t.authenticating : t.github_oauth}
-        </Text>
-      </TouchableOpacity>
-
-      <View style={styles.dividerRow}>
-        <View style={styles.dividerLine} />
-        <Text style={styles.dividerText}>{t.or_pat}</Text>
-        <View style={styles.dividerLine} />
-      </View>
 
       <View style={styles.patForm}>
         <View style={styles.inputWrapper}>
@@ -74,11 +62,24 @@ export const GithubConnect: React.FC<GithubConnectProps> = ({
           <Text style={styles.patBtnText}>{t.authenticate}</Text>
         </TouchableOpacity>
       </View>
+
+      <View style={styles.dividerRow}>
+        <View style={styles.dividerLine} />
+        <Text style={styles.dividerText}>{t.or_pat}</Text>
+        <View style={styles.dividerLine} />
+      </View>
+
+      <TouchableOpacity style={styles.oauthBtn} onPress={loginWithOAuth} disabled={isLoading}>
+        <Text style={styles.oauthBtnText}>
+          {isLoading ? t.authenticating : t.github_oauth}
+        </Text>
+      </TouchableOpacity>
     </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
+  flex1: { flex: 1 },
   authContainer: { flexGrow: 1, justifyContent: "center", alignItems: "center", padding: 24 },
   authTitle: {
     fontFamily: FONTS.monoBold,
@@ -103,26 +104,26 @@ const styles = StyleSheet.create({
     fontSize: FONT_SIZES.small,
     marginHorizontal: 12,
   },
-  patForm: { width: "100%" },
+  patForm: { width: "100%", marginBottom: 24 },
   inputWrapper: {
     flexDirection: "row",
     alignItems: "center",
     borderWidth: 1,
     borderColor: COLORS.border,
-    backgroundColor: COLORS.surface,
+    backgroundColor: COLORS.background,
     paddingHorizontal: 12,
     paddingVertical: 12,
-    marginBottom: 16,
+    marginBottom: 12,
+    borderRadius: 4,
   },
   patInput: { flex: 1, color: COLORS.text, fontFamily: FONTS.mono, fontSize: FONT_SIZES.body },
   patBtn: {
     width: "100%",
-    borderWidth: 1,
-    borderColor: COLORS.primaryDim,
-    paddingVertical: 12,
+    backgroundColor: COLORS.primary,
+    paddingVertical: 14,
     borderRadius: 4,
     alignItems: "center",
   },
-  patBtnText: { color: COLORS.primaryDim, fontFamily: FONTS.monoBold, fontSize: FONT_SIZES.body },
+  patBtnText: { color: "#0E0E0E", fontFamily: FONTS.monoBold, fontSize: FONT_SIZES.body },
   disabledBtn: { opacity: 0.5 },
 });

@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const RoleSchema = z.enum(["user", "assistant", "system"]);
+export const RoleSchema = z.enum(["user", "assistant", "system", "tool"]);
 export type Role = z.infer<typeof RoleSchema>;
 
 export const MessageSchema = z.object({
@@ -16,6 +16,7 @@ export const MessageSchema = z.object({
     })
     .optional(),
   modelId: z.string().optional(),
+  tool_call_id: z.string().optional(),
 });
 export type Message = z.infer<typeof MessageSchema>;
 

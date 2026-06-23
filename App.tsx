@@ -165,6 +165,7 @@ function AppContent() {
               modelsError={modelsError}
               onRetryModels={refreshModels}
               onCommand={handleCommand}
+              updateMultipleSettings={updateMultipleSettings}
             />
           </View>
         )}

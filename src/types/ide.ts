@@ -44,9 +44,10 @@ export type OpenFile = z.infer<typeof OpenFileSchema>;
 
 export const IdeMessageSchema = z.object({
   id: z.string(),
-  role: z.enum(["user", "assistant", "system"]),
+  role: z.enum(["user", "assistant", "system", "tool"]),
   content: z.string(),
   reasoning: z.string().optional(),
+  tool_call_id: z.string().optional(),
 });
 
 export type IdeMessage = z.infer<typeof IdeMessageSchema>;

@@ -25,10 +25,12 @@ export const openCodeZenService = {
 
     const body = {
       model,
-      messages: messages.map((m) => ({
-        role: m.role,
-        content: m.content,
-      })),
+      messages: messages.map((m) => {
+        if (m.role === "tool") {
+          return { role: "tool" as const, tool_call_id: m.tool_call_id || "", content: m.content };
+        }
+        return { role: m.role, content: m.content } as { role: string; content: string };
+      }),
       stream: true,
       tools: TOOL_DEFINITIONS,
       tool_choice: "auto",

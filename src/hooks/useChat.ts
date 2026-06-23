@@ -277,6 +277,7 @@ export const useChat = (conversationId: string | undefined, settings: DatabaseSe
             id: m.id || Crypto.randomUUID(),
             role: m.role,
             content: m.content,
+            tool_call_id: m.role === "tool" ? (m as any).tool_call_id : undefined,
           }));
           stream = openCodeZenService.streamCompletion(
             [systemMsg, ...formattedHistory],

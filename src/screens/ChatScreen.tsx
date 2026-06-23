@@ -63,6 +63,7 @@ interface ChatScreenProps {
   modelsLoading?: boolean;
   modelsError?: string | null;
   onRetryModels?: () => void;
+  updateMultipleSettings?: (updates: Partial<DatabaseSettings>) => Promise<void>;
 }
 
 // شاشة المحادثة الموحدة الحاوية لبيئة التطوير
@@ -77,6 +78,7 @@ export const ChatScreen = ({
   modelsLoading,
   modelsError,
   onRetryModels,
+  updateMultipleSettings,
 }: ChatScreenProps) => {
   const insets = useSafeAreaInsets();
   const db = useSQLiteContext();
@@ -396,9 +398,10 @@ export const ChatScreen = ({
       }
 
       const toolMsgId = Crypto.randomUUID();
-      const toolMsgContent = `[TOOL_RESULT: ${toolCall.function.name}]\n${resultText}`;
-      await database.addMessage(db, toolMsgId, conversationId, "user", toolMsgContent);
-      setMessages((prev) => [...prev, { id: toolMsgId, role: "user", content: toolMsgContent }]);
+      const toolCallId = toolCall.id || `call_${toolMsgId}`;
+      const toolContent = `[TOOL_RESULT: ${toolCall.function.name}]\n${resultText}`;
+      await database.addMessage(db, toolMsgId, conversationId, "tool", toolContent, undefined, undefined, undefined, undefined, toolCallId);
+      setMessages((prev) => [...prev, { id: toolMsgId, role: "tool", content: toolContent, tool_call_id: toolCallId }]);
     }
   };
 
@@ -647,7 +650,10 @@ export const ChatScreen = ({
           ]}
         />
 
-        <View style={styles.flex1}>
+        <KeyboardAvoidingView
+          style={styles.flex1}
+          behavior={Platform.OS === "ios" && !isDrawerOpen && !isSettingsOpen ? "padding" : undefined}
+        >
           <View style={styles.chatPane}>
             <FlatList
               ref={flatListRef}
@@ -675,10 +681,7 @@ export const ChatScreen = ({
             />
             <EmptyState isVisible={messages.length === 0 && !isLoading} />
 
-            <KeyboardAvoidingView
-              behavior={Platform.OS === "ios" ? "padding" : undefined}
-              style={styles.floatingInput}
-            >
+            <View style={styles.floatingInput}>
               <TerminalInput
                 onSend={handleSend}
                 onStop={stopStreaming}
@@ -712,9 +715,9 @@ export const ChatScreen = ({
                 modifiedCount={modifiedFiles.length}
               />
               <WalkingCharacter isLoading={isLoading} inputTopY={inputTopY} />
-            </KeyboardAvoidingView>
+            </View>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Animated.View>
 
       <Animated.View
@@ -770,9 +773,13 @@ export const ChatScreen = ({
           modelsLoading={modelsLoading}
           modelsError={modelsError}
           onSave={async (newSettings) => {
-            for (const [key, value] of Object.entries(newSettings)) {
-              if (value !== undefined && value !== null) {
-                await database.updateSetting(db, key as any, value);
+            if (updateMultipleSettings) {
+              await updateMultipleSettings(newSettings);
+            } else {
+              for (const [key, value] of Object.entries(newSettings)) {
+                if (value !== undefined && value !== null) {
+                  await database.updateSetting(db, key as any, value);
+                }
               }
             }
           }}

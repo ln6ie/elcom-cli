@@ -30,6 +30,10 @@ export const openRouterClient = {
     };
 
     const formattedMessages = history.map((msg, idx) => {
+      if (msg.role === "tool") {
+        return { role: "tool" as const, tool_call_id: (msg as any).tool_call_id || "", content: msg.content };
+      }
+
       let content = msg.content;
       if (webSearch && idx === history.length - 1 && msg.role === "user") {
         content = `${content}\n\n[SYSTEM: WEB_SEARCH_ENABLED. Use the openrouter:web_search tool to find real-time data for this specific query.]`;
