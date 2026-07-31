@@ -2,10 +2,16 @@
   "name": "elcomcli",
   "version": "1.0.0",
   "main": "expo-router/entry",
+  "expo": {
+    "autolinking": {
+      "nativeModulesDir": "./modules"
+    }
+  },
   "scripts": {
     "start": "expo start",
     "android": "expo run:android",
     "ios": "expo run:ios",
+    "build:dev:ios": "eas build --profile development --platform ios",
     "web": "expo start --web",
     "test": "jest --runInBand"
   },

@@ -1,9 +1,7 @@
-name: iOS Build & Upload to TestFlight
+name: iOS Release Build & Upload to TestFlight
 
 on:
-  push:
-    branches: ["main"]
-  workflow_dispatch: # Allows manual trigger
+  workflow_dispatch: # Production/TestFlight builds are manual only.
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
