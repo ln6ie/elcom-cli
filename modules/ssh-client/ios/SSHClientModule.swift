@@ -8,7 +8,7 @@ public final class SSHClientModule: Module {
     Name("SSHClientModule")
 
     AsyncFunction("getHostFingerprint") { (options: [String: Any]) throws -> [String: Any] in
-      let nativeOptions = try Self.hostOptions(options)
+      var nativeOptions = try Self.hostOptions(options)
       var fingerprint = [CChar](repeating: 0, count: 65)
       let result = fingerprint.withUnsafeMutableBufferPointer { buffer in
         elcom_ssh_get_fingerprint(&nativeOptions, buffer.baseAddress, buffer.count)
@@ -19,7 +19,7 @@ public final class SSHClientModule: Module {
     }
 
     AsyncFunction("connect") { (options: [String: Any]) throws -> [String: Any] in
-      let nativeOptions = try Self.options(options)
+      var nativeOptions = try Self.options(options)
       var fingerprint = [CChar](repeating: 0, count: 65)
       var pointer: OpaquePointer?
       let result = fingerprint.withUnsafeMutableBufferPointer { buffer in
