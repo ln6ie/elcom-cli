@@ -1,1 +1,1 @@
-#import "../native/ssh_bridge.h"
+#import "ssh_bridge.h"
