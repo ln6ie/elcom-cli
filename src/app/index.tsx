@@ -10,7 +10,7 @@ export default function IndexRoute() {
     return <View style={styles.loader}><ActivityIndicator size="large" color={COLORS.primary} /></View>;
   }
 
-  return <Redirect href={settings.api_key || settings.opencode_api_key ? '/chat' : '/setup'} />;
+  return <Redirect href={settings.onboarding_completed ? '/(dashboard)/home' : '/(onboarding)'} />;
 }
 
 const styles = StyleSheet.create({

@@ -1,0 +1,28 @@
+plugins {
+  id 'com.android.library'
+  id 'expo-module-gradle-plugin'
+  id 'org.jetbrains.kotlin.android'
+}
+
+android {
+  namespace 'com.elcomcli.sshclient'
+  compileSdk 35
+  defaultConfig {
+    minSdk 24
+    versionCode 1
+    versionName '1.0.0'
+    externalNativeBuild {
+      cmake {
+        // The application/build environment must provide a pinned libssh2 build.
+        // Example: -PLIBSSH2_ROOT=/absolute/path/to/android/arm64-v8a
+        arguments "-DLIBSSH2_ROOT=" + (project.findProperty('LIBSSH2_ROOT') ?: System.getenv('LIBSSH2_ROOT') ?: '')
+      }
+    }
+  }
+  externalNativeBuild {
+    cmake {
+      path file('CMakeLists.txt')
+      version '3.22.1'
+    }
+  }
+}

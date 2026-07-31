@@ -13,6 +13,49 @@ export interface DatabaseSettings {
   context_length: number;
   user_name: string;
   language: "ar" | "en";
+  onboarding_completed: boolean;
+}
+
+export type ServerAuthType = "password" | "private_key";
+
+export interface ServerRecord {
+  id: string;
+  name: string;
+  host: string;
+  port: number;
+  username: string;
+  auth_type: ServerAuthType;
+  fingerprint: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ServerSnapshotRecord {
+  id: string;
+  server_id: string;
+  payload: string;
+  collected_at: string;
+}
+
+export interface ServerCapabilityRecord {
+  server_id: string;
+  capability_id: string;
+  name: string;
+  provider_id: string | null;
+  status: "available" | "missing";
+  version: string | null;
+  discovered_at: string;
+}
+
+export interface ServerEventRecord {
+  id: string;
+  server_id: string;
+  type: string;
+  severity: "info" | "warning" | "critical";
+  title: string;
+  details: string | null;
+  source: string;
+  created_at: string;
 }
 
 export const DEFAULT_SETTINGS: DatabaseSettings = {
@@ -27,6 +70,7 @@ export const DEFAULT_SETTINGS: DatabaseSettings = {
   context_length: 25,
   user_name: "USER",
   language: "ar",
+  onboarding_completed: false,
 };
 
 export const initDb = async (db: SQLite.SQLiteDatabase) => {
@@ -106,6 +150,60 @@ export const initDb = async (db: SQLite.SQLiteDatabase) => {
       );
     `);
 
+    await db.execAsync(`
+      CREATE TABLE IF NOT EXISTS servers (
+        id TEXT PRIMARY KEY NOT NULL,
+        name TEXT NOT NULL,
+        host TEXT NOT NULL,
+        port INTEGER NOT NULL DEFAULT 22,
+        username TEXT NOT NULL,
+        auth_type TEXT NOT NULL,
+        fingerprint TEXT,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+      );
+
+      CREATE TABLE IF NOT EXISTS server_snapshots (
+        id TEXT PRIMARY KEY NOT NULL,
+        server_id TEXT NOT NULL,
+        payload TEXT NOT NULL,
+        collected_at TEXT NOT NULL,
+        FOREIGN KEY (server_id) REFERENCES servers (id) ON DELETE CASCADE
+      );
+
+      CREATE TABLE IF NOT EXISTS server_events (
+        id TEXT PRIMARY KEY NOT NULL,
+        server_id TEXT NOT NULL,
+        type TEXT NOT NULL,
+        severity TEXT NOT NULL DEFAULT 'info',
+        title TEXT NOT NULL,
+        details TEXT,
+        source TEXT NOT NULL DEFAULT 'runtime',
+        created_at TEXT NOT NULL,
+        FOREIGN KEY (server_id) REFERENCES servers (id) ON DELETE CASCADE
+      );
+
+      CREATE TABLE IF NOT EXISTS server_capabilities (
+        server_id TEXT NOT NULL,
+        capability_id TEXT NOT NULL,
+        name TEXT NOT NULL,
+        provider_id TEXT,
+        status TEXT NOT NULL,
+        version TEXT,
+        discovered_at TEXT NOT NULL,
+        PRIMARY KEY (server_id, capability_id),
+        FOREIGN KEY (server_id) REFERENCES servers (id) ON DELETE CASCADE
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_server_snapshots_server_date
+        ON server_snapshots(server_id, collected_at DESC);
+      CREATE INDEX IF NOT EXISTS idx_server_events_server_date
+        ON server_events(server_id, created_at DESC);
+    `);
+
+    try { await db.execAsync("ALTER TABLE server_events ADD COLUMN severity TEXT NOT NULL DEFAULT 'info'"); } catch (_) {}
+    try { await db.execAsync("ALTER TABLE server_events ADD COLUMN source TEXT NOT NULL DEFAULT 'runtime'"); } catch (_) {}
+
     // Performance Indexes
     await db.execAsync(`
       CREATE INDEX IF NOT EXISTS idx_messages_conv_created ON messages(conversation_id, created_at);
@@ -139,7 +237,7 @@ export const database = {
     const rows = await db.getAllAsync<{ key: string; value: string }>(
       "SELECT key, value FROM settings",
     );
-    const settings: any = { ...DEFAULT_SETTINGS };
+    const settings: Record<string, string | number | boolean | null> = { ...DEFAULT_SETTINGS };
     rows.forEach((row) => {
       if (
         row.key === "max_tokens" ||
@@ -147,17 +245,19 @@ export const database = {
         row.key === "context_length"
       ) {
         settings[row.key] = parseFloat(row.value);
+      } else if (row.key === "onboarding_completed") {
+        settings[row.key] = row.value === "true";
       } else {
         settings[row.key] = row.value;
       }
     });
-    return settings as DatabaseSettings;
+    return settings as unknown as DatabaseSettings;
   },
 
   async updateSetting(
     db: SQLite.SQLiteDatabase,
     key: string,
-    value: string | number,
+    value: string | number | boolean,
   ): Promise<void> {
     await db.runAsync(
       "INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)",
@@ -310,5 +410,90 @@ export const database = {
       newName,
       id,
     ]);
+  },
+
+  async getServers(db: SQLite.SQLiteDatabase): Promise<ServerRecord[]> {
+    return db.getAllAsync<ServerRecord>(
+      "SELECT * FROM servers ORDER BY updated_at DESC",
+    );
+  },
+
+  async getServerById(db: SQLite.SQLiteDatabase, id: string): Promise<ServerRecord | null> {
+    return db.getFirstAsync<ServerRecord>("SELECT * FROM servers WHERE id = ?", [id]);
+  },
+
+  async saveServer(db: SQLite.SQLiteDatabase, server: ServerRecord): Promise<void> {
+    await db.runAsync(
+      `INSERT OR REPLACE INTO servers
+       (id, name, host, port, username, auth_type, fingerprint, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [server.id, server.name, server.host, server.port, server.username, server.auth_type,
+        server.fingerprint, server.created_at, server.updated_at],
+    );
+  },
+
+  async updateServerFingerprint(db: SQLite.SQLiteDatabase, id: string, fingerprint: string): Promise<void> {
+    await db.runAsync("UPDATE servers SET fingerprint = ?, updated_at = ? WHERE id = ?", [
+      fingerprint, new Date().toISOString(), id,
+    ]);
+  },
+
+  async deleteServer(db: SQLite.SQLiteDatabase, id: string): Promise<void> {
+    await db.runAsync("DELETE FROM servers WHERE id = ?", [id]);
+  },
+
+  async saveServerSnapshot(db: SQLite.SQLiteDatabase, snapshot: ServerSnapshotRecord): Promise<void> {
+    await db.runAsync(
+      `INSERT OR REPLACE INTO server_snapshots (id, server_id, payload, collected_at)
+       VALUES (?, ?, ?, ?)`,
+      [snapshot.id, snapshot.server_id, snapshot.payload, snapshot.collected_at],
+    );
+    await db.runAsync(
+      `DELETE FROM server_snapshots WHERE server_id = ? AND id NOT IN
+       (SELECT id FROM server_snapshots WHERE server_id = ? ORDER BY collected_at DESC LIMIT 20)`,
+      [snapshot.server_id, snapshot.server_id],
+    );
+  },
+
+  async getLatestServerSnapshot(db: SQLite.SQLiteDatabase, serverId: string): Promise<ServerSnapshotRecord | null> {
+    return db.getFirstAsync<ServerSnapshotRecord>(
+      "SELECT * FROM server_snapshots WHERE server_id = ? ORDER BY collected_at DESC LIMIT 1",
+      [serverId],
+    );
+  },
+
+  async saveCapabilities(db: SQLite.SQLiteDatabase, capabilities: ServerCapabilityRecord[]): Promise<void> {
+    await db.runAsync("BEGIN TRANSACTION");
+    try {
+      for (const capability of capabilities) {
+        await db.runAsync(
+          `INSERT OR REPLACE INTO server_capabilities
+           (server_id, capability_id, name, provider_id, status, version, discovered_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?)`,
+          [capability.server_id, capability.capability_id, capability.name, capability.provider_id, capability.status, capability.version, capability.discovered_at],
+        );
+      }
+      await db.runAsync("COMMIT");
+    } catch (error) {
+      await db.runAsync("ROLLBACK");
+      throw error;
+    }
+  },
+
+  async getCapabilities(db: SQLite.SQLiteDatabase, serverId: string): Promise<ServerCapabilityRecord[]> {
+    return db.getAllAsync<ServerCapabilityRecord>("SELECT * FROM server_capabilities WHERE server_id = ? ORDER BY name", [serverId]);
+  },
+
+  async saveEvent(db: SQLite.SQLiteDatabase, event: ServerEventRecord): Promise<void> {
+    await db.runAsync(
+      `INSERT OR REPLACE INTO server_events
+       (id, server_id, type, severity, title, details, source, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [event.id, event.server_id, event.type, event.severity, event.title, event.details, event.source, event.created_at],
+    );
+  },
+
+  async getServerEvents(db: SQLite.SQLiteDatabase, serverId: string, limit = 50): Promise<ServerEventRecord[]> {
+    return db.getAllAsync<ServerEventRecord>("SELECT * FROM server_events WHERE server_id = ? ORDER BY created_at DESC LIMIT ?", [serverId, limit]);
   },
 };

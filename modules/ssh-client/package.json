@@ -1,0 +1,7 @@
+{
+  "name": "@elcomcli/ssh-client",
+  "version": "0.1.0",
+  "private": true,
+  "main": "./index.ts",
+  "files": ["index.ts", "src", "ios", "android", "native", "expo-module.config.json"]
+}

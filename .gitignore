@@ -40,3 +40,9 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# generated native-module build artifacts
+modules/ssh-client/android/.cxx/
+modules/ssh-client/android/build/
+modules/ssh-client/android/.externalNativeBuild/
+modules/ssh-client/android/.gradle/

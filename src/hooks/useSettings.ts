@@ -87,7 +87,7 @@ export const useSettings = () => {
   );
 
   const updateSetting = useCallback(
-    async (key: keyof DatabaseSettings, value: string | number) => {
+    async (key: keyof DatabaseSettings, value: string | number | boolean) => {
       try {
         await database.updateSetting(db, key, value);
         setSettings((prev) => ({ ...prev, [key]: value }));

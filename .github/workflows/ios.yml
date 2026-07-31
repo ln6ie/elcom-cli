@@ -36,6 +36,12 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Build pinned iOS SSH dependencies
+        run: |
+          chmod +x scripts/build-ios-ssh-deps.sh
+          scripts/build-ios-ssh-deps.sh "$RUNNER_TEMP/elcomcli-ios-deps"
+          echo "ELCOMCLI_LIBSSH2_ROOT=$RUNNER_TEMP/elcomcli-ios-deps" >> "$GITHUB_ENV"
+
       - name: Read version from app.json
         id: version
         run: |
@@ -107,7 +113,6 @@ jobs:
       - name: Install CocoaPods Dependencies
         run: |
           cd ios
-          pod repo update
           pod install
 
       - name: Create ExportOptions.plist
