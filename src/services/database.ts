@@ -64,6 +64,7 @@ export const initDb = async (db: SQLite.SQLiteDatabase) => {
         attachment_type TEXT,
         model_id TEXT,
         tool_call_id TEXT,
+        tool_calls_json TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (conversation_id) REFERENCES conversations (id) ON DELETE CASCADE
       );
@@ -75,6 +76,11 @@ export const initDb = async (db: SQLite.SQLiteDatabase) => {
     } catch (_) {
       // Column already exists — ignore
     }
+
+    // Migration: add tool_calls_json column if missing
+    try {
+      await db.execAsync(`ALTER TABLE messages ADD COLUMN tool_calls_json TEXT;`);
+    } catch (_) {}   
 
     // Migration: Add model_id to messages if it doesn't exist
     try {
@@ -226,10 +232,11 @@ export const database = {
     attachmentType?: string,
     modelId?: string,
     tool_call_id?: string,
+    tool_calls_json?: string,
   ): Promise<void> {
     await db.runAsync(
-      `INSERT INTO messages (id, conversation_id, role, content, reasoning, attachment_uri, attachment_type, model_id, tool_call_id) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO messages (id, conversation_id, role, content, reasoning, attachment_uri, attachment_type, model_id, tool_call_id, tool_calls_json) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         id,
         conversationId,
@@ -240,6 +247,7 @@ export const database = {
         attachmentType || null,
         modelId || null,
         tool_call_id || null,
+        tool_calls_json || null,
       ],
     );
     // Update last_message_at in conversation

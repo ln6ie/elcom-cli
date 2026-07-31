@@ -17,6 +17,7 @@ export const MessageSchema = z.object({
     .optional(),
   modelId: z.string().optional(),
   tool_call_id: z.string().optional(),
+  tool_calls_json: z.string().optional(),
 });
 export type Message = z.infer<typeof MessageSchema>;
 

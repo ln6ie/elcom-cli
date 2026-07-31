@@ -171,8 +171,12 @@ function AppContent() {
         )}
 
         {isSetup && (
-          <SetupScreen onConnect={async (key, lang) => {
-            await updateMultipleSettings({ api_key: key, language: lang });
+          <SetupScreen onConnect={async (key, lang, provider) => {
+            if (provider === "opencode") {
+              await updateMultipleSettings({ opencode_api_key: key, language: lang, ai_provider: "opencode" });
+            } else {
+              await updateMultipleSettings({ api_key: key, language: lang, ai_provider: "openrouter" });
+            }
           }} />
         )}
 

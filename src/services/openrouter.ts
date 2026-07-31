@@ -34,6 +34,11 @@ export const openRouterClient = {
         return { role: "tool" as const, tool_call_id: (msg as any).tool_call_id || "", content: msg.content };
       }
 
+      if (msg.role === "assistant" && (msg as any).tool_calls_json) {
+        const toolCalls = JSON.parse((msg as any).tool_calls_json);
+        return { role: "assistant" as const, content: msg.content, tool_calls: toolCalls };
+      }
+
       let content = msg.content;
       if (webSearch && idx === history.length - 1 && msg.role === "user") {
         content = `${content}\n\n[SYSTEM: WEB_SEARCH_ENABLED. Use the openrouter:web_search tool to find real-time data for this specific query.]`;

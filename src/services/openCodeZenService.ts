@@ -29,6 +29,10 @@ export const openCodeZenService = {
         if (m.role === "tool") {
           return { role: "tool" as const, tool_call_id: m.tool_call_id || "", content: m.content };
         }
+        if (m.role === "assistant" && m.tool_calls_json) {
+          const toolCalls = JSON.parse(m.tool_calls_json);
+          return { role: "assistant" as const, content: m.content, tool_calls: toolCalls };
+        }
         return { role: m.role, content: m.content } as { role: string; content: string };
       }),
       stream: true,

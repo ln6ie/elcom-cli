@@ -48,6 +48,7 @@ export const IdeMessageSchema = z.object({
   content: z.string(),
   reasoning: z.string().optional(),
   tool_call_id: z.string().optional(),
+  tool_calls_json: z.string().optional(),
 });
 
 export type IdeMessage = z.infer<typeof IdeMessageSchema>;

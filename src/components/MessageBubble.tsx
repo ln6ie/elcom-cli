@@ -38,7 +38,7 @@ export const MessageBubble = ({
   const isFileContent = message.role === "user" && message.content.startsWith("[FILE_CONTENT:");
 
   // Check if this is a tool result message
-  const isToolResult = (message.role === "user" || message.role === "tool") && message.content.startsWith("[TOOL_RESULT:");
+  const isToolResult = message.role === "user" && message.content.startsWith("[TOOL_RESULT:");
   const toolResultName = isToolResult
     ? message.content.match(/\[TOOL_RESULT:\s*(\w*)\]/)?.[1]?.trim() || ""
     : "";

@@ -189,29 +189,28 @@ export const useChat = (conversationId: string | undefined, settings: DatabaseSe
       webSearch?: boolean,
       silent?: boolean,
     ): Promise<{ content: string; messageId: string; tool_calls?: ToolCall[] }> => {
-      if (!content.trim() && !attachment) return { content: "", messageId: "" };
       if (!conversationId) return { content: "", messageId: "" };
+      if (!content.trim() && !attachment && !silent) return { content: "", messageId: "" };
 
       console.log(`[sendMessage] >>> REQUEST model="${settings.selected_model}" provider="${settings.ai_provider}" silent=${!!silent} content="${content.slice(0, 80)}..."`);
 
       abortControllerRef.current = new AbortController();
-      const userMsgId = Crypto.randomUUID();
-      let finalAttachment = attachment;
 
-      if (attachment && !attachment.base64) {
-        const base64 = await attachmentService.getBase64(attachment.uri);
-        if (base64) finalAttachment = { ...attachment, base64 };
-      }
-
-      const userMessage: Message = { id: userMsgId, role: "user", content: content.trim(), attachment: finalAttachment };
-      
+      // Silent mode: don't add any user message — just send existing history
       if (!silent) {
+        const userMsgId = Crypto.randomUUID();
+        let finalAttachment = attachment;
+
+        if (attachment && !attachment.base64) {
+          const base64 = await attachmentService.getBase64(attachment.uri);
+          if (base64) finalAttachment = { ...attachment, base64 };
+        }
+
+        const userMessage: Message = { id: userMsgId, role: "user", content: content.trim(), attachment: finalAttachment };
         await database.addMessage(db, userMsgId, conversationId, "user", userMessage.content, undefined, finalAttachment?.uri, finalAttachment?.type);
         setMessages((prev) => [...prev, userMessage]);
-      } else {
-        // Still save the user message to DB when silent (tool loop needs it in history)
-        await database.addMessage(db, userMsgId, conversationId, "user", userMessage.content, undefined, finalAttachment?.uri, finalAttachment?.type);
       }
+
       setIsLoading(true);
       setError(null);
 
@@ -278,6 +277,7 @@ export const useChat = (conversationId: string | undefined, settings: DatabaseSe
             role: m.role,
             content: m.content,
             tool_call_id: m.role === "tool" ? (m as any).tool_call_id : undefined,
+            tool_calls_json: m.role === "assistant" ? (m as any).tool_calls_json : undefined,
           }));
           stream = openCodeZenService.streamCompletion(
             [systemMsg, ...formattedHistory],
@@ -347,7 +347,8 @@ export const useChat = (conversationId: string | undefined, settings: DatabaseSe
             ? `${assistantMessage.content}\n\n${formatToolCallsForDisplay(pendingToolCalls)}`
             : formatToolCallsForDisplay(pendingToolCalls);
           assistantMessage.content = toolCallText;
-          await database.addMessage(db, assistantMsgId, conversationId, "assistant", assistantMessage.content, assistantMessage.reasoning, undefined, undefined, settings.selected_model);
+          const toolCallsJson = JSON.stringify(pendingToolCalls);
+          await database.addMessage(db, assistantMsgId, conversationId, "assistant", assistantMessage.content, assistantMessage.reasoning, undefined, undefined, settings.selected_model, undefined, toolCallsJson);
           setMessages((p) => { const n = [...p]; n[n.length - 1] = { ...assistantMessage }; return n; });
         } else if (assistantMessage.content || assistantMessage.reasoning) {
           await database.addMessage(db, assistantMsgId, conversationId, "assistant", assistantMessage.content, assistantMessage.reasoning, undefined, undefined, settings.selected_model);

@@ -400,8 +400,8 @@ export const ChatScreen = ({
       const toolMsgId = Crypto.randomUUID();
       const toolCallId = toolCall.id || `call_${toolMsgId}`;
       const toolContent = `[TOOL_RESULT: ${toolCall.function.name}]\n${resultText}`;
-      await database.addMessage(db, toolMsgId, conversationId, "tool", toolContent, undefined, undefined, undefined, undefined, toolCallId);
-      setMessages((prev) => [...prev, { id: toolMsgId, role: "tool", content: toolContent, tool_call_id: toolCallId }]);
+      await database.addMessage(db, toolMsgId, conversationId, "user", toolContent, undefined, undefined, undefined, undefined, toolCallId);
+      setMessages((prev) => [...prev, { id: toolMsgId, role: "user", content: toolContent, tool_call_id: toolCallId }]);
     }
   };
 
