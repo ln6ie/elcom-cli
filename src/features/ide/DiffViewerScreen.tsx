@@ -2,15 +2,15 @@ import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { GitCommit, Trash2 } from "lucide-react-native";
-import { COLORS, FONTS, FONT_SIZES } from "../constants/theme";
-import { SharedHeader } from "../components/SharedHeader";
-import { useIDEState } from "../hooks/useIDEState";
-import { useLocalFiles } from "../hooks/useLocalFiles";
-import { diffService, DiffLineInfo } from "../services/diffService";
-import { DiffLine } from "../components/DiffLine";
-import { CommitModal } from "../components/CommitModal";
-import { githubService } from "../services/githubService";
-import { base64Service } from "../services/base64Service";
+import { COLORS, FONTS, FONT_SIZES } from "@/constants/theme";
+import { SharedHeader } from "@/components/SharedHeader";
+import { useIDEState } from "@/hooks/useIDEState";
+import { useLocalFiles } from "@/hooks/useLocalFiles";
+import { diffService, DiffLineInfo } from "@/services/diffService";
+import { DiffLine } from "@/components/DiffLine";
+import { CommitModal } from "@/components/CommitModal";
+import { githubService } from "@/services/githubService";
+import { base64Service } from "@/services/base64Service";
 
 interface DiffViewerScreenProps {
   onBack: () => void;

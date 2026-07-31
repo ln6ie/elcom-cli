@@ -22,12 +22,14 @@ import {
   Send,
   Check,
   GitBranch,
+  Radio,
 } from "lucide-react-native";
 import { useImagePicker } from "../hooks/useImagePicker";
 import { TRANSLATIONS } from "../constants/translations";
 import { SharedHeader } from "./SharedHeader";
 
 import { DatabaseSettings } from "../services/database";
+import type { ActiveConnection } from "@/features/chat/useChat";
 
 interface TerminalInputProps {
   onSend: (
@@ -43,6 +45,7 @@ interface TerminalInputProps {
   disabled?: boolean;
   onLayoutY?: (y: number) => void;
   modifiedCount?: number;
+  activeConnection: ActiveConnection;
 }
 
 const SUGGESTIONS = [
@@ -68,6 +71,7 @@ export const TerminalInput = ({
   disabled,
   onLayoutY,
   modifiedCount = 0,
+  activeConnection,
 }: TerminalInputProps) => {
   const t = TRANSLATIONS[language || "ar"];
   const [text, setText] = useState("");
@@ -335,6 +339,7 @@ export const TerminalInput = ({
       <View
         style={styles.container}
       >
+        <View style={styles.inputRow}>
         <TouchableOpacity
           style={styles.iconButton}
           onPress={() =>
@@ -409,6 +414,39 @@ export const TerminalInput = ({
                   : "SEND"}
           </Text>
         </TouchableOpacity>
+        </View>
+
+        <View style={styles.providerStatus}>
+          <View style={styles.providerStatusLeft}>
+            <Radio size={12} color={activeConnection.status === "connected" ? COLORS.success : COLORS.textDim} />
+            <Text style={styles.providerStatusLabel}>
+              {activeConnection.status === "idle"
+                ? (language === "ar" ? "لم يتم الاتصال" : "NOT CONNECTED")
+                : activeConnection.status === "connecting"
+                  ? (language === "ar" ? "جاري الاتصال بـ" : "CONNECTING TO")
+                  : activeConnection.status === "error"
+                    ? (language === "ar" ? "فشل الاتصال بـ" : "CONNECTION FAILED: ")
+                    : (language === "ar" ? "متصل بـ" : "CONNECTED TO")}
+            </Text>
+            <Text style={styles.providerStatusName}>
+              {activeConnection.provider === "opencode" ? "OpenCode" : activeConnection.provider === "openrouter" ? "OpenRouter" : "—"}
+            </Text>
+          </View>
+          <View style={styles.providerStatusIndicator}>
+            <View
+              style={[
+                styles.providerDot,
+                { backgroundColor: activeConnection.status === "connected" ? COLORS.success : activeConnection.status === "error" ? COLORS.error : COLORS.textDim },
+              ]}
+            />
+            <Text style={styles.providerStatusOnline}>
+              {activeConnection.status === "connected" ? (language === "ar" ? "نشط" : "ONLINE") : activeConnection.status === "connecting" ? (language === "ar" ? "جارٍ" : "WAIT") : activeConnection.status === "error" ? (language === "ar" ? "خطأ" : "ERROR") : "—"}
+            </Text>
+          </View>
+          <Text style={styles.modelStatusName} numberOfLines={1}>
+            {activeConnection.model || (language === "ar" ? "لا يوجد موديل نشط" : "NO ACTIVE MODEL")}
+          </Text>
+        </View>
       </View>
     </View>
   );
@@ -420,11 +458,11 @@ const styles = StyleSheet.create({
     paddingBottom: 8,
   },
   container: {
-    flexDirection: "row",
-    alignItems: "flex-end",
+    flexDirection: "column",
     paddingHorizontal: 12,
-    paddingVertical: 8,
-    minHeight: 56,
+    paddingTop: 8,
+    paddingBottom: 7,
+    minHeight: 80,
     maxHeight: 180,
     backgroundColor: COLORS.surface,
     borderRadius: 28,
@@ -435,6 +473,60 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 8,
+  },
+  inputRow: {
+    width: "100%",
+    flexDirection: "row",
+    alignItems: "flex-end",
+    minHeight: 52,
+  },
+  providerStatus: {
+    width: "100%",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginTop: 3,
+    paddingTop: 6,
+    paddingHorizontal: 4,
+    borderTopWidth: 1,
+    borderTopColor: COLORS.border,
+  },
+  providerStatusLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+  },
+  providerStatusLabel: {
+    color: COLORS.textDim,
+    fontFamily: FONTS.mono,
+    fontSize: FONT_SIZES.tiny,
+  },
+  providerStatusName: {
+    color: COLORS.text,
+    fontFamily: FONTS.monoBold,
+    fontSize: FONT_SIZES.tiny,
+  },
+  providerStatusIndicator: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+  },
+  providerDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+  },
+  providerStatusOnline: {
+    color: COLORS.success,
+    fontFamily: FONTS.monoBold,
+    fontSize: FONT_SIZES.tiny,
+  },
+  modelStatusName: {
+    maxWidth: "48%",
+    color: COLORS.textDim,
+    fontFamily: FONTS.mono,
+    fontSize: FONT_SIZES.tiny,
+    textAlign: "right",
   },
   inputWrapper: {
     flex: 1,

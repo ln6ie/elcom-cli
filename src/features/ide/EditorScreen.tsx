@@ -3,11 +3,11 @@ import { View, Text, StyleSheet, ActivityIndicator } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { WebView } from "react-native-webview";
 import { MessageSquare, Eye } from "lucide-react-native";
-import { COLORS, FONTS, FONT_SIZES } from "../constants/theme";
-import { SharedHeader } from "../components/SharedHeader";
-import { useIDEState } from "../hooks/useIDEState";
-import { useLocalFiles } from "../hooks/useLocalFiles";
-import { base64Service } from "../services/base64Service";
+import { COLORS, FONTS, FONT_SIZES } from "@/constants/theme";
+import { SharedHeader } from "@/components/SharedHeader";
+import { useIDEState } from "@/hooks/useIDEState";
+import { useLocalFiles } from "@/hooks/useLocalFiles";
+import { base64Service } from "@/services/base64Service";
 
 interface EditorScreenProps {
   onBack: () => void;

@@ -11,17 +11,17 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useState, useRef, useEffect } from "react";
 import { Eye, EyeOff } from "lucide-react-native";
-import { COLORS, FONTS, FONT_SIZES, isTablet } from "../constants/theme";
-import { AppBrand } from "../components/AppBrand";
+import { COLORS, FONTS, FONT_SIZES, isTablet } from "@/constants/theme";
+import { AppBrand } from "@/components/AppBrand";
 
-type Provider = "openrouter" | "opencode";
+export type SetupProvider = "openrouter" | "opencode";
 type Step = { text: string; url?: string };
 
-interface SetupScreenProps {
-  onConnect: (key: string, lang: "ar" | "en", provider: Provider) => void;
+export interface SetupScreenProps {
+  onConnect: (key: string, lang: "ar" | "en", provider: SetupProvider) => void | Promise<void>;
 }
 
-const INSTRUCTIONS: Record<string, Record<Provider, { title: string; placeholder: string; stepsTitle: string; steps: Step[] }>> = {
+const INSTRUCTIONS: Record<string, Record<SetupProvider, { title: string; placeholder: string; stepsTitle: string; steps: Step[] }>> = {
   ar: {
     openrouter: {
       title: "أدخل مفتاح OpenRouter API:",
@@ -76,7 +76,7 @@ export const SetupScreen = ({ onConnect }: SetupScreenProps) => {
   const [key, setKey] = useState("");
   const [showKey, setShowKey] = useState(false);
   const [lang, setLang] = useState<"ar" | "en">("ar");
-  const [provider, setProvider] = useState<Provider>("openrouter");
+  const [provider, setProvider] = useState<SetupProvider>("openrouter");
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {

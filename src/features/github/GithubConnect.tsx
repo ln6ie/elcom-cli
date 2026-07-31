@@ -8,8 +8,8 @@ import {
   ScrollView,
 } from "react-native";
 import { FolderGit, Key } from "lucide-react-native";
-import { COLORS, FONTS, FONT_SIZES } from "../constants/theme";
-import { TRANSLATIONS, Language } from "../constants/translations";
+import { COLORS, FONTS, FONT_SIZES } from "@/constants/theme";
+import { TRANSLATIONS, Language } from "@/constants/translations";
 
 interface GithubConnectProps {
   loginWithOAuth: () => void;

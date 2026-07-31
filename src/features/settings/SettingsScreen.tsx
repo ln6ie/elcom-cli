@@ -8,13 +8,13 @@ import {
   StyleSheet,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { COLORS, FONTS, FONT_SIZES } from "../constants/theme";
-import { DatabaseSettings } from "../services/database";
-import { CliNotification } from "../components/CliNotification";
-import { SharedHeader } from "../components/SharedHeader";
-import { ModelPicker } from "../components/settings/ModelPicker";
-import { TRANSLATIONS } from "../constants/translations";
-import { ModelInfo } from "../services/modelService";
+import { COLORS, FONTS, FONT_SIZES } from "@/constants/theme";
+import { DatabaseSettings } from "@/services/database";
+import { CliNotification } from "@/components/CliNotification";
+import { SharedHeader } from "@/components/SharedHeader";
+import { ModelPicker } from "@/features/settings/ModelPicker";
+import { TRANSLATIONS } from "@/constants/translations";
+import { ModelInfo } from "@/services/modelService";
 
 interface SettingsScreenProps {
   settings: DatabaseSettings;

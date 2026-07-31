@@ -1,16 +1,23 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { useSQLiteContext } from "expo-sqlite";
-import { Message } from "../types/chat";
-import { StreamUpdate, ToolCall } from "../types/tools";
-import { openRouterClient } from "../services/openrouter";
-import { database, DatabaseSettings } from "../services/database";
+import { Message } from "@/types/chat";
+import { StreamUpdate, ToolCall } from "@/types/tools";
+import { openRouterClient } from "@/services/openrouter";
+import { database, DatabaseSettings } from "@/services/database";
 import * as Crypto from "expo-crypto";
-import { attachmentService } from "../services/attachment";
-import { openCodeZenService, mapModelForOpenCode } from "../services/openCodeZenService";
-import { INTERNAL_SYSTEM_PROMPT } from "../constants/prompts";
-import { IdeMessage } from "../types/ide";
-import { useIDEState } from "./useIDEState";
-import { getToolSystemPrompt } from "../services/tools";
+import { attachmentService } from "@/services/attachment";
+import { openCodeZenService, mapModelForOpenCode } from "@/services/openCodeZenService";
+import { INTERNAL_SYSTEM_PROMPT } from "@/constants/prompts";
+import { IdeMessage } from "@/types/ide";
+import { useIDEState } from "@/hooks/useIDEState";
+import { getToolSystemPrompt } from "@/services/tools";
+
+export type ActiveConnectionStatus = "idle" | "connecting" | "connected" | "error";
+export interface ActiveConnection {
+  provider: "openrouter" | "opencode" | null;
+  model: string | null;
+  status: ActiveConnectionStatus;
+}
 
 const PAGE_SIZE = 10;
 const MAX_AI_HISTORY = 25;
@@ -131,6 +138,7 @@ export const useChat = (conversationId: string | undefined, settings: DatabaseSe
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [activeConnection, setActiveConnection] = useState<ActiveConnection>({ provider: null, model: null, status: "idle" });
   const abortControllerRef = useRef<AbortController | null>(null);
   const offsetRef = useRef(0);
 
@@ -214,6 +222,18 @@ export const useChat = (conversationId: string | undefined, settings: DatabaseSe
       setIsLoading(true);
       setError(null);
 
+      const opencodeKey = settings.opencode_api_key || process.env.EXPO_PUBLIC_OPENCODE_API_KEY || "";
+      const hasProviderKey = settings.ai_provider === "opencode" ? Boolean(opencodeKey) : Boolean(settings.api_key);
+      if (!hasProviderKey) {
+        const missingProvider = settings.ai_provider === "opencode" ? "OpenCode" : "OpenRouter";
+        const missingError = `${missingProvider.toUpperCase()}_API_KEY_NOT_SET`;
+        setActiveConnection({ provider: settings.ai_provider, model: settings.selected_model, status: "error" });
+        setError(missingError);
+        setIsLoading(false);
+        throw new Error(missingError);
+      }
+      setActiveConnection({ provider: settings.ai_provider, model: settings.selected_model, status: "connecting" });
+
       const assistantMsgId = Crypto.randomUUID();
       let assistantMessage: Message = {
         id: assistantMsgId,
@@ -261,7 +281,6 @@ export const useChat = (conversationId: string | undefined, settings: DatabaseSe
           : `${basePrompt}\n${toolPrompt}`;
 
         const useOpenCode = settings.ai_provider === "opencode";
-        const opencodeKey = settings.opencode_api_key || process.env.EXPO_PUBLIC_OPENCODE_API_KEY || "";
 
         let stream;
         if (useOpenCode && opencodeKey) {
@@ -326,8 +345,12 @@ export const useChat = (conversationId: string | undefined, settings: DatabaseSe
             lastUpdate = Date.now();
           }
         }
+        setActiveConnection({ provider: settings.ai_provider, model: settings.selected_model, status: "connected" });
       } catch (err: any) {
-        if (err.name !== "AbortError") setError(err.message || "AI_ERROR");
+        if (err.name !== "AbortError") {
+          setError(err.message || "AI_ERROR");
+          setActiveConnection({ provider: settings.ai_provider, model: settings.selected_model, status: "error" });
+        }
       } finally {
         setIsLoading(false);
         const titleMatch =
@@ -375,6 +398,7 @@ export const useChat = (conversationId: string | undefined, settings: DatabaseSe
     isLoadingMore,
     hasMore,
     error,
+    activeConnection,
     sendMessage,
     stopStreaming,
     clearChat: () => setMessages([]),

@@ -9,9 +9,9 @@ import {
   ScrollView,
 } from "react-native";
 import { Search, RefreshCw } from "lucide-react-native";
-import { COLORS, FONTS, FONT_SIZES } from "../../constants/theme";
+import { COLORS, FONTS, FONT_SIZES } from "@/constants/theme";
 import { useTranslation } from "react-i18next";
-import { ModelInfo } from "../../services/modelService";
+import { ModelInfo } from "@/services/modelService";
 
 interface ModelPickerProps {
   models: ModelInfo[];

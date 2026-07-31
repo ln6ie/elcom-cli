@@ -6,7 +6,7 @@ import {
   TextInput,
   StyleSheet,
 } from "react-native";
-import { COLORS, FONTS } from "../../constants/theme";
+import { COLORS, FONTS } from "@/constants/theme";
 import { Trash2, Edit2, Plus, Check, X } from "lucide-react-native";
 
 interface ModelSelectorProps {

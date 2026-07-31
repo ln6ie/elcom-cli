@@ -11,15 +11,15 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { FolderGit, LogOut, Search, ChevronLeft } from "lucide-react-native";
-import { COLORS, FONTS, FONT_SIZES } from "../constants/theme";
-import { useGitHub } from "../hooks/useGitHub";
-import { useIDEState } from "../hooks/useIDEState";
-import { useLocalFiles } from "../hooks/useLocalFiles";
-import { githubService } from "../services/githubService";
-import { GithubConnect } from "./GithubConnect";
-import { FileTreeItem } from "./FileTreeItem";
-import { CodeViewer } from "./CodeViewer";
-import { GitHubRepo, FileNode, OpenFile } from "../types/ide";
+import { COLORS, FONTS, FONT_SIZES } from "@/constants/theme";
+import { useGitHub } from "@/hooks/useGitHub";
+import { useIDEState } from "@/hooks/useIDEState";
+import { useLocalFiles } from "@/hooks/useLocalFiles";
+import { githubService } from "@/services/githubService";
+import { GithubConnect } from "@/features/github/GithubConnect";
+import { FileTreeItem } from "@/components/FileTreeItem";
+import { CodeViewer } from "@/components/CodeViewer";
+import { GitHubRepo, FileNode, OpenFile } from "@/types/ide";
 
 interface IDEDrawerProps {
   onClose: () => void;
@@ -42,6 +42,7 @@ export const IDEDrawer: React.FC<IDEDrawerProps> = ({ onClose, onSelectFile, ope
     setIsCloning,
     setCloneProgress,
     clearIDEState,
+    openFileInEditor,
   } = useIDEState();
 
   const { cloneRepository, readLocalFile } = useLocalFiles();
@@ -123,6 +124,7 @@ export const IDEDrawer: React.FC<IDEDrawerProps> = ({ onClose, onSelectFile, ope
         if (localContent !== null) content = localContent;
         else content = "// File content not available locally.\n// Pull the repository to fetch this file.";
       }
+      openFileInEditor(node.path, content, content, "");
       setCodeViewer({ visible: true, path: node.path, content });
     } catch (e) {
       setCodeViewer({ visible: true, path: node.path, content: "// Error loading file content." });

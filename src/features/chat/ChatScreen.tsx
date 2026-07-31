@@ -4,50 +4,42 @@ import {
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
-  TouchableOpacity,
-  Text,
   Animated,
   Dimensions,
   Alert,
-  Modal,
-  ScrollView,
   PanResponder,
   Keyboard,
 } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
-import { useChat } from "../hooks/useChat";
-import { Message } from "../types/chat";
-import { MessageBubble } from "../components/MessageBubble";
-import { TerminalInput } from "../components/TerminalInput";
-import { CliNotification } from "../components/CliNotification";
-import { WalkingCharacter } from "../components/WalkingCharacter";
-import { SharedHeader } from "../components/SharedHeader";
+import { useChat } from "@/features/chat/useChat";
+import { MessageBubble } from "@/components/MessageBubble";
+import { TerminalInput } from "@/components/TerminalInput";
+import { CliNotification } from "@/components/CliNotification";
+import { WalkingCharacter } from "@/components/WalkingCharacter";
+import { SharedHeader } from "@/components/SharedHeader";
 import { useRef, useEffect, useState, useCallback } from "react";
-import { COLORS, FONTS, FONT_SIZES } from "../constants/theme";
-import { DatabaseSettings, database } from "../services/database";
-import { TRANSLATIONS } from "../constants/translations";
+import { COLORS, FONTS, FONT_SIZES } from "@/constants/theme";
+import { DatabaseSettings, database } from "@/services/database";
+import { TRANSLATIONS } from "@/constants/translations";
 import { useSQLiteContext } from "expo-sqlite";
 import * as Crypto from "expo-crypto";
 import { Menu, GitBranch, Settings } from "lucide-react-native";
 
-import { HistoryLoader } from "../components/chat/HistoryLoader";
-import { StatusArea } from "../components/chat/StatusArea";
-import { EmptyState } from "../components/chat/EmptyState";
+import { HistoryLoader } from "@/components/chat/HistoryLoader";
+import { StatusArea } from "@/components/chat/StatusArea";
+import { EmptyState } from "@/components/chat/EmptyState";
 
-import { IDEDrawer } from "../components/IDEDrawer";
-
-
-import { SettingsScreen } from "./SettingsScreen";
-import { CommitSheet } from "../components/CommitSheet";
-import { useIDEState } from "../hooks/useIDEState";
-import { GitHubRepo, FileNode } from "../types/ide";
-import { executeTool, ToolExecutionResult } from "../services/tools";
-import { parseToolCalls, ToolCall as XmlToolCall } from "../components/ToolCallCard";
-import { useLocalFiles } from "../hooks/useLocalFiles";
-import { githubService } from "../services/githubService";
-import { base64Service } from "../services/base64Service";
-import { diffService } from "../services/diffService";
-import { ModelInfo } from "../services/modelService";
+import { GithubDrawer } from "@/features/github/GithubDrawer";
+import { SettingsDrawer } from "@/features/settings/SettingsDrawer";
+import { CommitSheet } from "@/components/CommitSheet";
+import { useIDEState } from "@/hooks/useIDEState";
+import { GitHubRepo, FileNode } from "@/types/ide";
+import { executeTool, ToolExecutionResult } from "@/services/tools";
+import { parseToolCalls, ToolCall as XmlToolCall } from "@/components/ToolCallCard";
+import { useLocalFiles } from "@/hooks/useLocalFiles";
+import { githubService } from "@/services/githubService";
+import { base64Service } from "@/services/base64Service";
+import { ModelInfo } from "@/services/modelService";
 
 const { width } = Dimensions.get("window");
 const DRAWER_WIDTH = width * 0.75;
@@ -93,6 +85,7 @@ export const ChatScreen = ({
     stopStreaming,
     loadMore,
     refreshHistory,
+    activeConnection,
   } = useChat(conversationId, settings);
 
   const {
@@ -690,7 +683,7 @@ export const ChatScreen = ({
                     const query = args.join(" ");
                     if (query) sendMessage(query, undefined, true);
                   } else if (cmd === "ide") {
-                    toggleDrawer();
+                    onCommand(cmd, args);
                   } else if (cmd === "commit" || cmd === "push") {
                     if (modifiedFiles.length > 0) {
                       setIsCommitSheetOpen(true);
@@ -713,6 +706,7 @@ export const ChatScreen = ({
                 disabled={isLoading}
                 onLayoutY={setInputTopY}
                 modifiedCount={modifiedFiles.length}
+                activeConnection={activeConnection}
               />
               <WalkingCharacter isLoading={isLoading} inputTopY={inputTopY} />
             </View>
@@ -737,7 +731,7 @@ export const ChatScreen = ({
         ]}
         pointerEvents={isDrawerOpen ? "auto" : "none"}
       >
-        <IDEDrawer
+        <GithubDrawer
           onClose={toggleDrawer}
           onSelectFile={(path) => {
             console.log(`[IDEDrawer] selected file: ${path}`);
@@ -764,7 +758,7 @@ export const ChatScreen = ({
         ]}
         pointerEvents={isSettingsOpen ? "auto" : "none"}
       >
-        <SettingsScreen
+        <SettingsDrawer
           settings={settings}
           customModels={customModels}
           modelPresets={modelPresets}

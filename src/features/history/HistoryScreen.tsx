@@ -10,11 +10,11 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useSQLiteContext } from "expo-sqlite";
-import { database } from "../services/database";
-import { COLORS, FONTS, FONT_SIZES } from "../constants/theme";
+import { database } from "@/services/database";
+import { COLORS, FONTS, FONT_SIZES } from "@/constants/theme";
 import { Trash2, MessageSquare, ChevronRight } from "lucide-react-native";
-import { CliNotification } from "../components/CliNotification";
-import { SharedHeader } from "../components/SharedHeader";
+import { CliNotification } from "@/components/CliNotification";
+import { SharedHeader } from "@/components/SharedHeader";
 
 interface HistoryScreenProps {
   onSelect: (id: string) => void;
