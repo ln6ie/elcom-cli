@@ -11,5 +11,7 @@
 .header-status,.feature h3,.feature-number,.service-tags,.private-state,.footer-meta,.terminal-bar{direction:ltr}
 .hero h1,.hero-copy,.section-heading h2,.subpage h1,.subpage-lead,.privacy-list p{direction:rtl;text-align:right}
 .section-heading{direction:ltr;text-align:left;align-items:flex-start}.section-heading h2{margin:14px 0 0;text-align:left;direction:rtl;width:100%}.section-heading .eyebrow{text-align:left}
+.hero h1{font-size:clamp(32px,5vw,58px);text-align:center}.section-heading{display:flex;flex-direction:row;justify-content:space-between;align-items:flex-start;text-align:initial}.section-heading h2{width:auto;margin:0;text-align:right;direction:rtl;order:2}.section-heading .eyebrow{order:1;margin-top:8px}
+@media(max-width:700px){.hero h1{font-size:clamp(25px,7vw,43px)}.section-heading{display:block;text-align:right}.section-heading h2{margin-top:14px;text-align:right}.section-heading .eyebrow{display:block;text-align:left}}
 .header-cursor{color:var(--blue);animation:blink 1s infinite}.hero h1{white-space:nowrap;font-size:clamp(25px,7vw,76px)}
 .button:hover{transform:scale(1.03);background:transparent;color:var(--blue);box-shadow:none}.button.primary:hover{background:#1a8aff18}
