@@ -7,5 +7,6 @@ export const pm2Commands = {
   restart: (name: string) => ({ id: "pm2.restart", timeoutMs: 10000, maxOutputBytes: 4096, build: () => `pm2 restart -- ${name}` }),
   reload: (name: string) => ({ id: "pm2.reload", timeoutMs: 10000, maxOutputBytes: 4096, build: () => `pm2 reload -- ${name}` }),
   delete: (name: string) => ({ id: "pm2.delete", timeoutMs: 10000, maxOutputBytes: 4096, build: () => `pm2 delete -- ${name}` }),
-  logs: (name: string) => ({ id: "pm2.logs", timeoutMs: 10000, maxOutputBytes: 65536, build: () => `pm2 logs --nostream --lines 200 -- ${name}` }),
+  logs: (name: string) => ({ id: "pm2.logs", timeoutMs: 15000, maxOutputBytes: 262144, build: () => `pm2 logs --nostream --lines 1500 -- ${name}` }),
+  allLogs: { id: "pm2.all_logs", timeoutMs: 15000, maxOutputBytes: 262144, build: () => "pm2 logs --nostream --lines 1500" },
 } satisfies Record<string, CommandDefinition | ((name: string) => CommandDefinition)>;

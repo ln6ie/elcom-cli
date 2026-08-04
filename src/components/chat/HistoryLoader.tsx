@@ -1,7 +1,8 @@
 import React from "react";
-import { View, ActivityIndicator, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet } from "react-native";
 import { COLORS, FONTS } from "../../constants/theme";
 import { AppBrand } from "../AppBrand";
+import { ElcomLoader } from "../ElcomLoader";
 
 interface HistoryLoaderProps {
   isLoadingMore: boolean;
@@ -15,7 +16,7 @@ export const HistoryLoader = ({
   <View style={styles.historyLoader}>
     {isLoadingMore && (
       <View style={styles.loadingMore}>
-        <ActivityIndicator size="small" color={COLORS.primaryDim} />
+        <ElcomLoader size={20} />
         <Text style={styles.loadingMoreText}>FETCHING_HISTORY...</Text>
       </View>
     )}

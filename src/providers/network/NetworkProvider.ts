@@ -14,8 +14,11 @@ export class NetworkProvider implements VPSProvider<NetworkMetrics> {
 
   async collect(session: SSHSession): Promise<NetworkMetrics> {
     const result = await session.execute(networkCommands.snapshot.build(), networkCommands.snapshot);
-    const activeConnections = Number(result.stdout.split("\n").pop()?.trim() || 0);
-    return { uploadBytes: 0, downloadBytes: 0, activeConnections: Number.isFinite(activeConnections) ? activeConnections : 0 };
+    const values = new Map(result.stdout.split("\n").map(line => { const separator = line.indexOf("="); return separator > -1 ? [line.slice(0, separator), line.slice(separator + 1).trim()] as const : [line, ""] as const; }));
+    const [downloadBytes, uploadBytes] = (values.get("traffic") || "0,0").split(",").map(Number);
+    const activeConnections = Number(values.get("connections") || 0);
+    const parsedLatency = Number.parseFloat(values.get("latency") || "");
+    return { uploadBytes: Number.isFinite(uploadBytes) ? uploadBytes : 0, downloadBytes: Number.isFinite(downloadBytes) ? downloadBytes : 0, activeConnections: Number.isFinite(activeConnections) ? activeConnections : 0, latencyMs: Number.isFinite(parsedLatency) ? parsedLatency : undefined };
   }
 
   actions(): ProviderAction[] { return []; }

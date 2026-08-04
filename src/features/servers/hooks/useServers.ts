@@ -4,17 +4,29 @@ import { useCallback } from "react";
 import * as Crypto from "expo-crypto";
 import { database, type ServerRecord } from "@/services/database";
 import { deleteServerCredentials, saveServerCredentials, type ServerCredentials } from "@/infrastructure/storage/secureCredentials";
+import { serverLogger } from "@/features/servers/serverLogger";
 
 export function useServers() {
   const db = useSQLiteContext();
   const queryClient = useQueryClient();
   const query = useQuery({
     queryKey: ["servers"],
-    queryFn: () => database.getServers(db),
+    queryFn: async () => {
+      serverLogger.info("Loading server inventory");
+      try {
+        const servers = await database.getServers(db);
+        serverLogger.info("Server inventory loaded", { count: servers.length });
+        return servers;
+      } catch (error) {
+        serverLogger.error("Failed to load server inventory", error);
+        throw error;
+      }
+    },
   });
 
   const createMutation = useMutation({
     mutationFn: async (input: Omit<ServerRecord, "id" | "created_at" | "updated_at"> & { credentials: ServerCredentials }) => {
+      serverLogger.info("Saving server", { name: input.name, host: input.host, authType: input.auth_type });
       const now = new Date().toISOString();
       const server: ServerRecord = {
         id: Crypto.randomUUID(),
@@ -28,16 +40,28 @@ export function useServers() {
         fingerprint: input.fingerprint,
       };
       await database.saveServer(db, server);
-      await saveServerCredentials(server.id, input.credentials);
-      return server;
+      try {
+        await saveServerCredentials(server.id, input.credentials);
+        serverLogger.info("Server saved", { serverId: server.id, host: server.host });
+        return server;
+      } catch (error) {
+        serverLogger.error("Failed to save server credentials", error, { serverId: server.id });
+        throw error;
+      }
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["servers"] }),
   });
 
   const removeMutation = useMutation({
     mutationFn: async (serverId: string) => {
-      await database.deleteServer(db, serverId);
-      await deleteServerCredentials(serverId);
+      serverLogger.info("Removing server", { serverId });
+      try {
+        await database.deleteServer(db, serverId);
+        await deleteServerCredentials(serverId);
+      } catch (error) {
+        serverLogger.error("Failed to remove server", error, { serverId });
+        throw error;
+      }
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["servers"] }),
   });

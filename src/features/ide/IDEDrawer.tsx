@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   FlatList,
   TextInput,
-  ActivityIndicator,
   Image,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -20,6 +19,7 @@ import { GithubConnect } from "@/features/github/GithubConnect";
 import { FileTreeItem } from "@/components/FileTreeItem";
 import { CodeViewer } from "@/components/CodeViewer";
 import { GitHubRepo, FileNode, OpenFile } from "@/types/ide";
+import { ElcomLoader } from "@/components/ElcomLoader";
 
 interface IDEDrawerProps {
   onClose: () => void;
@@ -179,13 +179,13 @@ export const IDEDrawer: React.FC<IDEDrawerProps> = ({ onClose, onSelectFile, ope
 
       {authLoading ? (
         <View style={styles.center}>
-          <ActivityIndicator size="small" color={COLORS.primary} />
+          <ElcomLoader size="small" />
         </View>
       ) : !token ? (
         <GithubConnect loginWithOAuth={loginWithOAuth} loginWithToken={loginWithToken} redirectUri={redirectUri} language={language} />
       ) : isCloning ? (
         <View style={styles.center}>
-          <ActivityIndicator size="large" color={COLORS.primary} />
+          <ElcomLoader size="medium" />
           <Text style={styles.progressText}>CLONING_REPO: {Math.round(cloneProgress * 100)}%</Text>
         </View>
       ) : selectedRepo ? (
@@ -231,7 +231,7 @@ export const IDEDrawer: React.FC<IDEDrawerProps> = ({ onClose, onSelectFile, ope
           </View>
           {isLoadingRepos ? (
             <View style={styles.center}>
-              <ActivityIndicator size="small" color={COLORS.primary} />
+              <ElcomLoader size="small" />
             </View>
           ) : (
             <FlatList

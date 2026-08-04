@@ -1,4 +1,6 @@
 #include <jni.h>
+#include <android/log.h>
+#include <cstdio>
 #include <string>
 #include <initializer_list>
 #include <cstdint>
@@ -13,8 +15,15 @@ static std::string text(JNIEnv *env, jstring value) {
 }
 
 static void fail(JNIEnv *env, const char *message) {
+  __android_log_print(ANDROID_LOG_ERROR, "ElcomCLI-SSH", "%s", message);
   jclass error = env->FindClass("java/lang/IllegalStateException");
   env->ThrowNew(error, message);
+}
+
+static void failWithCode(JNIEnv *env, const char *operation, int code) {
+  char message[96];
+  std::snprintf(message, sizeof(message), "%s:%d", operation, code);
+  fail(env, message);
 }
 
 static elcom_ssh_options make_options(const std::string &host, jint port, const std::string &username,
@@ -43,12 +52,16 @@ static jobjectArray strings(JNIEnv *env, std::initializer_list<std::string> valu
 extern "C" JNIEXPORT jstring JNICALL
 Java_com_elcomcli_sshclient_SSHClientModule_nativeFingerprint(JNIEnv *env, jobject, jstring hostValue, jint port) {
   std::string host = text(env, hostValue);
+  __android_log_print(ANDROID_LOG_DEBUG, "ElcomCLI-SSH", "nativeFingerprint called host=%s port=%d", host.c_str(), port);
   char fingerprint[65]{};
   auto options = make_options(host, port, "", "", "", "", "");
-  if (elcom_ssh_get_fingerprint(&options, fingerprint, sizeof(fingerprint)) != 0) {
-    fail(env, "SSH_FINGERPRINT_FAILED");
+  int code = elcom_ssh_get_fingerprint(&options, fingerprint, sizeof(fingerprint));
+  if (code != 0) {
+    __android_log_print(ANDROID_LOG_ERROR, "ElcomCLI-SSH", "nativeFingerprint failed code=%d", code);
+    failWithCode(env, "SSH_FINGERPRINT_FAILED", code);
     return nullptr;
   }
+  __android_log_print(ANDROID_LOG_DEBUG, "ElcomCLI-SSH", "nativeFingerprint completed");
   return env->NewStringUTF(fingerprint);
 }
 
@@ -61,8 +74,9 @@ Java_com_elcomcli_sshclient_SSHClientModule_nativeConnect(JNIEnv *env, jobject, 
   auto options = make_options(host, port, username, password, key, passphrase, fingerprint);
   elcom_ssh_session *session = nullptr;
   char hash[65]{};
-  if (elcom_ssh_connect(&options, &session, hash, sizeof(hash)) != 0 || !session) {
-    fail(env, "SSH_CONNECT_FAILED");
+  int code = elcom_ssh_connect(&options, &session, hash, sizeof(hash));
+  if (code != 0 || !session) {
+    failWithCode(env, "SSH_CONNECT_FAILED", code != 0 ? code : -1);
     return nullptr;
   }
   return strings(env, {std::to_string((long long)(intptr_t)session), hash});

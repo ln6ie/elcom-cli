@@ -8,6 +8,7 @@ import { database } from "@/services/database";
 import { snapshotCollector } from "./collection/SnapshotCollector";
 import { calculateHealth, type HealthResult } from "./health/HealthEngine";
 import { deriveEvents, type RuntimeEvent } from "./events/EventEngine";
+import { serverLogger } from "@/features/servers/serverLogger";
 
 export interface ServerRuntimeResult {
   snapshot: ServerSnapshot;
@@ -18,11 +19,17 @@ export interface ServerRuntimeResult {
 
 export class ServerRuntimeService {
   async refresh(db: SQLite.SQLiteDatabase, server: Server, credentials: ServerCredentials, forceDiscovery = false, confirmFingerprint?: (fingerprint: string) => Promise<boolean>): Promise<ServerRuntimeResult> {
-    const previousRecord = await database.getLatestServerSnapshot(db, server.id);
-    const previous = previousRecord ? this.parseSnapshot(previousRecord.payload) : null;
-    const result = await snapshotCollector.collect(server, credentials, forceDiscovery, confirmFingerprint);
-    const health = calculateHealth(result.snapshot);
-    const events = deriveEvents(previous, result.snapshot);
+    serverLogger.info("Runtime collection started", { serverId: server.id, host: server.host, forceDiscovery });
+    try {
+      const previousRecord = await database.getLatestServerSnapshot(db, server.id);
+      const previous = previousRecord ? this.parseSnapshot(previousRecord.payload) : null;
+      const deleted = await db.getAllAsync<{ capability_id: string }>("SELECT capability_id FROM server_deleted_capabilities WHERE server_id = ?", [server.id]);
+      // System and network are core dashboard providers and must always remain
+      // active; optional software providers can be permanently dismissed.
+      const deletedIds = new Set(deleted.map(item => item.capability_id).filter(id => id !== "system" && id !== "network"));
+      const result = await snapshotCollector.collect(server, credentials, forceDiscovery, confirmFingerprint, deletedIds);
+      const health = calculateHealth(result.snapshot);
+      const events = deriveEvents(previous, result.snapshot);
 
     await database.saveServerSnapshot(db, {
       id: Crypto.randomUUID(),
@@ -51,7 +58,12 @@ export class ServerRuntimeService {
         created_at: event.createdAt,
       });
     }
-    return { ...result, health, events };
+      serverLogger.info("Runtime collection persisted", { serverId: server.id, capabilities: result.capabilities.length, events: events.length });
+      return { ...result, health, events };
+    } catch (error) {
+      serverLogger.error("Runtime collection failed", error, { serverId: server.id, host: server.host });
+      throw error;
+    }
   }
 
   async getCached(db: SQLite.SQLiteDatabase, serverId: string): Promise<ServerRuntimeResult | null> {

@@ -1,5 +1,5 @@
 import { Stack } from 'expo-router';
-import { View, ActivityIndicator, StyleSheet, I18nManager, AppState, Platform } from 'react-native';
+import { View, StyleSheet, I18nManager, AppState, Platform } from 'react-native';
 import { useFonts, SpaceMono_400Regular, SpaceMono_700Bold } from '@expo-google-fonts/space-mono';
 import { useEffect, useState } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -8,12 +8,15 @@ import { StatusBar } from 'expo-status-bar';
 import { IDEProvider } from '@/hooks/useIDEState';
 import { initDb } from '@/services/database';
 import { COLORS } from '@/constants/theme';
+import { ElcomLoader } from '@/components/ElcomLoader';
 import '@/services/i18n';
 import 'react-native-get-random-values';
 import { UpdateModal } from '@/components/UpdateModal';
 import { UpdateInfo, UpdateService } from '@/services/UpdateService';
 import { QueryClient, QueryClientProvider, focusManager, onlineManager } from '@tanstack/react-query';
 import NetInfo from '@react-native-community/netinfo';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 
 I18nManager.allowRTL(false);
 I18nManager.forceRTL(false);
@@ -51,26 +54,31 @@ export default function RootLayout() {
   if (!fontsLoaded) {
     return (
       <View style={styles.loader}>
-        <ActivityIndicator size="large" color={COLORS.primary} />
+        <ElcomLoader size="large" />
       </View>
     );
   }
 
   return (
-    <SafeAreaProvider>
-      <SQLiteProvider databaseName="elcomcli.db" onInit={initDb}>
-        <QueryClientProvider client={queryClient}>
-          <IDEProvider>
-            <StatusBar style="light" />
-            <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: COLORS.background } }} />
-            <UpdateModal visible={updateVisible} info={updateInfo} isForce={isForceUpdate} onClose={() => setUpdateVisible(false)} />
-          </IDEProvider>
-        </QueryClientProvider>
-      </SQLiteProvider>
-    </SafeAreaProvider>
+    <GestureHandlerRootView style={styles.gestureRoot}>
+      <SafeAreaProvider>
+        <SQLiteProvider databaseName="elcomcli.db" onInit={initDb}>
+          <QueryClientProvider client={queryClient}>
+            <IDEProvider>
+              <BottomSheetModalProvider>
+                <StatusBar style="light" />
+                <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: COLORS.background } }} />
+                <UpdateModal visible={updateVisible} info={updateInfo} isForce={isForceUpdate} onClose={() => setUpdateVisible(false)} />
+              </BottomSheetModalProvider>
+            </IDEProvider>
+          </QueryClientProvider>
+        </SQLiteProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }
 
 const styles = StyleSheet.create({
+  gestureRoot: { flex: 1 },
   loader: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: COLORS.background },
 });

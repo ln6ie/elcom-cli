@@ -1,9 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
-  TextInput,
-  TouchableOpacity,
   ScrollView,
   StyleSheet,
 } from "react-native";
@@ -15,6 +13,9 @@ import { SharedHeader } from "@/components/SharedHeader";
 import { ModelPicker } from "@/features/settings/ModelPicker";
 import { TRANSLATIONS } from "@/constants/translations";
 import { ModelInfo } from "@/services/modelService";
+import { OnboardingInput } from "@/components/onboarding/OnboardingInput";
+import { OnboardingButton } from "@/components/onboarding/OnboardingButton";
+import { OnboardingOptionGroup } from "@/components/onboarding/OnboardingOptionGroup";
 
 interface SettingsScreenProps {
   settings: DatabaseSettings;
@@ -55,6 +56,10 @@ export const SettingsScreen = ({
     type: "success" | "error" | "info";
   }>({ visible: false, message: "", type: "success" });
 
+  useEffect(() => {
+    setLocalSettings(settings);
+  }, [settings]);
+
   const t = TRANSLATIONS[localSettings.language || "ar"];
   const isOpenCode = localSettings.ai_provider === "opencode";
 
@@ -90,20 +95,13 @@ export const SettingsScreen = ({
     key: keyof DatabaseSettings,
     placeholder: string,
   ) => (
-    <View style={styles.inputGroup}>
-      <Text style={styles.label}>{label}</Text>
-      <TextInput
-        value={localSettings[key]?.toString() || ""}
-        onChangeText={(val) =>
-          setLocalSettings({ ...localSettings, [key]: val })
-        }
-        placeholder={placeholder}
-        placeholderTextColor={COLORS.textDim}
-        style={styles.input}
-        autoCorrect={false}
-        autoCapitalize="none"
-      />
-    </View>
+    <OnboardingInput
+      label={label}
+      value={localSettings[key]?.toString() || ""}
+      onChangeText={(val) => setLocalSettings({ ...localSettings, [key]: val })}
+      placeholder={placeholder}
+      language={localSettings.language === "ar" ? "ar" : "en"}
+    />
   );
 
   return (
@@ -116,7 +114,7 @@ export const SettingsScreen = ({
       />
       <SharedHeader
         title={t.config_system}
-        rightText={{ label: t.exit, onPress: onBack, disabled: isSaving }}
+        leftText={{ label: t.exit, onPress: onBack, disabled: isSaving }}
         variant="floating"
       />
       <ScrollView contentContainerStyle={[styles.scroll, { paddingTop: 110 }]}>
@@ -126,24 +124,11 @@ export const SettingsScreen = ({
 
         {/* Provider Selector */}
         <Text style={styles.sectionTitle}>--- {t.provider} ---</Text>
-        <View style={styles.providerRow}>
-          <TouchableOpacity
-            style={[styles.providerBtn, !isOpenCode && styles.providerActive]}
-            onPress={() => setLocalSettings({ ...localSettings, ai_provider: "openrouter" })}
-          >
-            <Text style={[styles.providerText, !isOpenCode && styles.providerTextActive]}>
-              OpenRouter
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.providerBtn, isOpenCode && styles.providerActive]}
-            onPress={() => setLocalSettings({ ...localSettings, ai_provider: "opencode" })}
-          >
-            <Text style={[styles.providerText, isOpenCode && styles.providerTextActive]}>
-              OpenCode
-            </Text>
-          </TouchableOpacity>
-        </View>
+        <OnboardingOptionGroup
+          options={[{ id: "openrouter", label: "OpenRouter" }, { id: "opencode", label: "OpenCode" }]}
+          selected={localSettings.ai_provider}
+          onSelect={(id) => setLocalSettings({ ...localSettings, ai_provider: id as DatabaseSettings["ai_provider"] })}
+        />
 
         <Text style={styles.sectionTitle}>{t.user_identity}</Text>
         {renderInput(t.user_label, "user_name", "ENTER_NAME...")}
@@ -168,34 +153,13 @@ export const SettingsScreen = ({
         {renderInput(t.context_limit, "context_length", "15")}
 
         <Text style={styles.sectionTitle}>--- {t.language} ---</Text>
-        <View style={styles.langSelector}>
-          <TouchableOpacity
-            style={[styles.langBtn, localSettings.language === "ar" && styles.activeLang]}
-            onPress={() => setLocalSettings({ ...localSettings, language: "ar" })}
-          >
-            <Text style={[styles.langText, localSettings.language === "ar" && styles.activeLangText]}>
-              العربية
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.langBtn, localSettings.language === "en" && styles.activeLang]}
-            onPress={() => setLocalSettings({ ...localSettings, language: "en" })}
-          >
-            <Text style={[styles.langText, localSettings.language === "en" && styles.activeLangText]}>
-              English
-            </Text>
-          </TouchableOpacity>
-        </View>
+        <OnboardingOptionGroup
+          options={[{ id: "ar", label: "العربية" }, { id: "en", label: "English" }]}
+          selected={localSettings.language || "ar"}
+          onSelect={(id) => setLocalSettings({ ...localSettings, language: id as DatabaseSettings["language"] })}
+        />
 
-        <TouchableOpacity
-          style={[styles.saveButton, isSaving && styles.disabled]}
-          onPress={handleSave}
-          disabled={isSaving}
-        >
-          <Text style={styles.saveText}>
-            {isSaving ? t.saving : t.apply_changes}
-          </Text>
-        </TouchableOpacity>
+        <OnboardingButton onPress={handleSave} disabled={isSaving} label={isSaving ? t.saving : t.apply_changes} />
       </ScrollView>
     </SafeAreaView>
   );
@@ -211,83 +175,6 @@ const styles = StyleSheet.create({
     marginTop: 12,
     marginBottom: 16,
   },
-  inputGroup: { marginBottom: 20 },
-  label: {
-    color: COLORS.primary,
-    fontFamily: FONTS.mono,
-    fontSize: FONT_SIZES.label,
-    marginBottom: 8,
-  },
-  input: {
-    backgroundColor: COLORS.surface,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    color: COLORS.text,
-    fontFamily: FONTS.mono,
-    fontSize: FONT_SIZES.body,
-    padding: 12,
-  },
-  providerRow: {
-    flexDirection: "row",
-    gap: 12,
-    marginBottom: 24,
-  },
-  providerBtn: {
-    flex: 1,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    paddingVertical: 12,
-    alignItems: "center",
-    backgroundColor: COLORS.surface,
-  },
-  providerActive: {
-    borderColor: COLORS.primary,
-    backgroundColor: "rgba(0, 183, 255, 0.1)",
-  },
-  providerText: {
-    color: COLORS.textDim,
-    fontFamily: FONTS.monoBold,
-    fontSize: FONT_SIZES.label,
-  },
-  providerTextActive: {
-    color: COLORS.primary,
-  },
-  saveButton: {
-    backgroundColor: COLORS.primary,
-    paddingVertical: 16,
-    alignItems: "center",
-    marginTop: 32,
-    marginBottom: 40,
-  },
-  saveText: {
-    color: COLORS.background,
-    fontFamily: FONTS.monoBold,
-    fontSize: FONT_SIZES.body,
-  },
+  
   disabled: { opacity: 0.5 },
-  langSelector: {
-    flexDirection: "row",
-    gap: 12,
-    marginBottom: 24,
-  },
-  langBtn: {
-    flex: 1,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    paddingVertical: 12,
-    alignItems: "center",
-    backgroundColor: COLORS.surface,
-  },
-  activeLang: {
-    borderColor: COLORS.success,
-    backgroundColor: "rgba(0, 224, 163, 0.1)",
-  },
-  langText: {
-    color: COLORS.textDim,
-    fontFamily: FONTS.monoBold,
-    fontSize: FONT_SIZES.label,
-  },
-  activeLangText: {
-    color: COLORS.success,
-  },
 });

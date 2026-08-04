@@ -46,3 +46,4 @@ modules/ssh-client/android/.cxx/
 modules/ssh-client/android/build/
 modules/ssh-client/android/.externalNativeBuild/
 modules/ssh-client/android/.gradle/
+modules/ssh-client/.ios-deps/

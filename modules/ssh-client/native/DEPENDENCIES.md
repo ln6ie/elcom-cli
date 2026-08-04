@@ -16,7 +16,8 @@ The artifact directory must have this shape:
 ```text
 <target>/
 ├── include/libssh2.h
-└── lib/libssh2.a
+├── lib/libssh2.a
+└── lib/libmbedcrypto.a
 ```
 
 Android build (automatic pinned source build):
@@ -38,6 +39,18 @@ iOS CocoaPods integration:
 ELCOMCLI_LIBSSH2_ROOT=/absolute/path/to/ios \
   npx pod-install
 ```
+
+For local iOS device development, the repository includes a pinned dependency
+builder that stores the artifact in the ignored local-module build directory:
+
+```bash
+pnpm build:deps:ios
+npx expo run:ios --device
+```
+
+EAS runs this preparation automatically with the `eas-build-pre-install`
+hook. The GitHub iOS workflow uses its runner-scoped artifact and exports
+`ELCOMCLI_LIBSSH2_ROOT` before installing CocoaPods.
 
 The build must fail when this dependency is absent. Linking the developer
 machine's `/usr/lib/libssh2` would make the app non-reproducible and cannot

@@ -6,7 +6,6 @@ import {
   Modal,
   TouchableOpacity,
   ScrollView,
-  ActivityIndicator,
 } from "react-native";
 import { X, Copy, Check } from "lucide-react-native";
 import { COLORS, FONTS, FONT_SIZES } from "../constants/theme";

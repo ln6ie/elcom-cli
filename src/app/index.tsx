@@ -1,13 +1,14 @@
 import { Redirect } from 'expo-router';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useSettings } from '@/hooks/useSettings';
 import { COLORS } from '@/constants/theme';
+import { ElcomLoader } from '@/components/ElcomLoader';
 
 export default function IndexRoute() {
   const { settings, isLoading } = useSettings();
 
   if (isLoading) {
-    return <View style={styles.loader}><ActivityIndicator size="large" color={COLORS.primary} /></View>;
+    return <View style={styles.loader}><ElcomLoader size="large" /></View>;
   }
 
   return <Redirect href={settings.onboarding_completed ? '/(dashboard)/home' : '/(onboarding)'} />;

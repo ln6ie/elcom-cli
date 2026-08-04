@@ -5,7 +5,6 @@ import {
   FlatList,
   TouchableOpacity,
   StyleSheet,
-  ActivityIndicator,
   Platform,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -15,6 +14,7 @@ import { COLORS, FONTS, FONT_SIZES } from "@/constants/theme";
 import { Trash2, MessageSquare, ChevronRight } from "lucide-react-native";
 import { CliNotification } from "@/components/CliNotification";
 import { SharedHeader } from "@/components/SharedHeader";
+import { ElcomLoader } from "@/components/ElcomLoader";
 
 interface HistoryScreenProps {
   onSelect: (id: string) => void;
@@ -132,7 +132,7 @@ export const HistoryScreen = ({
 
         {isLoading ? (
           <View style={styles.center}>
-            <ActivityIndicator color={COLORS.primary} />
+            <ElcomLoader size="small" />
           </View>
         ) : (
           <FlatList

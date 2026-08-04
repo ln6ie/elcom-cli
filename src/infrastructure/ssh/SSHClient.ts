@@ -51,7 +51,11 @@ export function createSSHClient(): SSHClient {
     return {
       getHostFingerprint: options => native.getHostFingerprint(options),
       connect: async options => { const result = await native.connect(options); nativeSessionId = result.sessionId; return result; },
-      exec: (command, options) => native.execute(nativeSessionId, command, options),
+      exec: (command, options) => native.execute(nativeSessionId, command, {
+        ...(options?.commandId ? { commandId: options.commandId } : {}),
+        ...(options?.timeoutMs !== undefined ? { timeoutMs: options.timeoutMs } : {}),
+        ...(options?.maxOutputBytes !== undefined ? { maxOutputBytes: options.maxOutputBytes } : {}),
+      }),
       cancel: commandId => native.cancel(nativeSessionId, commandId),
       disconnect: async () => { if (nativeSessionId) await native.disconnect(nativeSessionId); nativeSessionId = ""; },
     };

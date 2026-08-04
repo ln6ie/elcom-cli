@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { View, Text, StyleSheet, ActivityIndicator } from "react-native";
+import { View, Text, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { WebView } from "react-native-webview";
 import { MessageSquare, Eye } from "lucide-react-native";
@@ -8,6 +8,7 @@ import { SharedHeader } from "@/components/SharedHeader";
 import { useIDEState } from "@/hooks/useIDEState";
 import { useLocalFiles } from "@/hooks/useLocalFiles";
 import { base64Service } from "@/services/base64Service";
+import { ElcomLoader } from "@/components/ElcomLoader";
 
 interface EditorScreenProps {
   onBack: () => void;
@@ -168,7 +169,7 @@ export const EditorScreen: React.FC<EditorScreenProps> = ({
           domStorageEnabled={true}
           renderLoading={() => (
             <View style={styles.loaderWrapper}>
-              <ActivityIndicator size="large" color={COLORS.primary} />
+              <ElcomLoader size="large" />
             </View>
           )}
           startInLoadingState={true}

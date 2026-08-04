@@ -27,6 +27,8 @@ interface ManagedSession {
   connectedAt?: number;
   lastUsedAt: number;
   connectPromise?: Promise<void>;
+  executeQueue: Promise<void>;
+  activeCommandId?: string;
   idleTimer?: ReturnType<typeof setTimeout>;
   confirmFingerprint?: (fingerprint: string) => Promise<boolean>;
 }
@@ -39,7 +41,7 @@ export class SSHConnectionManager {
   async acquire(server: Server, credentials: ServerCredentials, options?: { confirmFingerprint?: (fingerprint: string) => Promise<boolean> }): Promise<SSHSession> {
     let managed = this.sessions.get(server.id);
     if (!managed) {
-      managed = { server, credentials, client: createSSHClient(), state: "disconnected", lastUsedAt: Date.now() };
+      managed = { server, credentials, client: createSSHClient(), state: "disconnected", lastUsedAt: Date.now(), executeQueue: Promise.resolve() };
       this.sessions.set(server.id, managed);
     }
     managed.server = server;
@@ -60,18 +62,34 @@ export class SSHConnectionManager {
   async execute(serverId: string, command: string, options?: { timeoutMs?: number; maxOutputBytes?: number; signal?: AbortSignal }): Promise<CommandResult> {
     const managed = this.sessions.get(serverId);
     if (!managed) throw new Error("SSH_SESSION_NOT_ACQUIRED");
-    if (options?.signal?.aborted) throw new Error("SSH_COMMAND_CANCELLED");
-    await this.ensureConnected(managed);
-    managed.lastUsedAt = Date.now();
-    this.scheduleIdleDisconnect(managed);
-    const commandId = Crypto.randomUUID();
-    const result = await managed.client.exec(command, { ...options, commandId });
-    return result;
+    const task = managed.executeQueue.then(async () => {
+      if (options?.signal?.aborted) throw new Error("SSH_COMMAND_CANCELLED");
+      await this.ensureConnected(managed);
+      managed.lastUsedAt = Date.now();
+      this.scheduleIdleDisconnect(managed);
+      const commandId = Crypto.randomUUID();
+      managed.activeCommandId = commandId;
+      const abortHandler = () => { void managed.client.cancel(commandId); };
+      options?.signal?.addEventListener("abort", abortHandler, { once: true });
+      try {
+        return await managed.client.exec(command, {
+          commandId,
+          timeoutMs: options?.timeoutMs,
+          maxOutputBytes: options?.maxOutputBytes,
+          signal: options?.signal,
+        });
+      } finally {
+        options?.signal?.removeEventListener("abort", abortHandler);
+        if (managed.activeCommandId === commandId) managed.activeCommandId = undefined;
+      }
+    });
+    managed.executeQueue = task.then(() => undefined, () => undefined);
+    return task;
   }
 
   async cancel(serverId: string, commandId: string): Promise<void> {
     const managed = this.sessions.get(serverId);
-    if (!managed) return;
+    if (!managed || managed.activeCommandId !== commandId) return;
     await managed.client.cancel(commandId);
   }
 

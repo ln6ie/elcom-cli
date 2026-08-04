@@ -652,6 +652,7 @@ export const ChatScreen = ({
               ref={flatListRef}
               data={[...messages].reverse().filter(m => !m.content.startsWith("[SYSTEM:") && !(m.role === "assistant" && !m.content.trim() && !m.reasoning))}
               inverted
+              showsVerticalScrollIndicator={false}
               keyExtractor={(item, index) => item.id || index.toString()}
               contentContainerStyle={[styles.listContent, { paddingTop: insets.top + 20, paddingBottom: 100 }]}
               ListFooterComponent={messages.length > 0 ? <HistoryLoader isLoadingMore={isLoadingMore} /> : null}

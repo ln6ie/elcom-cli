@@ -58,6 +58,18 @@ export interface ServerEventRecord {
   created_at: string;
 }
 
+export interface ServerQueryRecord {
+  id: string;
+  server_id: string;
+  name: string;
+  command: string;
+  created_at: string;
+  updated_at: string;
+  last_output: string | null;
+  last_error: string | null;
+  last_run_at: string | null;
+}
+
 export const DEFAULT_SETTINGS: DatabaseSettings = {
   api_key: null,
   opencode_api_key: null,
@@ -195,10 +207,33 @@ export const initDb = async (db: SQLite.SQLiteDatabase) => {
         FOREIGN KEY (server_id) REFERENCES servers (id) ON DELETE CASCADE
       );
 
+      CREATE TABLE IF NOT EXISTS server_deleted_capabilities (
+        server_id TEXT NOT NULL,
+        capability_id TEXT NOT NULL,
+        deleted_at TEXT NOT NULL,
+        PRIMARY KEY (server_id, capability_id),
+        FOREIGN KEY (server_id) REFERENCES servers (id) ON DELETE CASCADE
+      );
+
+      CREATE TABLE IF NOT EXISTS server_queries (
+        id TEXT PRIMARY KEY NOT NULL,
+        server_id TEXT NOT NULL,
+        name TEXT NOT NULL,
+        command TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        last_output TEXT,
+        last_error TEXT,
+        last_run_at TEXT,
+        FOREIGN KEY (server_id) REFERENCES servers (id) ON DELETE CASCADE
+      );
+
       CREATE INDEX IF NOT EXISTS idx_server_snapshots_server_date
         ON server_snapshots(server_id, collected_at DESC);
       CREATE INDEX IF NOT EXISTS idx_server_events_server_date
         ON server_events(server_id, created_at DESC);
+      CREATE INDEX IF NOT EXISTS idx_server_queries_server_updated
+        ON server_queries(server_id, updated_at DESC);
     `);
 
     try { await db.execAsync("ALTER TABLE server_events ADD COLUMN severity TEXT NOT NULL DEFAULT 'info'"); } catch (_) {}
@@ -481,7 +516,25 @@ export const database = {
   },
 
   async getCapabilities(db: SQLite.SQLiteDatabase, serverId: string): Promise<ServerCapabilityRecord[]> {
-    return db.getAllAsync<ServerCapabilityRecord>("SELECT * FROM server_capabilities WHERE server_id = ? ORDER BY name", [serverId]);
+    return db.getAllAsync<ServerCapabilityRecord>("SELECT capabilities.* FROM server_capabilities capabilities WHERE server_id = ? AND NOT EXISTS (SELECT 1 FROM server_deleted_capabilities deleted WHERE deleted.server_id = capabilities.server_id AND deleted.capability_id = capabilities.capability_id) ORDER BY name", [serverId]);
+  },
+
+  async deleteCapability(db: SQLite.SQLiteDatabase, serverId: string, capabilityId: string): Promise<void> {
+    const related = await db.getAllAsync<{ capability_id: string }>("SELECT capability_id FROM server_capabilities WHERE server_id = ? AND (capability_id = ? OR provider_id = ?)", [serverId, capabilityId, capabilityId]);
+    const ids = related.length ? related.map(item => item.capability_id) : [capabilityId];
+    console.info("[Database] Deleting capabilities", { serverId, capabilityId, relatedIds: ids });
+    await db.runAsync("BEGIN TRANSACTION");
+    try {
+      for (const id of ids) {
+        await db.runAsync("INSERT OR REPLACE INTO server_deleted_capabilities (server_id, capability_id, deleted_at) VALUES (?, ?, ?)", [serverId, id, new Date().toISOString()]);
+        await db.runAsync("DELETE FROM server_capabilities WHERE server_id = ? AND capability_id = ?", [serverId, id]);
+      }
+      await db.runAsync("COMMIT");
+      console.info("[Database] Capabilities deleted", { serverId, capabilityId, count: ids.length });
+    } catch (error) {
+      await db.runAsync("ROLLBACK");
+      throw error;
+    }
   },
 
   async saveEvent(db: SQLite.SQLiteDatabase, event: ServerEventRecord): Promise<void> {
@@ -495,5 +548,22 @@ export const database = {
 
   async getServerEvents(db: SQLite.SQLiteDatabase, serverId: string, limit = 50): Promise<ServerEventRecord[]> {
     return db.getAllAsync<ServerEventRecord>("SELECT * FROM server_events WHERE server_id = ? ORDER BY created_at DESC LIMIT ?", [serverId, limit]);
+  },
+
+  async saveServerQuery(db: SQLite.SQLiteDatabase, query: ServerQueryRecord): Promise<void> {
+    await db.runAsync(
+      `INSERT OR REPLACE INTO server_queries
+       (id, server_id, name, command, created_at, updated_at, last_output, last_error, last_run_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [query.id, query.server_id, query.name, query.command, query.created_at, query.updated_at, query.last_output, query.last_error, query.last_run_at],
+    );
+  },
+
+  async getServerQueries(db: SQLite.SQLiteDatabase, serverId: string): Promise<ServerQueryRecord[]> {
+    return db.getAllAsync<ServerQueryRecord>("SELECT * FROM server_queries WHERE server_id = ? ORDER BY updated_at DESC", [serverId]);
+  },
+
+  async deleteServerQuery(db: SQLite.SQLiteDatabase, queryId: string): Promise<void> {
+    await db.runAsync("DELETE FROM server_queries WHERE id = ?", [queryId]);
   },
 };

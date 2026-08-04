@@ -1,13 +1,24 @@
 require 'json'
 
 package = JSON.parse(File.read(File.join(__dir__, 'package.json')))
-libssh2_root = ENV['ELCOMCLI_LIBSSH2_ROOT']
+configured_root = ENV['ELCOMCLI_LIBSSH2_ROOT']
+build_root = File.join(__dir__, '.ios-deps')
 
-unless libssh2_root && !libssh2_root.empty?
+candidate_roots = [configured_root, build_root].compact.reject(&:empty?).map do |root|
+  File.expand_path(root)
+end
+
+libssh2_root = candidate_roots.find do |root|
+  File.file?(File.join(root, 'include', 'libssh2.h')) &&
+    File.file?(File.join(root, 'lib', 'libssh2.a')) &&
+    File.file?(File.join(root, 'lib', 'libmbedcrypto.a'))
+end
+
+unless libssh2_root
   raise <<~ERROR
-    ELCOMCLI_LIBSSH2_ROOT is required when installing ElcomcliSshClient.
-    Provide the pinned iOS libssh2/crypto artifact produced by the native
-    dependency build before running pod install.
+    A valid iOS SSH dependency artifact is required when installing ElcomcliSshClient.
+    Set ELCOMCLI_LIBSSH2_ROOT or run scripts/build-ios-ssh-deps.sh before pod install.
+    Expected include/libssh2.h, lib/libssh2.a, and lib/libmbedcrypto.a.
   ERROR
 end
 

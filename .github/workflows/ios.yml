@@ -36,9 +36,29 @@ jobs:
 
       - name: Build pinned iOS SSH dependencies
         run: |
+          if ! command -v cmake >/dev/null 2>&1; then
+            HOMEBREW_NO_AUTO_UPDATE=1 brew install cmake
+          fi
           chmod +x scripts/build-ios-ssh-deps.sh
           scripts/build-ios-ssh-deps.sh "$RUNNER_TEMP/elcomcli-ios-deps"
           echo "ELCOMCLI_LIBSSH2_ROOT=$RUNNER_TEMP/elcomcli-ios-deps" >> "$GITHUB_ENV"
+
+      - name: Verify iOS SSH module autolinking
+        run: |
+          pnpm exec expo-modules-autolinking resolve --platform apple --json > "$RUNNER_TEMP/elcomcli-ios-autolinking.json"
+          node - "$RUNNER_TEMP/elcomcli-ios-autolinking.json" <<'NODE'
+          const fs = require('fs');
+          const result = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
+          const module = result.modules?.find((entry) => entry.packageName === '@elcomcli/ssh-client');
+          if (!module) {
+            throw new Error('iOS SSH module was not resolved by Expo autolinking');
+          }
+          const pod = module.pods?.find((entry) => entry.podName === 'ElcomcliSshClient');
+          if (!pod) {
+            throw new Error('ElcomcliSshClient Podspec was not resolved by Expo autolinking');
+          }
+          console.log(`Resolved ${module.packageName} with pod ${pod.podName} at ${pod.podspecDir}`);
+          NODE
 
       - name: Read version from app.json
         id: version

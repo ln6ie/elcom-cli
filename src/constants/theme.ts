@@ -7,8 +7,11 @@ export const COLORS = {
   background: "#0E0E0E",
   surface: "#141414",
   border: "#1E1E1E",
-  primary: "#00A3E0",
-  primaryDim: "#33B5E5", // Made brighter (was #0077A8) to increase contrast on dark backgrounds
+  // Brand blue shared with the animated ElcomLoader mark.
+  primary: "#1A8AFF",
+  primaryDim: "#7DD4FF",
+  primaryDeep: "#0050DD",
+  neutralButton: "#171717",
   text: "#E8E8E8",
   textDim: "#9EAEB8",   // Made much brighter (was #555555) to satisfy Apple Guideline 4 contrast requirements
   success: "#00E0A3",

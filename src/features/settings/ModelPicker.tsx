@@ -5,13 +5,13 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  ActivityIndicator,
   ScrollView,
 } from "react-native";
 import { Search, RefreshCw } from "lucide-react-native";
 import { COLORS, FONTS, FONT_SIZES } from "@/constants/theme";
 import { useTranslation } from "react-i18next";
 import { ModelInfo } from "@/services/modelService";
+import { ElcomLoader } from "@/components/ElcomLoader";
 
 interface ModelPickerProps {
   models: ModelInfo[];
@@ -47,8 +47,7 @@ export const ModelPicker = ({
   if (isLoading) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator color={COLORS.primary} />
-        <Text style={styles.loadingText}>{t("loading_models")}</Text>
+        <ElcomLoader size="small" label={t("loading_models")} />
       </View>
     );
   }

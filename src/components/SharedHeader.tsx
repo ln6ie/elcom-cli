@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { ArrowLeft } from "lucide-react-native";
+import { ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react-native";
 import { COLORS, FONTS, FONT_SIZES } from "../constants/theme";
 
 interface HeaderAction {
@@ -18,6 +18,7 @@ interface SharedHeaderProps {
   leftAction?: HeaderAction;
   rightActions?: HeaderAction[];
   rightText?: { label: string; onPress: () => void; color?: string; disabled?: boolean };
+  leftText?: { label: string; onPress: () => void; color?: string; disabled?: boolean };
   variant?: "floating" | "fixed";
   floatingTop?: number;
 }
@@ -29,6 +30,7 @@ export const SharedHeader: React.FC<SharedHeaderProps> = ({
   leftAction,
   rightActions,
   rightText,
+  leftText,
   variant = "fixed",
   floatingTop,
 }) => {
@@ -47,6 +49,14 @@ export const SharedHeader: React.FC<SharedHeaderProps> = ({
       return (
         <TouchableOpacity style={s.btn} onPress={onBack}>
           <ArrowLeft size={20} color={COLORS.text} />
+        </TouchableOpacity>
+      );
+    }
+    if (leftText) {
+      return (
+        <TouchableOpacity style={[s.rightTextAction, leftText.disabled && { opacity: 0.3 }]} onPress={leftText.onPress} disabled={leftText.disabled}>
+          <ChevronLeft size={19} color={leftText.color || COLORS.error} />
+          <Text style={[s.rightText, leftText.color && { color: leftText.color }]}>{leftText.label}</Text>
         </TouchableOpacity>
       );
     }
@@ -89,10 +99,11 @@ export const SharedHeader: React.FC<SharedHeaderProps> = ({
     }
     if (rightText) {
       return (
-        <TouchableOpacity onPress={rightText.onPress} disabled={rightText.disabled}>
+        <TouchableOpacity style={[s.rightTextAction, rightText.disabled && { opacity: 0.3 }]} onPress={rightText.onPress} disabled={rightText.disabled}>
           <Text style={[s.rightText, rightText.color && { color: rightText.color }, rightText.disabled && { opacity: 0.3 }]}>
             {rightText.label}
           </Text>
+          <ChevronRight size={19} color={rightText.color || COLORS.error} />
         </TouchableOpacity>
       );
     }
@@ -192,6 +203,11 @@ const s = StyleSheet.create({
     color: COLORS.error,
     fontFamily: FONTS.monoBold,
     fontSize: FONT_SIZES.label,
+  },
+  rightTextAction: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 2,
   },
   titleContainer: {
     flex: 1,

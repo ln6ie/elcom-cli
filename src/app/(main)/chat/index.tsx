@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Alert, ActivityIndicator, StyleSheet, View } from 'react-native';
+import { Alert, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as Crypto from 'expo-crypto';
 import { useSQLiteContext } from 'expo-sqlite';
@@ -8,6 +8,7 @@ import { useSettings } from '@/hooks/useSettings';
 import { database } from '@/services/database';
 import { COLORS } from '@/constants/theme';
 import { TRANSLATIONS } from '@/constants/translations';
+import { ElcomLoader } from '@/components/ElcomLoader';
 
 export default function ChatRoute() {
   const db = useSQLiteContext();
@@ -64,7 +65,7 @@ export default function ChatRoute() {
     }
   }, [conversationId, db, router, settings.selected_model, t, updateSetting]);
 
-  if (isLoading || !conversationId) return <View style={styles.loader}><ActivityIndicator size="large" color={COLORS.primary} /></View>;
+  if (isLoading || !conversationId) return <View style={styles.loader}><ElcomLoader size="large" /></View>;
   return <ChatScreen conversationId={conversationId} settings={settings} customModels={customModels} modelPresets={modelPresets} openRouterModels={openRouterModels} openCodeModels={openCodeModels} modelsLoading={modelsLoading} modelsError={modelsError} onRetryModels={refreshModels} onCommand={handleCommand} updateMultipleSettings={updateMultipleSettings} />;
 }
 

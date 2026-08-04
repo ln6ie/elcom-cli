@@ -10,8 +10,10 @@ class SSHClientModule : Module() {
     Name("SSHClientModule")
 
     AsyncFunction("getHostFingerprint") { options: Map<String, Any?> ->
-      val values = options.toNativeOptions()
-      mapOf("fingerprint" to nativeFingerprint(values.host, values.port), "algorithm" to "sha256")
+      val host = options["host"] as? String
+        ?: throw IllegalArgumentException("SSH host is required")
+      val port = (options["port"] as? Number)?.toInt() ?: 22
+      mapOf("fingerprint" to nativeFingerprint(host, port), "algorithm" to "sha256")
     }
 
     AsyncFunction("connect") { options: Map<String, Any?> ->
@@ -37,5 +39,9 @@ class SSHClientModule : Module() {
   private external fun nativeDisconnect(sessionId: Long)
 
   private data class NativeOptions(val host: String, val port: Int, val username: String, val password: String?, val privateKey: String?, val passphrase: String?, val expectedFingerprint: String?)
-  private fun Map<String, Any?>.toNativeOptions() = NativeOptions(get("host") as String, (get("port") as? Number)?.toInt() ?: 22, get("username") as String, get("password") as? String, get("privateKey") as? String, get("passphrase") as? String, get("expectedFingerprint") as? String)
+  private fun Map<String, Any?>.toNativeOptions(): NativeOptions {
+    val host = get("host") as? String ?: throw IllegalArgumentException("SSH host is required")
+    val username = get("username") as? String ?: throw IllegalArgumentException("SSH username is required")
+    return NativeOptions(host, (get("port") as? Number)?.toInt() ?: 22, username, get("password") as? String, get("privateKey") as? String, get("passphrase") as? String, get("expectedFingerprint") as? String)
+  }
 }

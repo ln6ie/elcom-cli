@@ -1,0 +1,8 @@
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { COLORS, FONTS, FONT_SIZES } from "@/constants/theme";
+
+export function OnboardingOptionGroup({ options, selected, onSelect, fullBleed = false }: { options: { id: string; label: string }[]; selected: string; onSelect: (id: string) => void; fullBleed?: boolean }) {
+  return <View style={[styles.row, fullBleed && styles.fullBleedRow]}>{options.map(option => <TouchableOpacity key={option.id} style={[styles.option, fullBleed && styles.fullBleedOption, selected === option.id && styles.active, selected === option.id && fullBleed && styles.fullBleedActive]} onPress={() => onSelect(option.id)}><Text style={[styles.text, selected === option.id && styles.activeText, selected === option.id && fullBleed && styles.fullBleedActiveText]}>{option.label}</Text></TouchableOpacity>)}</View>;
+}
+
+const styles = StyleSheet.create({ row: { flexDirection: "row", gap: 8, marginBottom: 12 }, fullBleedRow: { gap: 0, borderBottomWidth: 1, borderColor: COLORS.border }, option: { flex: 1, borderColor: COLORS.border, borderWidth: 1, borderRadius: 999, minHeight: 38, paddingHorizontal: 12, paddingVertical: 8, alignItems: "center", justifyContent: "center", backgroundColor: "transparent" }, fullBleedOption: { borderWidth: 0, borderRadius: 0, minHeight: 42 }, active: { borderColor: COLORS.primary, backgroundColor: COLORS.primary }, fullBleedActive: { backgroundColor: COLORS.primary }, text: { color: COLORS.textDim, fontFamily: FONTS.monoBold, fontSize: FONT_SIZES.tiny }, activeText: { color: "#001018" }, fullBleedActiveText: { color: "#001018" } });

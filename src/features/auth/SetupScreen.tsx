@@ -1,7 +1,6 @@
 import {
   View,
   Text,
-  TextInput,
   TouchableOpacity,
   Linking,
   ScrollView,
@@ -11,14 +10,21 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useState, useRef, useEffect } from "react";
 import { Eye, EyeOff } from "lucide-react-native";
-import { COLORS, FONTS, FONT_SIZES, isTablet } from "@/constants/theme";
+import { COLORS, FONTS, FONT_SIZES, SPACING, isTablet } from "@/constants/theme";
 import { AppBrand } from "@/components/AppBrand";
+import { OnboardingButton } from "@/components/onboarding/OnboardingButton";
+import { OnboardingInput } from "@/components/onboarding/OnboardingInput";
+import { OnboardingOptionGroup } from "@/components/onboarding/OnboardingOptionGroup";
 
 export type SetupProvider = "openrouter" | "opencode";
 type Step = { text: string; url?: string };
 
 export interface SetupScreenProps {
   onConnect: (key: string, lang: "ar" | "en", provider: SetupProvider) => void | Promise<void>;
+  onSkip?: () => void | Promise<void>;
+  language?: "ar" | "en";
+  onLanguageChange?: (language: "ar" | "en") => void;
+  embedded?: boolean;
 }
 
 const INSTRUCTIONS: Record<string, Record<SetupProvider, { title: string; placeholder: string; stepsTitle: string; steps: Step[] }>> = {
@@ -72,10 +78,10 @@ const INSTRUCTIONS: Record<string, Record<SetupProvider, { title: string; placeh
   },
 };
 
-export const SetupScreen = ({ onConnect }: SetupScreenProps) => {
+export const SetupScreen = ({ onConnect, onSkip, language, onLanguageChange, embedded = false }: SetupScreenProps) => {
   const [key, setKey] = useState("");
   const [showKey, setShowKey] = useState(false);
-  const [lang, setLang] = useState<"ar" | "en">("ar");
+  const [lang, setLang] = useState<"ar" | "en">(language || "ar");
   const [provider, setProvider] = useState<SetupProvider>("openrouter");
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
@@ -87,96 +93,72 @@ export const SetupScreen = ({ onConnect }: SetupScreenProps) => {
     }).start();
   }, [fadeAnim]);
 
+  useEffect(() => {
+    if (language) setLang(language);
+  }, [language]);
+
   const handleConnect = () => {
     if (!key.trim()) return;
     onConnect(key.trim(), lang, provider);
   };
 
   const t = INSTRUCTIONS[lang];
+  const changeLanguage = (next: "ar" | "en") => { setLang(next); onLanguageChange?.(next); };
 
   return (
-    <SafeAreaView style={styles.safe} edges={[]}>
+    <SafeAreaView style={styles.safe} edges={["top", "bottom"]}>
       <ScrollView
         style={styles.scroll}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[styles.scrollContent, embedded && styles.embeddedScrollContent]}
         keyboardShouldPersistTaps="handled"
       >
         <Animated.View style={[styles.inner, { opacity: fadeAnim }]}>
-          <AppBrand fontSize={isTablet ? 14 : 10} style={styles.brandContainer} />
+          {!embedded ? <AppBrand fontSize={isTablet ? 14 : 10} style={styles.brandContainer} /> : null}
 
-          <View style={styles.form}>
+          <View style={[styles.form, embedded && styles.embeddedForm]}>
             {/* Provider Toggle */}
-            <View style={styles.providerRow}>
-              <TouchableOpacity
-                style={[styles.providerBtn, provider === "openrouter" && styles.activeProvider]}
-                onPress={() => setProvider("openrouter")}
-              >
-                <Text style={[styles.providerBtnText, provider === "openrouter" && styles.activeProviderText]}>OpenRouter</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.providerBtn, provider === "opencode" && styles.activeProvider]}
-                onPress={() => setProvider("opencode")}
-              >
-                <Text style={[styles.providerBtnText, provider === "opencode" && styles.activeProviderText]}>OpenCode</Text>
-              </TouchableOpacity>
-            </View>
+            <OnboardingOptionGroup
+              options={[{ id: "openrouter", label: "OpenRouter" }, { id: "opencode", label: "OpenCode" }]}
+              selected={provider}
+              onSelect={(id) => setProvider(id as SetupProvider)}
+              fullBleed={embedded}
+            />
 
-            <Text style={styles.label}>{t[provider].title}</Text>
-
-            <View style={styles.inputRow}>
-              <TextInput
+            <View style={embedded && styles.embeddedInset}>
+              <OnboardingInput
+                label={t[provider].title}
                 value={key}
                 onChangeText={setKey}
                 secureTextEntry={!showKey}
                 placeholder={t[provider].placeholder}
-                placeholderTextColor="#333333"
-                style={styles.input}
-                autoCorrect={false}
-                autoCapitalize="none"
-                spellCheck={false}
+                language={lang}
+                rightAccessory={<TouchableOpacity onPress={() => setShowKey(!showKey)} style={styles.eyeButton}>{showKey ? <EyeOff size={18} color={COLORS.primary} /> : <Eye size={18} color={COLORS.primary} />}</TouchableOpacity>}
               />
-              <TouchableOpacity
-                onPress={() => setShowKey(!showKey)}
-                style={styles.eyeButton}
-              >
-                {showKey ? (
-                  <EyeOff size={18} color={COLORS.primary} />
-                ) : (
-                  <Eye size={18} color={COLORS.primary} />
-                )}
-              </TouchableOpacity>
             </View>
 
             {/* Step-by-Step Instructions Container */}
-            <View style={styles.stepsContainer}>
+            <View style={[styles.stepsContainer, embedded && styles.embeddedStepsContainer, lang === "ar" && styles.rtlContent]}>
               <Text style={styles.stepsHeader}>{t[provider].stepsTitle}</Text>
               {t[provider].steps.map((step, idx) => (
                 step.url ? (
-                  <Text key={idx} style={styles.stepText}>
+                  <Text key={idx} style={[styles.stepText, lang === "ar" && styles.rtlText]}>
                     {step.text}{" "}
                     <Text style={styles.stepLink} onPress={() => Linking.openURL(step.url!)}>
                       {step.url}
                     </Text>
                   </Text>
                 ) : (
-                  <Text key={idx} style={styles.stepText}>
+                  <Text key={idx} style={[styles.stepText, lang === "ar" && styles.rtlText]}>
                     {step.text}
                   </Text>
                 )
               ))}
             </View>
 
-            <TouchableOpacity
-              onPress={handleConnect}
-              disabled={!key.trim()}
-              activeOpacity={0.8}
-              style={[
-                styles.connectButton,
-                !key.trim() && styles.connectDisabled,
-              ]}
-            >
-              <Text style={styles.connectText}>{lang === "ar" ? "اتصال ومزامنة" : "CONNECT & SYNC"}</Text>
-            </TouchableOpacity>
+            <View style={embedded && styles.embeddedInset}>
+              <OnboardingButton onPress={handleConnect} disabled={!key.trim()} label={lang === "ar" ? "اتصال ومزامنة" : "CONNECT & SYNC"} />
+            </View>
+            {onSkip ? <OnboardingButton variant="ghost" onPress={onSkip} label={lang === "ar" ? "تخطي الآن" : "SKIP FOR NOW"} /> : null}
 
 
           </View>
@@ -184,21 +166,21 @@ export const SetupScreen = ({ onConnect }: SetupScreenProps) => {
       </ScrollView>
 
       {/* Floating Language Toggle */}
-      <View style={styles.floatingLang}>
+      {!embedded ? <View style={styles.floatingLang}>
         <TouchableOpacity
-          onPress={() => setLang("ar")}
+          onPress={() => changeLanguage("ar")}
           style={[styles.langBtn, lang === "ar" && styles.activeLang]}
         >
           <Text style={[styles.langBtnText, lang === "ar" && styles.activeLangText]}>العربية</Text>
         </TouchableOpacity>
         <Text style={styles.langSeparator}>|</Text>
         <TouchableOpacity
-          onPress={() => setLang("en")}
+          onPress={() => changeLanguage("en")}
           style={[styles.langBtn, lang === "en" && styles.activeLang]}
         >
           <Text style={[styles.langBtnText, lang === "en" && styles.activeLangText]}>EN</Text>
         </TouchableOpacity>
-      </View>
+      </View> : null}
     </SafeAreaView>
   );
 };
@@ -250,8 +232,10 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: "center",
     paddingHorizontal: 16,
-    paddingVertical: 4,
+    paddingTop: 44,
+    paddingBottom: 24,
   },
+  embeddedScrollContent: { justifyContent: "flex-start", paddingHorizontal: 0, paddingTop: 20, paddingBottom: 24 },
   inner: {
     alignItems: "center",
   },
@@ -262,6 +246,10 @@ const styles = StyleSheet.create({
     width: "100%",
     maxWidth: 400,
   },
+  embeddedForm: { maxWidth: undefined },
+  embeddedInset: { marginHorizontal: SPACING.md },
+  skipButton: { alignItems: "center", paddingVertical: 14, marginTop: 4 },
+  skipText: { color: COLORS.textDim, fontFamily: FONTS.mono, fontSize: FONT_SIZES.small },
   providerRow: {
     flexDirection: "row",
     marginBottom: 20,
@@ -270,12 +258,14 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     overflow: "hidden",
   },
+  embeddedProviderRow: { borderWidth: 0, borderBottomWidth: 1, borderRadius: 0, marginBottom: 16 },
   providerBtn: {
     flex: 1,
     paddingVertical: 12,
     alignItems: "center",
     backgroundColor: COLORS.surface,
   },
+  embeddedProviderBtn: { borderWidth: 0, backgroundColor: "transparent", paddingVertical: 10 },
   activeProvider: {
     backgroundColor: COLORS.primary,
   },
@@ -303,6 +293,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     marginBottom: 20,
   },
+  embeddedInputRow: { borderWidth: 1, borderColor: COLORS.border, borderRadius: 6, backgroundColor: COLORS.surface, marginHorizontal: 0, paddingHorizontal: SPACING.md, paddingVertical: SPACING.sm, marginBottom: SPACING.md },
   input: {
     flex: 1,
     color: COLORS.text,
@@ -311,6 +302,7 @@ const styles = StyleSheet.create({
     height: 40,
     padding: 0,
   },
+  rtlInput: { writingDirection: "rtl" },
   eyeButton: {
     marginLeft: 12,
   },
@@ -321,6 +313,11 @@ const styles = StyleSheet.create({
     padding: 16,
     marginBottom: 24,
   },
+  embeddedStepsContainer: { borderTopWidth: 1, borderBottomWidth: 1, borderColor: COLORS.border, borderRadius: 0, backgroundColor: COLORS.surface, marginHorizontal: 0, padding: SPACING.md, marginBottom: SPACING.lg },
+  rtlContent: { alignItems: "stretch" },
+  rtlText: { textAlign: "right", writingDirection: "rtl" },
+  embeddedConnectButton: { backgroundColor: COLORS.primary, borderWidth: 0, paddingVertical: SPACING.md },
+  embeddedConnectText: { color: "#001018" },
   stepsHeader: {
     color: COLORS.primary,
     fontFamily: FONTS.monoBold,

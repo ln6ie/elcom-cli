@@ -6,12 +6,12 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
 import { COLORS, FONTS, FONT_SIZES } from "../constants/theme";
 import { openCodeZenService } from "../services/openCodeZenService";
+import { ElcomLoader } from "./ElcomLoader";
 
 interface CommitModalProps {
   visible: boolean;
@@ -104,7 +104,7 @@ Output only the message text, nothing else.`;
 
           {isGenerating && (
             <View style={styles.loadingRow}>
-              <ActivityIndicator size="small" color={COLORS.primary} style={{ marginRight: 8 }} />
+              <ElcomLoader size={18} style={{ marginRight: 8 }} />
               <Text style={styles.loadingText}>Generating AI suggestion...</Text>
             </View>
           )}
@@ -124,7 +124,7 @@ Output only the message text, nothing else.`;
               disabled={isSubmitting || !message.trim()}
             >
               {isSubmitting ? (
-                <ActivityIndicator size="small" color="#0E0E0E" />
+                <ElcomLoader size={18} />
               ) : (
                 <Text style={styles.confirmBtnText}>PUSH_COMMIT</Text>
               )}

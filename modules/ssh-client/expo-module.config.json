@@ -1,5 +1,8 @@
 {
   "platforms": ["android", "ios"],
-  "ios": { "modules": ["SSHClientModule"] },
+  "ios": {
+    "modules": ["SSHClientModule"],
+    "podspecPath": "ElcomcliSshClient.podspec"
+  },
   "android": { "modules": ["com.elcomcli.sshclient.SSHClientModule"] }
 }

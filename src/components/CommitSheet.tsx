@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   TextInput,
   ScrollView,
-  ActivityIndicator,
   Modal,
   Animated,
   Alert,
@@ -16,6 +15,7 @@ import { GitCommit, X, Check, Trash2, ChevronDown, ChevronUp } from "lucide-reac
 import { COLORS, FONTS, FONT_SIZES } from "../constants/theme";
 import { SharedHeader } from "./SharedHeader";
 import { OpenFile } from "../types/ide";
+import { ElcomLoader } from "./ElcomLoader";
 import { diffService } from "../services/diffService";
 import { DiffLine } from "./DiffLine";
 import { openCodeZenService } from "../services/openCodeZenService";
@@ -271,7 +271,7 @@ export const CommitSheet: React.FC<CommitSheetProps> = ({
                 editable={!isPushing}
                 autoCapitalize="none"
               />
-              {isGenerating && <ActivityIndicator size="small" color={COLORS.primary} />}
+              {isGenerating && <ElcomLoader size={18} />}
             </View>
 
             <View style={styles.buttonRow}>
@@ -294,7 +294,7 @@ export const CommitSheet: React.FC<CommitSheetProps> = ({
                 disabled={isPushing || approvedCount === 0 || !message.trim()}
               >
                 {isPushing ? (
-                  <ActivityIndicator size="small" color="#0E0E0E" />
+                  <ElcomLoader size={18} />
                 ) : (
                   <>
                     <GitCommit size={16} color="#0E0E0E" style={{ marginRight: 8 }} />

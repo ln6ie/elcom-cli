@@ -6,6 +6,7 @@ export const systemCommands: Record<string, CommandDefinition | CommandBatch> = 
     "printf 'kernel='; uname -s -r",
     "printf '\\nhostname='; hostname",
     "printf '\\nos='; . /etc/os-release 2>/dev/null; printf '%s' \"${PRETTY_NAME:-Linux}\"",
+    "printf '\\ncpu='; cpu1=$(awk '/^cpu / {print $2+$3+$4+$5+$6+$7+$8+$9 \",\" $5+$6; exit}' /proc/stat 2>/dev/null); sleep 1; cpu2=$(awk '/^cpu / {print $2+$3+$4+$5+$6+$7+$8+$9 \",\" $5+$6; exit}' /proc/stat 2>/dev/null); awk -v first=\"$cpu1\" -v second=\"$cpu2\" 'BEGIN {split(first,a,\",\"); split(second,b,\",\"); total=b[1]-a[1]; idle=b[2]-a[2]; usage=total > 0 ? (1-idle/total)*100 : 0; if (usage < 0) usage=0; if (usage > 100) usage=100; printf \"%.2f\", usage}'",
     "printf '\\nload='; awk '{print $1\",\"$2\",\"$3}' /proc/loadavg 2>/dev/null",
     "printf '\\nmem_total='; awk '/MemTotal/{print $2 * 1024}' /proc/meminfo 2>/dev/null",
     "printf '\\nmem_available='; awk '/MemAvailable/{print $2 * 1024}' /proc/meminfo 2>/dev/null",

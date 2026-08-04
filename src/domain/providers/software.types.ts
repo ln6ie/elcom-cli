@@ -6,7 +6,7 @@ export interface DockerContainer {
   status: string;
 }
 
-export interface DockerMetrics { version?: string; containers: DockerContainer[]; }
+export interface DockerMetrics { version?: string; containers: DockerContainer[]; logs?: string[]; }
 export interface PM2Process { id: number; name: string; status: string; cpu: number; memory: number; restarts: number; }
-export interface PM2Metrics { version?: string; processes: PM2Process[]; }
-export interface NginxMetrics { version?: string; running: boolean; configValid?: boolean; }
+export interface PM2Metrics { version?: string; processes: PM2Process[]; logs?: string[]; }
+export interface NginxMetrics { version?: string; running: boolean; configValid?: boolean; logs?: string[]; }

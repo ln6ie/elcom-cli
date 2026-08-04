@@ -19,7 +19,17 @@ LIBSSH2_ROOT=/absolute/path/to/android/arm64-v8a \
   ./gradlew :app:assembleDebug
 ```
 
-The root must contain `include/libssh2.h` and `lib/libssh2.a`. iOS should use a
-vendored XCFramework or an equivalent static framework and expose the same
-headers to the pod. This separation is intentional: crypto and SSH libraries
-must be pinned and reproducibly built before shipping a production binary.
+The root must contain `include/libssh2.h`, `lib/libssh2.a`, and
+`lib/libmbedcrypto.a`. For a local iOS device build, prepare the artifact with:
+
+```sh
+pnpm build:deps:ios
+npx expo run:ios --device
+```
+
+EAS iOS builds run the same dependency preparation automatically through the
+`eas-build-pre-install` hook. GitHub's release workflow builds the artifact in
+the runner's temporary directory and passes it to CocoaPods through
+`ELCOMCLI_LIBSSH2_ROOT`. This separation is intentional: crypto and SSH
+libraries must be pinned and reproducibly built before shipping a production
+binary.

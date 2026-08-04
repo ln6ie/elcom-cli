@@ -1,107 +1,50 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ElcomCLI - مساعد الأوامر  | Elcom Lab</title>
-    <meta name="description" content="ElcomCLI: مساعدك  في سطر الأوامر، يدمج قوة الذكاء الاصطناعي مع سرعة واجهة الأوامر والبحث الويب.">
-    <meta name="keywords" content="ElcomCLI, مساعد أوامر, ذكاء اصطناعي, بحث ويب, Elcom Lab, عبدالله كريم">
-    
-    <!-- Open Graph -->
-    <meta property="og:title" content="ElcomCLI - مساعد الأوامر ">
-    <meta property="og:description" content="مساعدك المدمج في واجهة الأوامر مع دعم البحث الويب.">
-    <meta property="og:image" content="logo.png">
-    <meta property="og:url" content="https://cli.elcomlab.site">
-    <meta property="og:type" content="website">
-
-    <!-- Schema.org -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebSite",
-      "name": "ElcomCLI",
-      "alternateName": ["الكوم CLI", "مساعد الأوامر"],
-      "url": "https://cli.elcomlab.site",
-      "logo": "https://cli.elcomlab.site/logo.png"
-    }
-    </script>
-
-    <link rel="stylesheet" href="style.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ElcomCLI — VPS control, from your terminal</title>
+  <meta name="description" content="ElcomCLI منصة احترافية لمراقبة وإدارة خوادم VPS مباشرة من هاتفك.">
+  <meta name="theme-color" content="#0E0E0E">
+  <meta property="og:title" content="ElcomCLI — VPS control, from your terminal">
+  <meta property="og:description" content="راقب صحة خوادمك وأدر خدماتك مباشرة من هاتفك.">
+  <meta property="og:image" content="logo.png">
+  <link rel="icon" href="logo.png">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <header>
-        <div class="header-tag">[ ELCOM_LAB_CENTRAL ]</div>
-        <div class="logo-container">
-            <img src="logo.png" alt="ElcomCLI Logo">
-        </div>
-        <h1 class="neon-text">ELCOM_CLI_v1.0</h1>
-    </header>
+  <div class="grid" aria-hidden="true"></div>
 
-    <main class="hero">
-        <p>
-            مساعد الأوامر  المتكامل. ذكاء اصطناعي، بحث ويب فوري، وتحكم كامل في بيئة عملك بلمسة تقنية كلاسيكية.
-        </p>
+  <site-header></site-header>
 
-        <section class="terminal-box">
-            <div class="btn-group">
-                <a href="#support" class="btn btn-primary">
-                    [ SUPPORT_DESK.LOG ]
-                </a>
-                <a href="#privacy" class="btn">
-                    [ PRIVACY_POLICY.SYS ]
-                </a>
-            </div>
-        </section>
+  <main id="top">
+    <section class="hero container">
+      <div class="eyebrow">// VPS_CONTROL_CENTER / MOBILE_FIRST</div>
+      <h1>إدارة خوادمك.<br><span>بوضوح كامل.</span></h1>
+      <p class="hero-copy">لوحة تشغيل احترافية لخوادم Linux. راقب الصحة والأداء والخدمات مباشرة من هاتفك، بدون خادم خلفي وبدون تعقيد.</p>
+      <div class="hero-actions">
+        <a class="button primary" href="#features">[ EXPLORE_PLATFORM ] <b>←</b></a>
+        <a class="button" href="#support">[ SUPPORT.DOC ]</a>
+      </div>
+      <div class="terminal-window hero-terminal" aria-label="ElcomCLI terminal preview">
+        <div class="terminal-bar"><span class="dots"><i></i><i></i><i></i></span><span>elcomcli://dashboard</span><span class="live">LIVE</span></div>
+        <div class="terminal-body"><span class="prompt">elcom@vps:~$</span> elcom status --all<br><span class="muted">connecting directly to your servers...</span><br><span class="ok">✓ 3 servers online</span><span class="muted">  ·  latency 42ms  ·  all systems nominal</span><br><span class="prompt">elcom@vps:~$</span><span class="cursor">_</span></div>
+      </div>
+    </section>
 
-        <!-- Dynamic Content Tabs -->
-        <section id="support" class="terminal-section">
-            <h2 class="section-title">// SYSTEM_SUPPORT // مركز الدعم الفني</h2>
-            <div class="section-content">
-                <p>إذا كنت تواجه أي مشكلة في التطبيق أو تحتاج إلى مساعدة تقنية، يرجى التواصل معنا فوراً:</p>
-                <div class="meta-box">
-                    <p><strong>/SUPPORT_EMAIL:</strong> elcom.lab.iq@gmail.com</p>
-                    <p><strong>/DEVELOPER:</strong> عبدالله كريم (Abdullah Karim)</p>
-                    <p><strong>/RESPONSE_TIME:</strong> أقل من 24 ساعة</p>
-                </div>
-                <p style="margin-top: 16px; color: var(--text-grey); font-size: 0.95rem;">
-                    * نحن هنا لضمان عمل التطبيق بكفاءة كاملة لجميع المستخدمين والمراجعين.
-                </p>
-            </div>
-        </section>
+    <section id="platform" class="features container">
+      <div class="section-heading"><span class="eyebrow">// OPERATIONAL_OVERVIEW</span><h2>كل ما تحتاجه،<br><span>في شاشة واحدة.</span></h2></div>
+      <div class="feature-grid">
+        <article class="feature wide"><div class="feature-number">01</div><div><h3>SERVER HEALTH</h3><p>CPU، الذاكرة، التخزين، الشبكة ووقت التشغيل. بيانات حية تساعدك على فهم حالة كل VPS بسرعة.</p><div class="metric-line"><span>CPU</span><b><em style="width:42%"></em></b><strong>42%</strong></div><div class="metric-line"><span>RAM</span><b><em style="width:68%"></em></b><strong>68%</strong></div></div></article>
+        <article class="feature"><div class="feature-number">02</div><h3>SERVICE DISCOVERY</h3><p>اكتشاف تلقائي للخدمات المثبتة مثل Docker وNginx وPM2، مع عرض الحالة والـ logs عند الحاجة.</p><div class="service-tags"><span>DOCKER</span><span>NGINX</span><span>PM2</span></div></article>
+        <article class="feature"><div class="feature-number">03</div><h3>DIRECT & PRIVATE</h3><p>اتصال مباشر من الهاتف إلى خادمك عبر SSH. بياناتك ومفاتيحك تبقى على جهازك.</p><div class="private-state"><i></i> NO BACKEND REQUIRED</div></article>
+      </div>
+    </section>
 
-        <section id="privacy" class="terminal-section">
-            <h2 class="section-title">// PRIVACY_POLICY // سياسة الخصوصية</h2>
-            <div class="section-content">
-                <p>نحن في <strong>Elcom Lab</strong> نلتزم بأعلى معايير الخصوصية والأمان الفني المطلق:</p>
-                <ul class="terminal-list">
-                    <li><strong>حفظ البيانات محلياً:</strong> يتم تخزين سجلات الشات والإعدادات محلياً 100% داخل قاعدة بيانات مشفرة على جهازك (Offline SQLite).</li>
-                    <li><strong>مفاتيح الـ API:</strong> مفاتيح OpenRouter الخاصة بك يتم تخزينها بأمان تام في مساحة تخزين النظام الآمنة (Secure Store) ولا يتم مشاركتها أو إرسالها لأي جهة أخرى.</li>
-                    <li><strong>عدم تتبع البيانات:</strong> التطبيق لا يحتوي على أي برمجيات تتبع طرف ثالث، ولا نقوم بجمع أو تحليل أي بيانات شخصية تخص المستخدم.</li>
-                </ul>
-            </div>
-        </section>
+    <section class="cta container"><div class="terminal-window"><div class="terminal-bar"><span class="dots"><i></i><i></i><i></i></span><span>get_started.sh</span></div><div class="cta-content"><div><div class="eyebrow">// READY_WHEN_YOU_ARE</div><h2>ابدأ من أول VPS.</h2><p>أضف خادمك، اختبر الاتصال، وابدأ المراقبة خلال دقائق.</p></div><a class="button primary" href="support.html">[ GET_SUPPORT ]</a></div></div></section>
+  </main>
 
-        <div style="margin-top: 40px; margin-bottom: 80px;">
-            <p style="font-family: 'VT323', monospace; font-size: 14px; color: var(--neon-cyan); text-transform: uppercase;">
-                /STATUS: STABLE_RELEASE /ENV: CLI_PROD /CORE: AI_WEB_INTG
-            </p>
-        </div>
-    </main>
-
-    <footer>
-        <div class="footer-grid">
-            <div class="footer-item">
-                <span class="label">/DEVELOPER:</span>
-                <span class="value">ABDULLAH</span>
-            </div>
-            <div class="footer-item">
-                <span class="label">/RELEASE:</span>
-                <span class="value">APR_2026</span>
-            </div>
-        </div>
-        <div class="footer-credit">
-            بواسطة <span>عبدالله</span> | جميع الحقوق محفوظة لـ <span>Elcom Lab</span>
-        </div>
-    </footer>
+  <site-footer></site-footer>
+  <script src="js/components.js"></script>
 </body>
 </html>
