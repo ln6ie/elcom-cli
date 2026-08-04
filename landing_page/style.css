@@ -10,6 +10,6 @@
 /* Explicit bidi rules keep Arabic copy RTL and terminal labels LTR. */
 .header-status,.feature h3,.feature-number,.service-tags,.private-state,.footer-meta,.terminal-bar{direction:ltr}
 .hero h1,.hero-copy,.section-heading h2,.subpage h1,.subpage-lead,.privacy-list p{direction:rtl;text-align:right}
-.section-heading h2{margin-right:0;margin-left:auto}
-.header-cursor{color:var(--blue);animation:blink 1s infinite}
+.section-heading{direction:ltr;text-align:left;align-items:flex-start}.section-heading h2{margin:14px 0 0;text-align:left;direction:rtl;width:100%}.section-heading .eyebrow{text-align:left}
+.header-cursor{color:var(--blue);animation:blink 1s infinite}.hero h1{white-space:nowrap;font-size:clamp(25px,7vw,76px)}
 .button:hover{transform:scale(1.03);background:transparent;color:var(--blue);box-shadow:none}.button.primary:hover{background:#1a8aff18}
