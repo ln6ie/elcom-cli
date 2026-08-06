@@ -138,17 +138,17 @@ export const SetupScreen = ({ onConnect, onSkip, language, onLanguageChange, emb
 
             {/* Step-by-Step Instructions Container */}
             <View style={[styles.stepsContainer, embedded && styles.embeddedStepsContainer, lang === "ar" && styles.rtlContent]}>
-              <Text style={styles.stepsHeader}>{t[provider].stepsTitle}</Text>
+              <Text style={[styles.stepsHeader, lang === "ar" ? styles.rtlText : styles.ltrText]}>{t[provider].stepsTitle}</Text>
               {t[provider].steps.map((step, idx) => (
                 step.url ? (
-                  <Text key={idx} style={[styles.stepText, lang === "ar" && styles.rtlText]}>
+                  <Text key={idx} style={[styles.stepText, lang === "ar" ? styles.rtlText : styles.ltrText]}>
                     {step.text}{" "}
-                    <Text style={styles.stepLink} onPress={() => Linking.openURL(step.url!)}>
+                    <Text style={[styles.stepLink, styles.ltrText]} onPress={() => Linking.openURL(step.url!)}>
                       {step.url}
                     </Text>
                   </Text>
                 ) : (
-                  <Text key={idx} style={[styles.stepText, lang === "ar" && styles.rtlText]}>
+                  <Text key={idx} style={[styles.stepText, lang === "ar" ? styles.rtlText : styles.ltrText]}>
                     {step.text}
                   </Text>
                 )
@@ -316,6 +316,7 @@ const styles = StyleSheet.create({
   embeddedStepsContainer: { borderTopWidth: 1, borderBottomWidth: 1, borderColor: COLORS.border, borderRadius: 0, backgroundColor: COLORS.surface, marginHorizontal: 0, padding: SPACING.md, marginBottom: SPACING.lg },
   rtlContent: { alignItems: "stretch" },
   rtlText: { textAlign: "right", writingDirection: "rtl" },
+  ltrText: { textAlign: "left", writingDirection: "ltr" },
   embeddedConnectButton: { backgroundColor: COLORS.primary, borderWidth: 0, paddingVertical: SPACING.md },
   embeddedConnectText: { color: "#001018" },
   stepsHeader: {

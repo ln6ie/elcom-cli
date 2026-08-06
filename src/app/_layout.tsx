@@ -8,7 +8,7 @@ import { StatusBar } from 'expo-status-bar';
 import { IDEProvider } from '@/hooks/useIDEState';
 import { initDb } from '@/services/database';
 import { COLORS } from '@/constants/theme';
-import { ElcomLoader } from '@/components/ElcomLoader';
+import * as SplashScreen from 'expo-splash-screen';
 import '@/services/i18n';
 import 'react-native-get-random-values';
 import { UpdateModal } from '@/components/UpdateModal';
@@ -25,11 +25,19 @@ const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 30_000, retry: 1 } },
 });
 
+void SplashScreen.preventAutoHideAsync().catch(() => undefined);
+
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({ SpaceMono_400Regular, SpaceMono_700Bold });
   const [updateInfo, setUpdateInfo] = useState<UpdateInfo>();
   const [updateVisible, setUpdateVisible] = useState(false);
   const [isForceUpdate, setIsForceUpdate] = useState(false);
+
+  useEffect(() => {
+    if (!fontsLoaded) return;
+    void SplashScreen.hideAsync().catch(() => undefined);
+    return undefined;
+  }, [fontsLoaded]);
 
   useEffect(() => {
     const appStateSubscription = AppState.addEventListener('change', state => {
@@ -51,13 +59,7 @@ export default function RootLayout() {
     return () => clearTimeout(timer);
   }, []);
 
-  if (!fontsLoaded) {
-    return (
-      <View style={styles.loader}>
-        <ElcomLoader size="large" />
-      </View>
-    );
-  }
+  if (!fontsLoaded) return <View style={styles.loader} />;
 
   return (
     <GestureHandlerRootView style={styles.gestureRoot}>
@@ -66,9 +68,11 @@ export default function RootLayout() {
           <QueryClientProvider client={queryClient}>
             <IDEProvider>
               <BottomSheetModalProvider>
-                <StatusBar style="light" />
-                <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: COLORS.background } }} />
-                <UpdateModal visible={updateVisible} info={updateInfo} isForce={isForceUpdate} onClose={() => setUpdateVisible(false)} />
+                <View style={styles.appLayer}>
+                  <StatusBar style="light" />
+                  <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: COLORS.background } }} />
+                  <UpdateModal visible={updateVisible} info={updateInfo} isForce={isForceUpdate} onClose={() => setUpdateVisible(false)} />
+                </View>
               </BottomSheetModalProvider>
             </IDEProvider>
           </QueryClientProvider>
@@ -80,5 +84,6 @@ export default function RootLayout() {
 
 const styles = StyleSheet.create({
   gestureRoot: { flex: 1 },
+  appLayer: { flex: 1, backgroundColor: COLORS.background },
   loader: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: COLORS.background },
 });

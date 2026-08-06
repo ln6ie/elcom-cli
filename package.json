@@ -40,6 +40,7 @@
     "expo-modules-core": "~56.0.17",
     "expo-router": "5.1.11",
     "expo-secure-store": "^56.0.4",
+    "expo-splash-screen": "~56.0.14",
     "expo-sqlite": "~56.0.5",
     "expo-status-bar": "~56.0.4",
     "expo-system-ui": "~56.0.5",

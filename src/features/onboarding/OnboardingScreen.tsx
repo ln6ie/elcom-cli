@@ -11,7 +11,7 @@ export function OnboardingScreen({ onAiConfigured, onFinish }: { onAiConfigured:
   const [language, setLanguage] = useState<"ar" | "en">("ar");
 
   return <SafeAreaView style={styles.container} edges={["top"]}>
-    <View style={styles.header}><Text style={styles.brand}>ELCOMCLI</Text><View style={styles.headerRight}><View style={styles.language}><Text style={[styles.languageText, language === "ar" && styles.activeLanguage]} onPress={() => setLanguage("ar")}>ع</Text><Text style={styles.separator}>|</Text><Text style={[styles.languageText, language === "en" && styles.activeLanguage]} onPress={() => setLanguage("en")}>EN</Text></View><Text style={styles.progress}>{step} / 2</Text></View></View>
+    <View style={styles.header}><Text style={styles.brand}>KIMKO CLI</Text><View style={styles.headerRight}><View style={styles.language}><Text style={[styles.languageText, language === "ar" && styles.activeLanguage]} onPress={() => setLanguage("ar")}>ع</Text><Text style={styles.separator}>|</Text><Text style={[styles.languageText, language === "en" && styles.activeLanguage]} onPress={() => setLanguage("en")}>EN</Text></View><Text style={styles.progress}>{step} / 2</Text></View></View>
     {step === 1 ? <AddVpsStep language={language} onSaved={(id) => { setServerId(id); setStep(2); }} onSkip={() => setStep(2)} /> : <View style={styles.aiStep}><Text style={styles.context}>{language === "ar" ? `VPS ${serverId ? "متصل" : "جاهز"}` : `VPS ${serverId ? "CONNECTED" : "READY"}`}</Text><SetupScreen language={language} onLanguageChange={setLanguage} embedded onConnect={onAiConfigured} onSkip={onFinish} /></View>}
   </SafeAreaView>;
 }

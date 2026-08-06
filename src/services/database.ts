@@ -76,7 +76,7 @@ export const DEFAULT_SETTINGS: DatabaseSettings = {
   ai_provider: "openrouter",
   selected_model: "openrouter/free",
   system_prompt:
-    "You are ElcomCLI, a professional AI terminal assistant. Help the user with their queries in a concise and technical manner.",
+    "You are Kimko CLI, a professional technical assistant for VPS management and repository workflows. Help the user concisely and technically.",
   max_tokens: 4096,
   temperature: 0.7,
   context_length: 25,

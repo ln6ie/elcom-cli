@@ -50,6 +50,12 @@ add_library(sshclient_jni SHARED src/main/cpp/ssh_jni.cpp)
 target_include_directories(sshclient_jni PRIVATE ../native)
 target_link_libraries(sshclient_jni elcomcli_ssh log)
 
+# Google Play requires native ELF segments to support 16 KB memory pages.
+# Keep this explicit for builds using an older toolchain or cached CMake output.
+if(ANDROID)
+  target_link_options(sshclient_jni PRIVATE "-Wl,-z,max-page-size=16384")
+endif()
+
 if(LIBSSH2_ROOT)
   find_path(LIBSSH2_INCLUDE_DIR libssh2.h PATHS "${LIBSSH2_ROOT}/include" NO_DEFAULT_PATH REQUIRED)
   find_library(LIBSSH2_LIBRARY NAMES ssh2 libssh2 PATHS "${LIBSSH2_ROOT}/lib" NO_DEFAULT_PATH REQUIRED)

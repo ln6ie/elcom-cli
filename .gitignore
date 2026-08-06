@@ -18,6 +18,9 @@ expo-env.d.ts
 *.key
 *.mobileprovision
 iosenv
+android/gradle.properties
+android/app/kimko-upload-key.keystore
+android/app/kimko-production-upload-key.keystore
 # Metro
 .metro-health-check*
 

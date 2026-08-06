@@ -4,7 +4,6 @@ import { TOOL_DEFINITIONS } from "./tools";
 import EventSource from "react-native-sse";
 import { DatabaseSettings } from "./database";
 import { INTERNAL_SYSTEM_PROMPT } from "../constants/prompts";
-
 import { env } from "./env";
 
 const OPENROUTER_URL = env.EXPO_PUBLIC_OPENROUTER_URL;
@@ -25,8 +24,8 @@ export const openRouterClient = {
     const headers = {
       "Content-Type": "application/json",
       Authorization: `Bearer ${api_key}`,
-      "HTTP-Referer": "https://elcom.cli",
-      "X-Title": "ElcomCLI",
+      "HTTP-Referer": "https://cli.elcomlab.site",
+      "X-Title": "Kimko CLI",
     };
 
     const formattedMessages = history.map((msg, idx) => {
@@ -49,9 +48,9 @@ export const openRouterClient = {
       const contentParts: any[] = [{ type: "text", text: content || "" }];
       if (msg.attachment.type.startsWith("image/")) {
         const b64Length = msg.attachment.base64?.length || 0;
-        console.log(`[ElcomCLI/API] Attaching image: uri=${msg.attachment.uri}, type=${msg.attachment.type}, base64Length=${b64Length} chars`);
+      console.log(`[KimkoCLI/API] Attaching image: uri=${msg.attachment.uri}, type=${msg.attachment.type}, base64Length=${b64Length} chars`);
         if (b64Length === 0) {
-          console.warn("[ElcomCLI/API] Warning: Image base64 data is empty or undefined!");
+      console.warn("[KimkoCLI/API] Warning: Image base64 data is empty or undefined!");
         }
         contentParts.push({
           type: "image_url",
@@ -61,9 +60,9 @@ export const openRouterClient = {
         });
       } else if (msg.attachment.type === "application/pdf") {
         const b64Length = msg.attachment.base64?.length || 0;
-        console.log(`[ElcomCLI/API] Attaching PDF: uri=${msg.attachment.uri}, type=${msg.attachment.type}, base64Length=${b64Length} chars`);
+      console.log(`[KimkoCLI/API] Attaching PDF: uri=${msg.attachment.uri}, type=${msg.attachment.type}, base64Length=${b64Length} chars`);
         if (b64Length === 0) {
-          console.warn("[ElcomCLI/API] Warning: PDF base64 data is empty or undefined!");
+      console.warn("[KimkoCLI/API] Warning: PDF base64 data is empty or undefined!");
         }
         contentParts.push({
           type: "file",

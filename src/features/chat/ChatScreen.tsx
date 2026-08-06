@@ -634,7 +634,7 @@ export const ChatScreen = ({
         ]}
       >
         <SharedHeader
-          title={selectedRepo ? selectedRepo.name.toUpperCase() : "ELCOM_CLI"}
+          title={selectedRepo ? selectedRepo.name.toUpperCase() : "KIMKO_CLI"}
           variant="floating"
           leftAction={{ icon: <Menu size={20} color={COLORS.primary} />, onPress: toggleDrawer }}
           rightActions={[

@@ -1,15 +1,13 @@
 {
   "expo": {
-    "name": "ElcomCLI",
-    "slug": "elcomcli",
-    "scheme": "elcomcli",
-    "version": "1.1.0",
+    "name": "Kimko CLI",
+    "slug": "kimko-cli",
+    "scheme": "kimkocli",
+    "version": "1.2.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "splash": {
-      "image": "./assets/splash-icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#000000"
+      "backgroundColor": "#0E0E0E"
     },
     "userInterfaceStyle": "dark",
     "ios": {
@@ -18,17 +16,18 @@
       "buildNumber": "5",
       "deploymentTarget": "16.4",
       "infoPlist": {
-        "NSPhotoLibraryUsageDescription": "ElcomCLI needs access to your photo library so you can select and upload images or screenshots directly into your chat threads to describe them to the AI.",
-        "NSCameraUsageDescription": "ElcomCLI needs access to your camera so you can take photos of code or objects and directly upload them into your chat threads to analyze them with the AI.",
+        "NSPhotoLibraryUsageDescription": "Kimko CLI needs access to your photo library so you can select and upload images or screenshots directly into your chat threads.",
+        "NSCameraUsageDescription": "Kimko CLI needs access to your camera so you can take photos of code or objects and upload them into your chat threads.",
         "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#000000"
+        "backgroundColor": "#0E0E0E"
       },
-      "package": "com.anonymous.elcomcli",
+      "package": "kimkocli.com",
+      "versionCode": 8,
       "permissions": [
         "android.permission.RECORD_AUDIO"
       ]
@@ -43,8 +42,17 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "ElcomCLI needs access to your photo library so you can select and upload images or screenshots directly into your chat threads to describe them to the AI.",
-          "cameraPermission": "ElcomCLI needs access to your camera so you can take photos of code or objects and directly upload them into your chat threads to analyze them with the AI."
+          "photosPermission": "Kimko CLI needs access to your photo library so you can select and upload images or screenshots directly into your chat threads.",
+          "cameraPermission": "Kimko CLI needs access to your camera so you can take photos of code or objects and upload them into your chat threads."
+        }
+      ],
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#0E0E0E",
+          "dark": {
+            "backgroundColor": "#0E0E0E"
+          }
         }
       ]
     ],

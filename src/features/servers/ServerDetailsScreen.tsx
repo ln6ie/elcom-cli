@@ -1,7 +1,7 @@
 // @ts-nocheck
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { Alert, Platform, RefreshControl, StyleSheet, Text, View } from "react-native";
+import { Alert, Platform, StyleSheet, Text, View } from "react-native";
 import { ScrollView } from "react-native";
 import * as Crypto from "expo-crypto";
 import { useSQLiteContext } from "expo-sqlite";
@@ -55,7 +55,7 @@ export function ServerDetailsScreen({ server, runtime, isLoading, isRefreshing, 
     await database.saveServerQuery(db, { id: Crypto.randomUUID(), server_id: server.id, name: name.trim(), command: normalizedCommand, created_at: now, updated_at: now, last_output: output, last_error: null, last_run_at: now });
     await queryClient.invalidateQueries({ queryKey: ["server-queries", server.id] });
   };
-  return <View style={styles.container}><Text style={[styles.back, { top: insets.top + 8 }, rtl && styles.rtlText]} onPress={onClose ?? (() => router.back())}>{rtl ? `${t.server_back} ›` : `‹ ${t.server_back}`}</Text><ScrollView showsVerticalScrollIndicator={false} refreshControl={<RefreshControl refreshing={Boolean(isRefreshing)} onRefresh={onRefresh} tintColor="transparent" colors={["transparent"]} progressBackgroundColor="transparent" />} contentContainerStyle={[styles.content, { paddingTop: insets.top + 48 }]}>
+  return <View style={styles.container}><Text style={[styles.back, { top: insets.top + 8 }, rtl && styles.rtlText]} onPress={onClose ?? (() => router.back())}>{rtl ? `${t.server_back} ›` : `‹ ${t.server_back}`}</Text><ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={[styles.content, { paddingTop: insets.top + 48 }]}> 
     <Text style={[styles.heading, rtl && styles.rtlText]}>{server.name}</Text>
     <Text style={styles.host}>{server.username}@{server.host}:{server.port}</Text>
     <DirectQueryCard onExecute={(command, signal, sudoPassword) => executeServerQuery(server, command, signal, sudoPassword)} onSave={(name, command, output) => { void saveQuery(name, command, output); }} />

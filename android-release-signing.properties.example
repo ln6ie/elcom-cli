@@ -1,0 +1,6 @@
+# Copy these properties into android/gradle.properties.
+# Keep the real file and keystore private; neither should be committed.
+KIMKO_UPLOAD_STORE_FILE=kimko-production-upload-key.keystore
+KIMKO_UPLOAD_STORE_PASSWORD=replace-with-your-store-password
+KIMKO_UPLOAD_KEY_ALIAS=kimko-production
+KIMKO_UPLOAD_KEY_PASSWORD=replace-with-your-key-password

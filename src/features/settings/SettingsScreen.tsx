@@ -16,6 +16,7 @@ import { ModelInfo } from "@/services/modelService";
 import { OnboardingInput } from "@/components/onboarding/OnboardingInput";
 import { OnboardingButton } from "@/components/onboarding/OnboardingButton";
 import { OnboardingOptionGroup } from "@/components/onboarding/OnboardingOptionGroup";
+import { DeveloperCredit } from "@/components/DeveloperCredit";
 
 interface SettingsScreenProps {
   settings: DatabaseSettings;
@@ -160,6 +161,7 @@ export const SettingsScreen = ({
         />
 
         <OnboardingButton onPress={handleSave} disabled={isSaving} label={isSaving ? t.saving : t.apply_changes} />
+        <DeveloperCredit showInstagram />
       </ScrollView>
     </SafeAreaView>
   );

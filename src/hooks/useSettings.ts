@@ -48,7 +48,7 @@ export const useSettings = () => {
       setCustomModels(models);
 
       // Fetch remote models list with fallback
-      const modelsUrl = process.env.EXPO_PUBLIC_MODELS_URL || "https://cli.elcomlab.site/models.json";
+    const modelsUrl = process.env.EXPO_PUBLIC_MODELS_URL || "https://cli.elcomlab.site/models.json";
       try {
         const response = await fetch(modelsUrl);
         if (response.ok) {

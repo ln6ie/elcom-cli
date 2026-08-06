@@ -25,7 +25,7 @@ export const useGitHub = () => {
   const clientSecret = process.env.EXPO_PUBLIC_GITHUB_CLIENT_SECRET || "";
 
   const redirectUri = AuthSession.makeRedirectUri({
-    scheme: "elcomcli",
+    scheme: "kimkocli",
   });
 
   const [request, response, promptAsync] = AuthSession.useAuthRequest(

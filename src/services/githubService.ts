@@ -5,7 +5,7 @@ const GITHUB_API_URL = "https://api.github.com";
 const getHeaders = (token: string) => ({
   Accept: "application/vnd.github.v3+json",
   Authorization: `token ${token}`,
-  "User-Agent": "ElcomCLI",
+  "User-Agent": "Kimko CLI",
 });
 
 export const githubService = {

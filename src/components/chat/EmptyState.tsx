@@ -21,7 +21,7 @@ export const EmptyState = ({ isVisible }: EmptyStateProps) => {
       <TypewriterText
         phrases={[
           "WELCOME",
-          " Elcom CLI",
+          " Kimko CLI",
           "// جاري تهيئة الاتصال الآمن...",
           "// تم التعرف على الهوية",
           "// سجل المحادثات فارغ حالياً.",
