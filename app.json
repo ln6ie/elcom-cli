@@ -3,7 +3,7 @@
     "name": "Kimko CLI",
     "slug": "kimko-cli",
     "scheme": "kimkocli",
-    "version": "1.2.1",
+    "version": "1.2.2",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "splash": {
