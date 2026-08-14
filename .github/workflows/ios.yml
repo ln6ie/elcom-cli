@@ -142,7 +142,13 @@ jobs:
             exit 1
           fi
           WORKSPACE_NAME=$(basename "$WORKSPACE_PATH")
-          SCHEME_NAME=$(xcodebuild -list -workspace "$WORKSPACE_PATH" | sed -n '/Schemes:/,$p' | sed -n '/^[[:space:]]*[A-Za-z0-9_.-][A-Za-z0-9_.-]*[[:space:]]*$/p' | head -n 1 | xargs)
+          SCHEME_LIST=$(xcodebuild -list -workspace "$WORKSPACE_PATH" | sed -n '/Schemes:/,$p' | sed -n '/^[[:space:]]*[A-Za-z0-9_.-][A-Za-z0-9_.-]*[[:space:]]*$/p' | xargs -n 1)
+          SCHEME_NAME=$(printf '%s\n' "$SCHEME_LIST" | grep -x "$APP_NAME" | head -n 1 || true)
+          if [ -z "$SCHEME_NAME" ]; then
+            echo "Application scheme '$APP_NAME' was not found. Available schemes:"
+            printf '%s\n' "$SCHEME_LIST"
+            exit 1
+          fi
           if [ -z "$SCHEME_NAME" ]; then
             echo "No Xcode scheme was found in $WORKSPACE_NAME"
             xcodebuild -list -workspace "$WORKSPACE_PATH"
