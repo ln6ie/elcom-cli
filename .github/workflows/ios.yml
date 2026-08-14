@@ -8,7 +8,7 @@ on:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-  APP_NAME: ElcomCLI
+  APP_NAME: KimkoCLI
   BUNDLE_ID: com.elcomlab.elcomcli
 
 jobs:
